@@ -1,0 +1,24 @@
+{
+  "classId": "000",
+  "className": "",
+  "classBonus": "",
+  "classActions": [
+    {
+      "classActionName": "",
+      "classActionDesc": ""
+    },
+    {
+      "classActionName": "",
+      "classActionDesc": ""
+    }
+  ],
+  "classVictory": {
+    "classVictoryName": "",
+    "classVictoryPrep": "",
+    "classVictoryRoll": "",
+    "classVictoryResl": {
+      "classVictoryReslSuccess": "",
+      "classVictoryReslFaliure":""
+    }
+  }
+}
