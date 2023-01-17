@@ -71,7 +71,3 @@ impl Default for State {
    }
 }
 
-impl State {
-    pub fn 
-}
-
