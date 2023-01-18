@@ -1,5 +1,4 @@
 mod state;
-mod data;
 
 fn main() {
     tauri::Builder::default()
