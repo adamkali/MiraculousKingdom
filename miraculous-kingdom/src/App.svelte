@@ -1,8 +1,7 @@
 <script lang="ts">
-    import CulturalAfficiando from "./lib/pages/CulturalAfficiando.svelte";
+    import CulturalAfficiando from './lib/pages/CulturalAfficiando.svelte'
 </script>
 
-<main class="font-sans bg-slate-800 text-cyan-600 h-screen w-screen">
+<main class="h-screen w-screen bg-slate-800 font-sans text-cyan-600 flex justify-center p-16 overflow-y-hidden">
     <CulturalAfficiando />
 </main>
-
