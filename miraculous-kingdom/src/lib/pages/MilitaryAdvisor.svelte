@@ -1,6 +1,7 @@
 <script lang="ts">
     import GiAlarmClock from 'svelte-icons/gi/GiAlarmClock.svelte'
     import GiChemicalBolt from 'svelte-icons/gi/GiChemicalBolt.svelte';
+    import GiAcousticMegaphone from 'svelte-icons/gi/GiAcousticMegaphone.svelte';
 
     let card: HTMLDivElement
     const ansii: string[] = ["1","2","3","4","5","6","7","8"]
@@ -61,23 +62,22 @@
     }
 </script>
 
-<div class="rounded-xl bg-slate-700 py-8 mx-16 text-purple-700 max-h-fit md:scale-75 sm:scale-50 xl:scale-110 overflow-hidden">
+<div class="rounded-xl bg-slate-700 py-8 mx-16 text-red-700 max-h-fit md:scale-75 sm:scale-50 xl:scale-110 overflow-hidden">
     <div
         class="flex flex-row justify-center rounded-xl border-4 border-slate-900 bg-slate-800 p-4 mx-16 text-3xl"
     >
-        <h1>Cultural Aficionado</h1>
+        <h1>Military Advisor</h1>
     </div>
     <div
-        class="my-4 mx-12 grid grid-cols-3 justify-evenly text-justify text-pink-600"
+        class="my-4 mx-12 grid grid-cols-3 justify-evenly text-justify text-orange-600"
     >
         <div class="char-detail hover:translate-x-96">
             <div class="flex flex-col">
                 <div class="char-detail-title">Description</div>
                 <div class="px-2 pb-4">
-                    The <b>Cultural Aficionado</b> is a dangerous noble known
-                    caring about the finer things in life. The
-                    <b>Cultural Aficionado</b> gameplay centers around gaining and spending <b>Cultural Tokens</b>. 
-                    Think on your feet, react to those dimwitted boars, and dominate the court with exubirent showmanship.
+                    There is no one in the kingdom as knowlegeble as the <b>Military Advisor</b> for bloodshed and Honor. 
+                    <b>Military Advisor</b> gameplay centers around building stacks of <b>Arms</b>. 
+                    Build your army, and show the rest of the kingdom what true honor means.
                 </div>
             </div>
         </div>
@@ -85,10 +85,9 @@
             <div class="flex flex-col ">
                 <div class="char-detail-title">Experience</div>
                 <div class="px-2 pb-4">
-                    The <b>Cultural Aficionado</b> gains experience in any
+                    The <b>Military Advisor</b> gains experience in any
                     <b>Might</b>
-                    by rolling a successful roll on a <b>Cultural Might</b>
-                    roll, and sabotaging a <b>Military Might</b> roll.
+                    by spending a stack of <b>Arms</b>
                 </div>
             </div>
         </div>
@@ -96,13 +95,12 @@
             <div class="flex flex-col ">
                 <div class="char-detail-title">Class Perk</div>
                 <div class="px-2 pb-4">
-                    The <b>Cultural Aficionado</b> can start an exhibition at
-                    any point during the game. A <b>4 Clock</b> is started. If
-                    the <b>Cultural Aficionado</b> successful on 3
-                    <b>Cultural Might</b>
-                    rolls, gain <b>3 Cultural Tokens</b>. Can only be done again
-                    <b>1 Round</b>
-                    after the <b>Clock</b> runs out.
+                    The <b>Military Advisor</b> at the begining of every round, choose one of the following:
+                    <ul>
+                        <li>Gain a stack of <b>Arms</b></li>
+                        <li>Spend <b>n Arms</b> to add to your roll.</li>
+                        <li>Spend <b>5 Arms</b> to gain <b>King's favor</b></li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -136,17 +134,10 @@
         <div id="ab_1" class="char-ability-container">
             <section id="ab_c_1" class="char-ability">
                 <div class="char-ability-title h-10 flex flex-row">
-                    <div class="w-1/3">
-                        <GiAlarmClock />
-                    </div>
-                    <span>Magnum Opus</span>
+                    <span>ATTENTION!</span>
                 </div>
                 <div id="ab_d_1" class="char-ability-detail">
-                    The <b>Cultural Aficionado</b> can create a magnum opus.
-                    During an event, declare that you will be constructing the <b>Magnum Opus</b>.
-                    Declare a <b>Might</b>, and a <b>4n clock</b> where n is the difficulty.
-                    Any player can contrubute to this <b>clock</b> when ever a roll is the same declared <b>Might</b>. 
-                    When the <b>clock</b> reaches zero, everyone who contrubuted gains <b>n Tokens</b> of their choice.
+                    Spend <b>2 Arms</b> to force a <b>Tiered Roll</b> up a tier, or in the case of a <b>Success Roll</b> add <em>+ 3</em> to a future roll. <em>You can only activate this ability if you have used the reward</em>.
                 </div>
             </section>
         </div>
@@ -156,11 +147,10 @@
                     <div class="w-1/3">
                         <GiChemicalBolt />
                     </div>
-                    <span>Conservatorium</span>
+                    <span>Route the enemy</span>
                 </div>
                 <div id="ab_d_2" class="char-ability-detail">
-                     When you are to make a roll that is not a part of another ability that you started this turn,
-                     Freeze the result of that roll. You can then switch the result of the roll you made with another roll later. <em>You cannot store two or more at once.</em>
+                    When another player is going to <b>Sabotage</b> you, spend <b>4 Arms</b> to negate the effect. Optionally, spend another <b>2 Arms</b> to return the <b>Sabotage</b> to the initiating player. <em>This does not affect <b>Sabotages</b> that are a part of an ability, only the <b>Sabotages</b> from the resources</em>.
                 </div>
             </section>
         </div>
@@ -168,34 +158,23 @@
             <section id="ab_c_3" class="char-ability" >
                 <div class="char-ability-title h-10 flex flex-row">
                     <div class="w-1/3">
-                        <GiChemicalBolt />
+                        <GiAcousticMegaphone />
                     </div>
-                    <span>Propaganda</span>
+                    <span>Orders</span>
                 </div>
                 <div id="ab_d_3" class="char-ability-detail">
-                    The Cultural Aficionado can use propaganda to shape public
-                    opinion and increase the chances of success in the event.
-                    When a character makes a <b>Tiered Roll</b>, use a <b>Cultural
-                    Might Roll</b> to play the event to your favor. If your result is 
-                    higher than the opponent, take their rewards this round.
+                    <ul>
+                        <li>When rolling a <b>Success Roll</b> spend <b>2 Arms</b> and any roll lower than ten, becomes 10.</li>
+                        <li>When rolling a <b>Tiered Roll</b> spend <b>2 Arms</b> and any tier lower than Neutral becomes Neutral.</li>
+                    </ul>
                 </div>
             </section>
         </div>
         <div id="ab_4" class="char-ability-container">
             <section id="ab_c_4" class="char-ability" >
-                <div class="char-ability-title">Gossip</div>
+                <div class="char-ability-title">Military Training</div>
                 <div id="ab_d_4" class="char-ability-detail">
-                    As a result of the someone else's turn <b>Choose One:</b>
-                    <ul>
-                        <li>
-                             Roll a <b>Diplomatic Might Great Roll</b>. 
-                            
-                        </li> 
-                        <li>
-                            Roll a <b>Criminal Might Good Roll</b> and pay a <b>Cultural Might Token</b> 
-                        </li>
-                    </ul>
-                    Give that player <b>Public Disaproval</b>. (See Public Opinion Rules for more information)
+                    <b>Sabotage</b> YOUR next roll. You can then roll a 6 sided die to gain the number rolled as stacks of <b>Arms</b>. <em>This ability can be done at any time and does not have a cooldown</em>.
                 </div>
             </section>
         </div>
@@ -203,56 +182,54 @@
             <section id="ab_c_5" class="char-ability" >
                 <div class="char-ability-title h-10 flex flex-row">
                     <div class="w-1/3">
-                        <GiChemicalBolt />
+                        <GiAcousticMegaphone />
                     </div>
-                    <span>Denounce!</span>
+                    <span>Espionage</span>
                 </div>
-                <div id="ab_d_5" class="char-ability-detail">
-                    When a player declares an ability, spend <b>2 Cultural Tokens</b> to denounce them. 
-                    Denounce them, and make a <b>Competeing Might Roll</b>. 
-                    If you win, give that player <b>Public Disaproval</b>. (See Public Opinion Rules for more information)
-                </div>
+                <div id="ab_d_4" class="char-ability-detail">
+                    Make a <b>Criminal Might Tiered Roll</b>. On a good or better roll, call two numbers. If your result for a future roll matches one of the numbers you choose, then those rolls are considered Perfect.
+                </div> 
             </section>
         </div>
         <div id="ab_6" class="char-ability-container">
             <section id="ab_c_6" class="char-ability" >
                 <div class="char-ability-title h-10 flex flex-row">
                     <div class="w-1/3">
-                        <GiChemicalBolt />
+                        <GiAlarmClock />
                     </div>
-                    <span>Influence</span>
+                    <span>Conscription</span>
                 </div>
                 <div id="ab_d_6" class="char-ability-detail">
-                    <b>The Cultural Aficionado</b> Influences an event. 
-                    <b>Choose One:</b>
-                    <ul>
-                        <li>Give a <b>Strategem</b> to a player to be used during this event. If they succeed on an roll this event, gain <b>2 King's Favor</b></li>
-                        <li><b>Sabotage</b> a player's roll during this event. If they fail their roll, increase a <b>Might</b> </li>
-                    </ul> 
+                    Choose a roll to fail in the future. When that roll is failed, start a <b>3 Clock</b>. Any time a player <em>including you</em> succeeds on a roll, gain a stack of <b>Arms</b>.
                 </div>
             </section>
         </div>
         <div id="ab_7" class="char-ability-container">
             <section id="ab_c_7" class="char-ability" >
-                <div class="char-ability-title">Debochery</div>
+                <div class="char-ability-title h-10 flex flex-row">
+                    <div class="w-1/3">
+                        <GiChemicalBolt />
+                    </div>
+                    <span>Total War</span>
+                </div>
                 <div id="ab_d_7" class="char-ability-detail">
-                    <b><em>You must have a Cultural score of 5 or more to use this ability</em></b>.
-                    Spend <em>n</em> amount of <b>Gold Token(s)</b>. While this ability is recharging, all <b>Might Rolls</b> have <em>+n</em> to their results.
+                    <b><em>You must have a Military score of 5 or more to use this ability</em></b>. 
+                    <b><em>This skill can be activated when someone Sabotages you.</em></b> 
+                    Make a <b>Military Might 18 Roll</b>, you can spend any number of <b>Arms</b> stacks to steal their tokens as <b>King's Favor</b>. <b>Optionally</b> you can also spend spend any number of <b>Tokens</b> to increase the roll of any roll in the future.
                 </div>
             </section>
         </div>
         <div id="ab_8" class="char-ability-container">
             <section id="ab_c_8" class="char-ability" >
-                <div class="char-ability-title">Renaissance</div>
-                <div id="ab_d_8" class="char-ability-detail">
-                    <b><em>You must have a Cultural score of 5 or more to use this ability</em></b>. 
-                    As a result of the someone else's turn <b>Choose One:</b>
-                    <ul>
-                        <li>Make a <b>Scientific Might</b> roll, add your <b>Cultural Might Modifier</b>. On a success gain <b>4 Cultural Tokens</b></li>
-                        <li>Make a <b>Scientific Might</b> roll, add your <b>Cultural Might Modifier</b>. On a success gain <b>4 Cultural Tokens</b></li>
-                        <li>Make a <b>Scientific Might</b> roll, add your <b>Cultural Might Modifier</b>. On a success gain <b>4 Cultural Tokens</b></li>
-                    </ul>
-                    <em>A success on this roll is at least a 20 result</em>
+                <div class="char-ability-title h-10 flex flex-row">
+                    <div class="w-1/3">
+                        <GiAlarmClock />
+                    </div>
+                    <span>Siege Warfare</span>
+                </div>
+                <div id="ab_d_5" class="char-ability-detail">
+                    <b><em>You must have a Military score of 5 or more to use this ability</em></b>. 
+                    At the end of an event, where you were not awarded <b>King's Favor</b> in the resolution round. You may start a <b>5 Clock</b>. Any time <b>King's Favor</b> would be rewarded, you are rewarded a stack of <b>Arms</b>. At any point in time, a player may challenge you to a <b>Military Might Contest</b> and reduce the clock. If you loose this <b>Contest</b> They gain the number of <b>Arms</b> stacks you accumilated during the Siege as <b>King's Favor</b>. When the clock reaches zero. You gain the accumilated <b>Arms</b> as <b>King's Favor</b>.
                 </div>
             </section>
         </div>
