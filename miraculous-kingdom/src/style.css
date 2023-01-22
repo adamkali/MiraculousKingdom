@@ -20,11 +20,11 @@
     }
 
     .char-ability-detail {
-        @apply text-justify text-sm text-purple-400 overflow-y-hidden;
+        @apply text-justify text-sm overflow-y-hidden;
     }
 
     .char-ability-detial__pressed {
-        @apply text-start text-purple-300
+        @apply text-start
     }
 
     .char-ability__pressed {
@@ -32,10 +32,30 @@
     }
 
     .char-detail {
-        @apply mx-6 grid-rows-2 text-sm rounded-xl border-4 border-slate-900 bg-slate-800 px-2 transition duration-500 ease-in hover:scale-125 hover:text-pink-400 hover:shadow-xl hover:shadow-black hover:ease-out;
+        @apply mx-6 grid-rows-2 text-sm rounded-xl border-4 border-slate-900 bg-slate-800 px-2 transition duration-500 ease-in hover:scale-125 hover:shadow-xl hover:shadow-black hover:ease-out;
     }
 
     .char-detail-title {
         @apply mb-4 flex h-1/5 justify-center border-b-2 border-b-slate-600 text-lg text-fuchsia-800;
+    }
+
+    .char-ability-detail-ca {
+        @apply text-purple-400;
+    }
+
+    .char-ability-detail-ca_pressed {
+        @apply text-purple-300;
+    }
+
+    .char-ability-detail-ma {
+        @apply text-red-500;
+    }
+
+    .char-ability-detail-ma_pressed {
+        @apply text-red-300;
+    }
+
+    .char-detail-ca {
+        @apply hover:text-rose-400;
     }
 }
