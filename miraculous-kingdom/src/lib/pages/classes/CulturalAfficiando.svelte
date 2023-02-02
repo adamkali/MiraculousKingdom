@@ -85,10 +85,6 @@
             <div class="flex flex-col ">
                 <div class="char-detail-title">Experience</div>
                 <div class="px-2 pb-4">
-                    The <b>Cultural Aficionado</b> gains experience in any
-                    <b>Might</b>
-                    by rolling a successful roll on a <b>Cultural Might</b>
-                    roll, and sabotaging a <b>Military Might</b> roll.
                 </div>
             </div>
         </div>
