@@ -29,14 +29,12 @@ pub struct Character {
     pub class: Class,
     pub ruler: String,
     pub country: String,
-    pub military: Might,
-    pub cultural: Might,
-    pub religious: Might,
-    pub scientific: Might,
-    pub diplomatic: Might,
-    pub criminal: Might,
+    pub mights: Vec<Might>,
     pub kings_favor: Resource,
     pub sabatoge: Resource,
     pub strategem: Resource
 }
 
+impl Character {
+    pub fn mk_character_create()
+}

@@ -22,10 +22,26 @@ pub struct Event {
     pub event: String, 
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub enum EventType {
+    #[default]
+    None,
+    Rolling,
+    Current(Event),
+    Resolving(Event),
+}
+
+#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct State {
-    pub character: Character,
-    pub clocks: Vec<Clock>,
-    pub current_event: Event,
-    pub notes: Vec<Note>,
+    pub character: Option<Vec<Character>>,
+    pub clocks: Option<Vec<Clock>>,
+    pub current_event: EventType,
+    pub notes: Option<Vec<Note>>,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        let current_event = EventType::default();
+
+    }
 }

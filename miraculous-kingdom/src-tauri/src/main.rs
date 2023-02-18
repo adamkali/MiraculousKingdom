@@ -1,4 +1,5 @@
 mod types;
+mod api;
 
 fn main() {
     tauri::Builder::default()
