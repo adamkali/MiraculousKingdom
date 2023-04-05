@@ -1,0 +1,13 @@
+{
+  "char_class": "Cultural Aficionado",
+  "char_might": {
+    "Military": 5,
+    "Culture": 4,
+    "Religion": 3,
+    "Science": 2,
+    "Diplomacy": 1,
+    "Espionage": 6
+  },
+  "char_name": "Joe the shmoe",
+  "secret": "Sierra<3me"
+}

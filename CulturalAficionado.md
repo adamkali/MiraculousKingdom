@@ -24,11 +24,6 @@ The Cultural Aficionado can lead a cultural revolution, promoting new and progre
 The Cultural Aficionado can promote cultural fusion, blending different cultures to create something new and unique. Use a Cultural Might roll to play the event to your favor. Your fellow players decide the difficulty of the roll based on the roll Tier system that you need to beat. A success gains a fusion point (the ability to gain 1 experience point in Cultural might)
 
 ### Cultural Exchange:
-The Cultural Aficionado can lead a cultural exchange program with other kingdoms. Use a Diplomatic Might Roll:
-- Bad: You can sabotage against another player.
-- Poor: You can level up a stat.
-- Neutral: Take a king's favor.
-- Good: Take a Strategem (the ability to roll two dice) for a future roll.
-- Great: Steal a reward later from a player later in the game.
+The Cultural Aficionado can lead a cultural exchange program with other kingdoms. Use a Diplomatic Might Roll: (Bad: You can sabotage against another player.), (Poor: You can level up a stat.), (Neutral: Take a king's favor.), (Good: Take a Strategem (the ability to roll another dice) for a future roll.), (Great: Steal a reward later from a player later in the game.)
 
 
