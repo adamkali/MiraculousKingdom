@@ -24,7 +24,8 @@ use crate::data_types::{
     common::{
         DetailedResponse,
         VecClassDetailedResponse,
-        ClassDetailedResponse
+        ClassDetailedResponse,
+        APIError
     }
 };
 use futures::stream::TryStreamExt;
@@ -61,14 +62,18 @@ pub async fn get_all(
                         response.data.push(r)
                     },
                     None => {
-                        response.set_code(StatusCode::OK, "".to_string());
+                        response.set_code(None);
                         break;
                     },
                 }
             };
         },
         Err(e) => {
-            response.set_code(StatusCode::INTERNAL_SERVER_ERROR, e.to_string());
+            response.set_code(
+                Some(APIError::new(
+                    StatusCode::INTERNAL_SERVER_ERROR, 
+                    e.to_string()
+            )));
         }
     }
     Json(response)
