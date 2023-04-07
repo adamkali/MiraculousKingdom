@@ -1,5 +1,6 @@
 mod data;
 mod detialed_response;
+mod repository;
 
 pub mod common {
     pub use super::data::RewardTypes;

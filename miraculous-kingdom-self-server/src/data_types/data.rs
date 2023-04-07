@@ -3,14 +3,15 @@ use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
 };
-use mongodb::bson::{
-    oid::ObjectId,
-    serde_helpers::serialize_object_id_as_hex_string,
+use mongodb::{
+    bson::{
+        oid::ObjectId,
+        serde_helpers::serialize_object_id_as_hex_string,
+    },
+    Database
 };
 use utoipa::ToSchema;
 use super::common::APIError;
-
-
 
 // Character ================================
 
