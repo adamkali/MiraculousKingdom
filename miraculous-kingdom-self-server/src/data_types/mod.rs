@@ -8,6 +8,8 @@ pub mod common {
     pub use super::data::Resource;
     pub use super::data::Reward;
     pub use super::detialed_response::*;
+    pub use super::repository::Repository;
+    pub use super::repository::verify_id;
 }
 
 pub use data::characters;

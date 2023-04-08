@@ -5,7 +5,6 @@ pub mod class_routes {
 
 use axum::{
     Extension,
-    http::StatusCode,
     Json,
     extract::Path,
 };
@@ -25,11 +24,10 @@ use crate::data_types::{
         DetailedResponse,
         VecClassDetailedResponse,
         ClassDetailedResponse,
-        APIError
+        Repository,
+        verify_id,
     }
 };
-use futures::stream::TryStreamExt;
-
 
 #[utoipa::path(
     get,
@@ -51,32 +49,13 @@ pub async fn get_all(
     let mut response: DetailedResponse<Vec<Class>> =
         DetailedResponse::new(Vec::<Class>::new());
 
-    let collection = mongo.clone().collection::<Class>("classes");
-    let cursor = collection.find(None, None).await;
+    let mut repository = Repository::<Class>::new(&mongo, "classes");
 
-    match cursor {
-        Ok(mut c) => {
-            while let Ok(res) = c.try_next().await {
-                match res {
-                    Some(r) => {
-                        response.data.push(r)
-                    },
-                    None => {
-                        response.set_code(None);
-                        break;
-                    },
-                }
-            };
-        },
-        Err(e) => {
-            response.set_code(
-                Some(APIError::new(
-                    StatusCode::INTERNAL_SERVER_ERROR, 
-                    e.to_string()
-            )));
-        }
-    }
-    Json(response)
+    Json(
+        response.run(|a| 
+            repository.get_all(a)
+        ).await
+    )
 }
 
 
@@ -110,33 +89,12 @@ pub async fn get(
             class_name: "dummy".to_string()
         }); 
 
-    let mut object_id: ObjectId = ObjectId::new();
-    match ObjectId::parse_str(&id) {
-        Ok(oid) => {
-            object_id = oid;
-        },
-        Err(e) => {
-            return Json(response.set_code(StatusCode::BAD_REQUEST, e.to_string()).clone());
-        }
-    };
+    let mut repository = Repository::<Class>::new(&mongo, "classes");
 
-
-    let collection = mongo.clone().collection::<Class>("classes");
-    let cursor = collection.find_one(doc! { "_id": object_id }, None ).await;
-
-    match cursor {
-        Ok(c) => {
-            if let Some(result) = c {
-                response.data = result;
-                response.set_code(StatusCode::OK, "".to_string());
-            } else {
-                response.set_code(StatusCode::NOT_FOUND, 
-                                  format!("Could not find class with id {}", id));
-            }
-        },
-        Err(e) => {
-            response.set_code(StatusCode::INTERNAL_SERVER_ERROR, e.to_string());
-        }
-    }  
-    Json(response)
+    verify_id(id, &mut response.data.class_id);
+    
+    Json(response
+         .run(|a| repository.get_by_oid(a.clone(), a.class_id))
+         .await
+    )
 }

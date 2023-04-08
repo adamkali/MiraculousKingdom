@@ -48,37 +48,7 @@ pub async fn get_all(
     let mut response: DetailedResponse<Vec<GameInfo>> =
         DetailedResponse::new(Vec::<GameInfo>::new());
 
-    let collection = mongo.clone()
-                          .collection::<Game>("games");
-    let cursor = collection.find(None, None).await;
 
-
-    match cursor {
-        Ok(mut c) => {
-            while let Ok(res) = c.try_next().await {
-                match res {
-                    Some(r) => {
-                        response.data.push(GameInfo { 
-                            game_name: r.game_name, 
-                            game_ruler: r.game_ruler,
-                            game_chars: r.game_chars
-                                        .iter()
-                                        .clone()
-                                        .map(|a| a.char_name.clone())
-                                        .collect(),
-                        })
-                    },
-                    None => {
-                        response.set_code(StatusCode::OK, String::new());
-                        break;
-                    },
-                }
-            };
-        },
-        Err(e) => {
-            response.set_code(StatusCode::INTERNAL_SERVER_ERROR, e.to_string());
-        }
-    }
 
     Json(response)
 }
