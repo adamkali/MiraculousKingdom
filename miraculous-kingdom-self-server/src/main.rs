@@ -1,6 +1,5 @@
 pub mod api;
 pub mod data_types;
-pub mod repository;
 
 use axum::{
     routing::*,
@@ -52,6 +51,8 @@ async fn main() {
                 GameInfo,
                 GameCreation,
                 MightRequirement,
+                Progress,
+                MightEnum,
             ),
         ),
         tags(

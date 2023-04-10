@@ -3,12 +3,9 @@ use std::{
     collections::HashMap,
     sync::{Arc, Mutex},
 };
-use mongodb::{
-    bson::{
-        oid::ObjectId,
-        serde_helpers::serialize_object_id_as_hex_string,
-    },
-    Database
+use mongodb::bson::{
+    oid::ObjectId,
+    serde_helpers::serialize_object_id_as_hex_string,
 };
 use utoipa::ToSchema;
 use super::common::APIError;
@@ -163,6 +160,7 @@ pub mod characters {
     pub use super::ClassEnum;
     pub use super::Ability;
     pub use super::MightRequirement;
+    pub use super::MightEnum;
 }
 // =========================================
 
@@ -190,6 +188,16 @@ pub struct GameInfo {
     pub game_name: String,
     pub game_ruler: String,
     pub game_chars: Vec<String>,
+}
+
+impl Default for GameInfo {
+    fn default() -> Self {
+        Self {
+            game_name: String::new(),
+            game_ruler: String::new(),
+            game_chars: Vec::<String>::new()
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, ToSchema)]

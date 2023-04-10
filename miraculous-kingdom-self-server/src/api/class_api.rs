@@ -51,11 +51,12 @@ pub async fn get_all(
 
     let mut repository = Repository::<Class>::new(&mongo, "classes");
 
-    Json(
-        response.run(|a| 
-            repository.get_all(a)
-        ).await
-    )
+    response.run(|a| 
+        repository.get_all(a)
+    ).await;
+    println!("data: {:#?}", response.data.clone());
+
+    Json( response.clone())
 }
 
 

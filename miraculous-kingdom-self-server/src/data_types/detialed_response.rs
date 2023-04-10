@@ -51,8 +51,8 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
 
     pub fn set_code(&mut self, error: Option<APIError>) -> &mut Self {
         if let Some(err) = error {
-            self.code = err.status_code;
-            self.success = Progress::Failing(err);
+            self.code = err.clone().status_code;
+            self.success = Progress::Failing(err.clone());
             self.message = err.message;
         } else {
             self.code = 200;
@@ -68,7 +68,7 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
             success: Progress::Failing(
                 APIError::new(
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    message,
+                    message.clone(),
                     )),
             message,
             code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),

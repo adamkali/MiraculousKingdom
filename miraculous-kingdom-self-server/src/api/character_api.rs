@@ -17,6 +17,7 @@ use crate::data_types::{
         DetailedResponse,
         VecCharDetailedResponse,
         CharDetialedResponse,
+        Repository,
     }
 };
 use futures::stream::TryStreamExt;
@@ -91,39 +92,14 @@ pub async fn get_characters(
     let mut response =
         DetailedResponse::new(Vec::<Character>::new());
 
-    let collection = mongo.clone().collection::<Character>("characters");
-    let cursor = collection.find(
+    let mut repository = Repository::<Character>::new(&mongo, "characters");
+    response.run(|a| repository.get_all_with_filter(
+        a,
         doc! {
             "secret": secret.clone(),
         }, 
-        None
-    ).await;
+    )).await;
 
-    match cursor {
-        Ok(mut c) => {
-            while let Ok(res) = c.try_next().await {
-                match res {
-                    Some(r) => {
-                        response.data.push(r)
-                    },
-                    None => {
-                        break;
-                    },
-                }
-            };
-        },
-        Err(e) => {
-            response.set_code(StatusCode::INTERNAL_SERVER_ERROR, e.to_string());
-            return Json(response);
-        }
-    }
-
-    response.set_code(
-        StatusCode::OK, 
-        format!(
-            "Found characters with secret_code: {}",
-            secret
-        ));
     Json(response)
 }
 
@@ -158,13 +134,7 @@ pub async fn get_character_for_game(
     Path(secret): Path<String>,
     Path(pass): Path<String>,
 ) -> Json<DetailedResponse<Character>> {
-    let mut response =
+    let response =
         DetailedResponse::new(Character::new());
-    response.set_code(
-        StatusCode::OK,
-        format!(
-            "Found your character in game: {}",
-            pass
-        ));
     Json(response)
 }
