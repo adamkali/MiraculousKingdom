@@ -48,13 +48,9 @@ pub async fn get_all(
 ) -> Json<DetailedResponse<Vec<Class>>> {
     let mut response: DetailedResponse<Vec<Class>> =
         DetailedResponse::new(Vec::<Class>::new());
-
     let mut repository = Repository::<Class>::new(&mongo, "classes");
 
-    response.run(|a| 
-        repository.get_all(a)
-    ).await;
-    println!("data: {:#?}", response.data.clone());
+    response.run(|a| repository.get_all(a)).await;
 
     Json( response.clone())
 }
@@ -95,7 +91,7 @@ pub async fn get(
     verify_id(id, &mut response.data.class_id);
     
     Json(response
-         .run(|a| repository.get_by_oid(a.clone(), a.class_id))
+         .run(|a| repository.get_by_oid(a.clone(), a.clone().data.class_id))
          .await
     )
 }

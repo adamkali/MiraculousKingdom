@@ -13,6 +13,7 @@ pub mod routes {
     
     pub use super::class_api::class_routes;
     pub use super::game_api::game_routes;
+    pub use super::character_api::character_routes;
 
     pub fn construct_api_router() -> Router {
         let class_route = Router::new()
@@ -24,9 +25,15 @@ pub mod routes {
             .route("/:pass", 
                     get(game_routes::get) // G
                    .post(game_routes::add_character)); // x, x
+        let character_route = Router::new()
+            .route("/:secret", 
+                   get(character_routes::get_characters))
+            .route("/:secret/:pass", 
+                   get(character_routes::get_character_for_game));
 
         Router::new()
             .nest("/class", class_route)
             .nest("/game", game_route)
+            .nest("/character", character_route)
     }
 }

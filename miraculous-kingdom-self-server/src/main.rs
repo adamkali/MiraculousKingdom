@@ -9,11 +9,7 @@ use axum::{
 use tower_http::cors::{CorsLayer, Any};
 //use std::sync::Arc;
 //use data_types::engine::Game;
-use utoipa::{
-    OpenApi,
-    schema,
-    openapi::{Schema,RefOr},
-};
+use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 use data_types::common::*;
 use data_types::characters::*;
@@ -35,24 +31,13 @@ async fn main() {
         ),
         components(
             schemas(
-                Character,
-                NewCharacter,
-                Class,
-                VecClassDetailedResponse,
-                ClassDetailedResponse,
-                GameInfoDetailedResponse,
-                GamesInfoDetailedResponse,
-                PassDetailedResponse,
-                CharAddedDetailedResponse,
-                Ability,
-                Might,
-                MightStat,
-                Clock,
-                GameInfo,
-                GameCreation,
-                MightRequirement,
-                Progress,
-                MightEnum,
+                Character, NewCharacter, Class,
+                VecClassDetailedResponse, ClassDetailedResponse,
+                GameInfoDetailedResponse, GamesInfoDetailedResponse,
+                PassDetailedResponse, CharAddedDetailedResponse,
+                VecCharDetailedResponse, CharDetialedResponse,
+                Ability, Might, MightStat, Clock, GameInfo,
+                GameCreation, MightRequirement, Progress, MightEnum,
             ),
         ),
         tags(
@@ -72,7 +57,7 @@ async fn main() {
         
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger").url("/api-docs/openapi.json", APIDoc::openapi()))
-        .route("/ping", get(|| async { 
+        .route("/", get(|| async { 
             "And the serve did not go down, quoth the admin \"Nevermore\"" 
             }))
         .nest("/api", api::routes::construct_api_router())

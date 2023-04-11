@@ -9,14 +9,20 @@ use mongodb::bson::{
 };
 use utoipa::ToSchema;
 use super::common::APIError;
+use std::fmt::{Debug};
 
 // Character ================================
 
 /// This enum represents the possible states of a character in a websocket game.
-/// - Waiting: the character is waiting for its turn to come.
-/// - Going: the character is currently taking its turn.
+/// - Waiting: the character is waiting for its turn to come. - Going: the character is currently taking its turn.
 /// - Gone: the character has already taken its turn and is no longer in play.
-#[derive(Default, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub enum CharacterState {
     #[default]
     Waiting,
@@ -25,7 +31,12 @@ pub enum CharacterState {
 }
 
 /// A struct representing a character in the game.
-#[derive(Serialize, Deserialize, Clone, ToSchema)]
+#[derive( Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct Character {
     /// The ObjectId representing the character in MongoDB.
     #[serde(serialize_with = "serialize_object_id_as_hex_string")]
@@ -47,7 +58,13 @@ pub struct Character {
 }
 
 /// A struct representing a new character request from a client.
-#[derive(Serialize, Deserialize, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct NewCharacter {
     /// A secret lock to the character for getting the character. 
     pub secret: String,
@@ -165,7 +182,13 @@ pub mod characters {
 // =========================================
 
 // Game Class ==============================
-#[derive(Default, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub enum State {
     #[default]
     None,
@@ -176,14 +199,25 @@ pub enum State {
     ArcResolution(ObjectId, ObjectId),
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct GameCreation {
     pub game_num_players: u16,
     pub game_name: String,
     pub game_ruler: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive( Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct GameInfo {
     pub game_name: String,
     pub game_ruler: String,
@@ -200,7 +234,12 @@ impl Default for GameInfo {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, ToSchema)]
+#[derive( Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct Game {
     #[serde(serialize_with = "serialize_object_id_as_hex_string")]
     pub game_id: ObjectId,
@@ -262,7 +301,13 @@ pub mod engine {
 // =========================================
 
 // Clock ===================================
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct Clock {
     pub clock_duration: u8,
     pub clock_remaining: u8,
@@ -271,7 +316,13 @@ pub struct Clock {
     pub clock_conf: bool
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct ClockPost {
     pub char_id: uuid::Uuid,
     pub clock_duration: u8,
@@ -301,7 +352,13 @@ pub mod clock {
 // =========================================
 
 // Might ===================================
-#[derive(Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct Might {
     pub might_military: MightStat,
     pub might_culture: MightStat,
@@ -327,14 +384,12 @@ impl Might {
             let handle = tokio::spawn(async move {
                 match MightEnum::create_might(key, value) {
                     Ok(m) => {
-                        println!("adding {:?}", m);
                         let mut futs = futs_clone.lock().unwrap();
                         futs.push(m);
                     },
                     Err(e) => {
                         let mut option_error = option_error_clone.lock().unwrap();
                         *option_error = Some(e.clone());
-                        println!("Error: {:?}", e);
                     }
                 }
             });
@@ -353,7 +408,6 @@ impl Might {
             return Err(e.clone())
         } 
         let futs = futs.lock().unwrap();
-        println!("Futures: {:?}", Vec::<&MightStat>::from_iter(futs.iter().clone()) );
         for f in futs.iter() {
             match f.stat_enum {
                 MightEnum::Military => might.might_military = (*f).clone(),
@@ -422,7 +476,13 @@ impl Might {
 
 pub static MIGHTMAXEXP: u8 = 5_u8;
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct MightStat {
     pub stat_enum: MightEnum,
     pub stat_name: String,
@@ -431,8 +491,15 @@ pub struct MightStat {
     pub stat_token: u8,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub enum MightEnum {
+    #[default]
     Military,
     Culture,
     Religion,
@@ -456,14 +523,12 @@ impl MightEnum {
         } else if value == *"Espionage".to_string() {
             Ok(MightEnum::Espionage)   
         } else {
-            println!("value: {}", value);
            Err(APIError::new(axum::http::StatusCode::BAD_REQUEST,
                              format!("{} is not a known Might", value)))
         }
     }
 
     pub fn create_might(name: String, value: u8 ) -> Result<MightStat, APIError> {
-        println!("{{{}: {}}}", name, value);
         let type_of: MightEnum = MightEnum::determine(name.clone())?;
         Ok(MightStat { 
             stat_enum: type_of, 
@@ -484,7 +549,13 @@ pub mod might {
 // =========================================
 
 // Ability =================================
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct Ability {
     pub ability_name: String,
     pub ability_desc: String,
@@ -492,7 +563,13 @@ pub struct Ability {
     pub ability_unlock: MightRequirement,
 }
 
-#[derive(Default, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 #[repr(u16)]
 pub enum RollTier {
     #[default]
@@ -530,7 +607,13 @@ impl RollTier {
 //    }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct MightRequirement {
     might: MightEnum,
     //roll_tier: RollTier,
@@ -541,7 +624,12 @@ impl Reward for Ability {}
 // =========================================
 
 // Class ===================================
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive( Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct Class {
     #[serde(
         serialize_with = "serialize_object_id_as_hex_string",
@@ -554,8 +642,15 @@ pub struct Class {
     pub class_name: String, 
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub enum ClassEnum {
+    #[default]
     WarHero, 
     Aficianado,
     Researcher,
@@ -586,7 +681,13 @@ impl Default for Class {
 // =========================================
 
 // Event ===================================
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct Episode {
     pub event_id: ObjectId,
     pub event_name: String,
@@ -599,7 +700,13 @@ pub struct Episode {
 //      and set into object
 pub trait Reward {}
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub enum RewardTypes {
     #[default]
     None,
@@ -609,7 +716,13 @@ pub enum RewardTypes {
 }
 
 // Resources ===============================
-#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
+#[derive(Default,
+         Serialize, 
+         Deserialize, 
+         Clone, 
+         ToSchema,
+         Debug,
+ )]
 pub struct Resource {
     pub res_name: String,
     pub res_desc: String,

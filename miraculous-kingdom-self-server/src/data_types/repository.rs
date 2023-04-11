@@ -9,7 +9,7 @@ use mongodb::{
     Cursor,
 };
 use serde::{Serialize, de::DeserializeOwned};
-use super::common::APIError;
+use super::common::{DetailedResponse, APIError};
 use axum::http::StatusCode;
 use futures::stream::TryStreamExt;
 use std::marker::PhantomData;
@@ -20,6 +20,7 @@ pub struct Repository<
     T: Default + Clone + Serialize 
      + Sync + Send + Unpin 
      + DeserializeOwned
+     + std::fmt::Debug
 > {
     pub model: T,
     pub collection: Collection<T>,
@@ -31,27 +32,27 @@ impl<
     T: Default + Clone + Serialize 
      + Sync + Send + Unpin 
      + DeserializeOwned
+     + std::fmt::Debug 
 > Repository<T> {
     pub fn new(db: &Database, coll_name: &str) -> Self {
-        return Repository {
+        Repository {
             model: T::default(),
             collection: db.clone().collection::<T>(coll_name),
             phantom: PhantomData,
         }
     }
 
-
     pub async fn get_all(
         &mut self, 
-         mut data: Vec<T>
-    ) -> Result<(), APIError> {
+         mut data: DetailedResponse<Vec<T>>
+    ) -> DetailedResponse<Vec<T>> {
         let cursor = self.collection.find(None, None).await;
         match cursor {
             Ok(mut c) => {
                 while let Ok(res) = c.try_next().await {
                     match res {
                         Some(r) => {
-                            data.push(r)
+                            data.data.push(r)
                         },
                         None => {
                             break;
@@ -59,26 +60,28 @@ impl<
                     }
                 };
             },
-            Err(e) => return Err(APIError::new(
+            Err(e) => {
+                return data.set_code(Some(APIError::new(
                           StatusCode::INTERNAL_SERVER_ERROR,
                           e.to_string()
-                      ))
+                      ))).clone();
+            }
         }
-        Ok(())
+        data 
     }
 
     pub async fn get_all_with_filter(
        &mut self,
-       mut data: Vec<T>,
+       mut data: DetailedResponse<Vec<T>>,
        filter: Document,
-    ) -> Result<(), APIError> {
+    ) -> DetailedResponse<Vec<T>> {
         let cursor = self.collection.find(filter, None).await;
         match cursor {
             Ok(mut c) => {
                 while let Ok(res) = c.try_next().await {
                     match res {
                         Some(r) => {
-                            data.push(r)
+                            data.data.push(r)
                         },
                         None => {
                             break;
@@ -86,19 +89,21 @@ impl<
                     }
                 };
             },
-            Err(e) => return Err(APIError::new(
+            Err(e) => {
+                return data.set_code(Some(APIError::new(
                           StatusCode::INTERNAL_SERVER_ERROR,
                           e.to_string()
-                      ))
+                      ))).clone();
+            }
         }
-        Ok(())
+        data 
     }
 
     pub async fn get_by_oid(
         &mut self, 
-        mut data: T, 
+        mut data: DetailedResponse<T>, 
         object_id: ObjectId
-    ) -> Result<(), APIError> {
+    ) -> DetailedResponse<T> {
         let cursor = self.collection.find_one(
             doc! { "_id": object_id }, 
             None 
@@ -106,30 +111,32 @@ impl<
         match cursor {
             Ok(c) => {
             if let Some(result) = c {
-                data = result;
+                data.data = result;
             } else {
-                return Err(APIError::new(
+                return data.set_code(Some(APIError::new(
                         StatusCode::NOT_FOUND,
                         format!(
                             "Could not find object with id: {}",
                             object_id.to_hex()
                         )
-                    ));
+                    ))).clone();
+                }
             }
-        },
-        Err(e) => return Err(APIError::new(
-                      StatusCode::INTERNAL_SERVER_ERROR,
-                      e.to_string()
-                  ))
+            Err(e) => {
+                return data.set_code(Some(APIError::new(
+                          StatusCode::INTERNAL_SERVER_ERROR,
+                          e.to_string()
+                      ))).clone();
+            }
         }
-        Ok(())
+        data
     }
 
     pub async fn get_by_document(
         &mut self, 
-        mut data: T, 
-        obj:Document 
-    ) -> Result<(), APIError> {
+        mut data: DetailedResponse<T>, 
+        obj: Document 
+    ) -> DetailedResponse<T> {
         let cursor = self.collection.find_one(
             obj.clone(),
             None 
@@ -137,46 +144,51 @@ impl<
         match cursor {
             Ok(c) => {
             if let Some(result) = c {
-                data = result;
+                data.data = result;
             } else {
-                return Err(APIError::new(
+                return data.set_code(Some(APIError::new(
                         StatusCode::NOT_FOUND,
                         format!(
-                            "Could not find object with id: {}",
-                            obj 
+                            "Could not could find with criteria: {}",
+                            obj.to_string() 
                         )
-                    ));
+                    ))).clone();
+                }
             }
-        },
-        Err(e) => return Err(APIError::new(
-                      StatusCode::INTERNAL_SERVER_ERROR,
-                      e.to_string()
-                  ))
+            Err(e) => {
+                return data.set_code(Some(APIError::new(
+                          StatusCode::INTERNAL_SERVER_ERROR,
+                          e.to_string()
+                      ))).clone();
+            }
         }
-        Ok(())
+        data
     }
 
     pub async fn insert_one(
         &mut self,
-        data: T,
-    ) -> Result<(), APIError> {
+        object: T,
+        mut data: DetailedResponse<T>,
+    ) -> DetailedResponse<T> {
 
         let cursor = self.collection
-                    .insert_one(data, None).await;
+            .insert_one(object.clone(), None).await;
 
         if let Err(e) = cursor {
-            Err(APIError::new(
-                    StatusCode::NOT_MODIFIED,
-                    e.to_string()
-            ))
-        } else { Ok(()) }
+            return data.set_code(Some(APIError::new(
+                StatusCode::NOT_MODIFIED,
+                e.to_string()
+            ))).clone();
+        } else { data.data = object; }
+        data
     }
 
     pub async fn update_one(
         &mut self,
         filter: Document,
         updater: Document,
-    ) -> Result<(), APIError> {
+        mut data: DetailedResponse<T>
+    ) -> DetailedResponse<T> {
         let cursor = self.collection.update_one( 
             filter,
             updater,
@@ -186,18 +198,18 @@ impl<
         match cursor {
             Ok(c) => {
                 if c.modified_count == 0 {
-                    Err(APIError::new(
+                    return data.set_code(Some(APIError::new(
                         StatusCode::NOT_MODIFIED,
                         "An error occured when modifying the database.".to_string()
-                    ))
-                } else { Ok(())}
+                    ))).clone();
+                } else { return data; }
             },
             Err(e) => {
-                Err(
+                return data.set_code(Some(
                     APIError::new(
                         StatusCode::INTERNAL_SERVER_ERROR, 
                         e.to_string()
-                    ).clone())
+                    ))).clone();
             }
         }
     }

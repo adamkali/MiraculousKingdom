@@ -78,20 +78,24 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
 
     pub async fn run<F, Fut>(&mut self, f: F) -> Self
     where
-        F: FnOnce(T) -> Fut,
-        Fut: Future<Output = Result<(), APIError>>,
+        F: FnOnce(Self) -> Fut,
+        Fut: Future<Output = Self>,
     {
         if let Progress::Succeeding = self.success {
-            let result = f(self.data.clone()).await;
-            match result {
-                Ok(_) => self.clone(),
-                Err(err) => {
-                    self.set_code(Some(err)).clone()
-                }
+            let res = f(self.clone()).await;
+            if let Progress::Succeeding = res.success {
+                *self = res;
             }
-        } else {
-            self.clone()
         }
+        self.clone()
+    }
+
+    pub fn absorb<S>(&mut self, to: &mut DetailedResponse<S>) -> Self
+    where S: Serialize + Send + Clone, {
+        to.success = self.success.clone();
+        to.message = self.message.clone();
+        to.code = self.code;
+        self.clone()
     }
 }
 

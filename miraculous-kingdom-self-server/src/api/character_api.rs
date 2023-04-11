@@ -13,11 +13,13 @@ use mongodb::{
 };
 use crate::data_types::{
     characters::Character,
+    engine::Game,
     common::{
         DetailedResponse,
         VecCharDetailedResponse,
         CharDetialedResponse,
         Repository,
+        Progress
     }
 };
 use futures::stream::TryStreamExt;
@@ -134,7 +136,36 @@ pub async fn get_character_for_game(
     Path(secret): Path<String>,
     Path(pass): Path<String>,
 ) -> Json<DetailedResponse<Character>> {
-    let response =
-        DetailedResponse::new(Character::new());
-    Json(response)
+    let mut char_response = DetailedResponse::new(Character::new());
+    let mut game_response = DetailedResponse::new(Game::new());
+
+    let mut game_repo = Repository::<Game>::new(&mongo, "games");
+    
+    game_response.run(|a| game_repo.get_by_document(
+        a,
+        doc! { "generated_pass": pass.clone() },
+    ))
+        .await
+        .absorb(&mut char_response);
+
+    if let Progress::Succeeding = char_response.success {
+        let _throw: Vec<&mut Character> 
+            = game_response
+                .data
+                .game_chars
+                .clone()
+                .iter_mut()
+                .map(|a| if a.clone().secret == secret {
+                    char_response.data = a.clone();
+                    a
+                } else  { a })
+                .collect();
+    }
+
+    Json(char_response)
+}
+
+pub mod character_routes {
+    pub use super::get_character_for_game;
+    pub use super::get_characters;
 }
