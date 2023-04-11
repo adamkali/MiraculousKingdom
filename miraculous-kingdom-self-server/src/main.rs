@@ -27,7 +27,9 @@ async fn main() {
             api::game_api::get_all,
             api::game_api::start_game,
             api::game_api::get,
-            api::game_api::add_character
+            api::game_api::add_character,
+            api::character_api::get_character_for_game,
+            api::character_api::get_characters
         ),
         components(
             schemas(
