@@ -4,8 +4,7 @@ mod repository;
 
 pub mod common {
     pub use super::data::RewardTypes;
-    pub use super::data::Episode;
-    pub use super::data::Resource;
+    pub use super::data::Season;
     pub use super::data::Reward;
     pub use super::detialed_response::*;
     pub use super::repository::Repository;

@@ -29,7 +29,10 @@ async fn main() {
             api::game_api::get,
             api::game_api::add_character,
             api::character_api::get_character_for_game,
-            api::character_api::get_characters
+            api::character_api::get_characters,
+            api::season_api::get_all,
+            api::season_api::get,
+            api::season_api::roll
         ),
         components(
             schemas(
@@ -40,6 +43,7 @@ async fn main() {
                 VecCharDetailedResponse, CharDetialedResponse,
                 Ability, Might, MightStat, Clock, GameInfo,
                 GameCreation, MightRequirement, Progress, MightEnum,
+                Season, RewardTypes, RollTier
             ),
         ),
         tags(
@@ -47,7 +51,6 @@ async fn main() {
         )
     )]
     struct APIDoc;
-
 
     let uri = "mongodb://root:mk2023!@localhost:8100";
     let client_opt = mongodb::options::ClientOptions::parse(uri).await.unwrap();

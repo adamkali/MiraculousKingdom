@@ -195,7 +195,7 @@ pub async fn add_character(
 
     class_response.run(|a| class_repo.get_by_document(
         a,
-        doc! { "class_name": request.char_class.clone() },
+        doc! { "class_enum": request.char_class.clone().to_string() },
     )).await;
     
     game_response.run(|a| game_repo.get_by_document(

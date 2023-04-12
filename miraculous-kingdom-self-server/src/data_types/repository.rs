@@ -6,7 +6,6 @@ use mongodb::{
     },
     Database,
     Collection,
-    Cursor,
 };
 use serde::{Serialize, de::DeserializeOwned};
 use super::common::{DetailedResponse, APIError};
@@ -55,12 +54,14 @@ impl<
                             data.data.push(r)
                         },
                         None => {
+                            println!("{:#?}", data.data);
                             break;
                         },
                     }
                 };
             },
             Err(e) => {
+                println!("{}", e);
                 return data.set_code(Some(APIError::new(
                           StatusCode::INTERNAL_SERVER_ERROR,
                           e.to_string()
@@ -150,7 +151,7 @@ impl<
                         StatusCode::NOT_FOUND,
                         format!(
                             "Could not could find with criteria: {}",
-                            obj.to_string() 
+                            obj 
                         )
                     ))).clone();
                 }
@@ -202,7 +203,7 @@ impl<
                         StatusCode::NOT_MODIFIED,
                         "An error occured when modifying the database.".to_string()
                     ))).clone();
-                } else { return data; }
+                } else { data }
             },
             Err(e) => {
                 return data.set_code(Some(

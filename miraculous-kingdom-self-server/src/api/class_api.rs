@@ -7,6 +7,7 @@ use axum::{
     Extension,
     Json,
     extract::Path,
+    http::StatusCode,
 };
 use mongodb::{
     Database,
@@ -51,6 +52,7 @@ pub async fn get_all(
     let mut repository = Repository::<Class>::new(&mongo, "classes");
 
     response.run(|a| repository.get_all(a)).await;
+    println!("{:#?}", response);
 
     Json( response.clone())
 }
@@ -62,6 +64,11 @@ pub async fn get_all(
     responses((
         status = 200, 
         description = "Found class from database", 
+        body = ClassDetailedResponse
+    ),
+    (
+        status = 400, 
+        description = "Bad Request: id", 
         body = ClassDetailedResponse
     ),
     (
@@ -88,10 +95,13 @@ pub async fn get(
 
     let mut repository = Repository::<Class>::new(&mongo, "classes");
 
-    verify_id(id, &mut response.data.class_id);
+    if let Err(e) = verify_id(
+        id, 
+        &mut response.data.class_id
+    ).await { response.clone().set_code(Some(e)); }
     
     Json(response
-         .run(|a| repository.get_by_oid(a.clone(), a.clone().data.class_id))
+         .run(|a| repository.get_by_oid(a.clone(), a.data.class_id))
          .await
     )
 }

@@ -9,7 +9,7 @@ use mongodb::bson::{
 };
 use utoipa::ToSchema;
 use super::common::APIError;
-use std::fmt::{Debug};
+use std::fmt::Debug;
 
 // Character ================================
 
@@ -31,7 +31,7 @@ pub enum CharacterState {
 }
 
 /// A struct representing a character in the game.
-#[derive( Serialize, 
+#[derive(Serialize, 
          Deserialize, 
          Clone, 
          ToSchema,
@@ -52,6 +52,7 @@ pub struct Character {
     /// The character's might.
     pub char_might: Might,
     /// The character's abilities.
+    // TODO(adamkali): 
     pub abilities: Vec<Ability>,
     /// The character's state.
     pub char_state: CharacterState,
@@ -70,8 +71,10 @@ pub struct NewCharacter {
     pub secret: String,
     /// The name of the character.
     pub char_name: String, 
-    /// The class of the character.
-    pub char_class: String, 
+    /// The class of the character. Avaliable Classes will be.
+    /// WarGeneral, Aficianado, Researcher, Cardinal,
+    /// SpyMaster, Diplomat, Merchant, Prince,
+    pub char_class: ClassEnum, 
     /// The character's might.
     pub char_might: HashMap<String, u8>,
 }
@@ -88,6 +91,7 @@ impl Character {
             char_state: CharacterState::Waiting,
             char_class: Class { 
                 class_id: ObjectId::new(), 
+                class_enum: ClassEnum::WarGeneral,
                 class_desc: "".to_string(), 
                 class_perks: "".to_string(), 
                 class_abilities: Vec::<Ability>::new(), 
@@ -178,6 +182,7 @@ pub mod characters {
     pub use super::Ability;
     pub use super::MightRequirement;
     pub use super::MightEnum;
+    pub use super::RollTier;
 }
 // =========================================
 
@@ -333,7 +338,6 @@ pub struct ClockPost {
 }
 
 impl Clock {
-    // TODO(adamkali): add in mongo db to save.
     pub fn create(post: ClockPost) -> Clock {
         Clock { 
             clock_duration: post.clock_duration,
@@ -376,7 +380,7 @@ impl Might {
             = Arc::new(Mutex::new(None));
         let futs: Arc<Mutex<Vec<MightStat>>> 
             = Arc::new(Mutex::new(Vec::with_capacity(6)));
-        let mut handles = Vec::new(); // Collect the JoinHandle values here
+        let mut handles = Vec::new(); 
 
         for (key, value) in stats {
             let option_error_clone = option_error.clone();
@@ -570,41 +574,15 @@ pub struct Ability {
          ToSchema,
          Debug,
  )]
-#[repr(u16)]
 pub enum RollTier {
     #[default]
-    None = 0,       // "" automatically works
-    Fail = 1,       // 1 
-    Bad = 2,        // 2-6
-    Neutral = 3,    // 7-11
-    Good = 4,       // 12-16
-    Great = 5,      // 17+
-    Success = 6,    // Roll 20 on the dice
-}
-
-impl RollTier {
-//    pub fn determine(name: String) -> Result<RollTier, APIError> {
-//        if name == "" {
-//            Ok(RollTier::None)
-//        } else if name == "fail".to_string() {
-//            Ok(RollTier::Fail)
-//        } else if name == "bad" {
-//            Ok(RollTier::Bad)
-//        } else if name == "neutral" {
-//            Ok(RollTier::Neutral)
-//        } else if name == "good" {
-//            Ok(RollTier::Good)
-//        } else if name == "great" {
-//            Ok(RollTier::Great)
-//        } else if name == "success" {
-//            Ok(RollTier::Success)
-//        } else {
-//           Err(APIError { 
-//               type_of: APIErrorType::ParseError,
-//               message: format!("{} is not a known requirement.", name) 
-//           }) 
-//        }
-//    }
+    None,       // "" automatically works
+    Fail,       // 1 
+    Bad,        // 2-6
+    Neutral,    // 7-11
+    Good,       // 12-16
+    Great,      // 17+
+    Fantastic,  // Roll 20 on the dice
 }
 
 #[derive(Default,
@@ -616,15 +594,14 @@ impl RollTier {
  )]
 pub struct MightRequirement {
     might: MightEnum,
-    //roll_tier: RollTier,
+    roll_tier: RollTier,
     unlock: u8,
 }
 
-impl Reward for Ability {}
 // =========================================
 
 // Class ===================================
-#[derive( Serialize, 
+#[derive(Serialize, 
          Deserialize, 
          Clone, 
          ToSchema,
@@ -636,6 +613,7 @@ pub struct Class {
         skip_deserializing
     )]
     pub class_id: mongodb::bson::oid::ObjectId,
+    pub class_enum: ClassEnum,
     pub class_desc: String,
     pub class_perks: String,
     pub class_abilities: Vec<Ability>,
@@ -651,7 +629,7 @@ pub struct Class {
  )]
 pub enum ClassEnum {
     #[default]
-    WarHero, 
+    WarGeneral, 
     Aficianado,
     Researcher,
     Cardinal,
@@ -661,10 +639,21 @@ pub enum ClassEnum {
     Prince,
 }
 
+impl ToString for ClassEnum {
+    fn to_string(&self) -> String {
+        match *self {
+            Self::Aficianado => "Aficianado".to_string(),
+            Self::WarGeneral => "WarGeneral".to_string(),
+            _ => "Not Implemented".to_string(),
+        }
+    }
+}
+
 impl Class {
     pub fn new() -> Class {
         Class { 
             class_id: ObjectId::new(),
+            class_enum: ClassEnum::WarGeneral,
             class_desc: "".to_string(),
             class_perks: "".to_string(),
             class_abilities: Vec::<Ability>::new(), 
@@ -688,17 +677,28 @@ impl Default for Class {
          ToSchema,
          Debug,
  )]
-pub struct Episode {
+pub struct Season {
+    #[serde(
+        serialize_with = "serialize_object_id_as_hex_string",
+        skip_deserializing
+    )]
     pub event_id: ObjectId,
+    /// The amount of turns the Character to the left of the ruler must take in order to go to
+    /// the new season.
+    pub event_length: u16,
     pub event_name: String,
     pub event_desc: String,
+    /// Can be any type of struct that takes the Reward trait.
+    // TODO(adamkali): add in this functionality with Character.
     pub event_reward: RewardTypes,
 }
-// =========================================
 
-// TODO add mongodb to get by id from db
-//      and set into object
-pub trait Reward {}
+pub trait Reward {
+    fn grant_reward(
+        &self,
+        character: &mut Character
+    ) -> Result<(), APIError>; 
+}
 
 #[derive(Default,
          Serialize, 
@@ -711,25 +711,8 @@ pub enum RewardTypes {
     #[default]
     None,
     Ability(Ability),
-    Resource(Resource),
     Experience(u8)
 }
 
-// Resources ===============================
-#[derive(Default,
-         Serialize, 
-         Deserialize, 
-         Clone, 
-         ToSchema,
-         Debug,
- )]
-pub struct Resource {
-    pub res_name: String,
-    pub res_desc: String,
-    pub res_valu: u8,
-}
-
-impl Reward for Resource {}
-// =========================================
 
 

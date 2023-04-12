@@ -9,11 +9,13 @@ use std::{
     convert::Infallible,
     pin::Pin,
     task::{Context, Poll},
+    fmt::{Debug, Display},
 };
 use futures::Future;
 
 use crate::data_types::characters::{Character, Class};
 use crate::data_types::engine::GameInfo;
+use super::common::Season;
 
 #[derive(Serialize, Clone, utoipa::ToSchema)]
 pub enum Progress {
@@ -31,6 +33,8 @@ pub enum Progress {
     CharAddedDetailedResponse = DetailedResponse<Character>,
     VecCharDetailedResponse = DetailedResponse<Vec<Character>>,
     CharDetialedResponse = DetailedResponse<Character>,
+    SeasonDetailedResponse = DetailedResponse<Season>,
+    SeasonsDetailedResponse = DetailedResponse<Vec<Season>>,
 )]
 pub struct DetailedResponse<T: Clone + Serialize> {
     pub data: T,
@@ -51,7 +55,7 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
 
     pub fn set_code(&mut self, error: Option<APIError>) -> &mut Self {
         if let Some(err) = error {
-            self.code = err.clone().status_code;
+            self.code = err.status_code;
             self.success = Progress::Failing(err.clone());
             self.message = err.message;
         } else {
@@ -85,6 +89,8 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
             let res = f(self.clone()).await;
             if let Progress::Succeeding = res.success {
                 *self = res;
+            } else if let Progress::Failing(e) = res.success{
+                self.set_code(Some(e));
             }
         }
         self.clone()
@@ -119,7 +125,7 @@ impl<T: Serialize + Send + Clone> HttpBody for DetailedResponse<T> {
 
     fn poll_trailers(
         self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
+        _cx: &mut Context<'_>,
     ) -> Poll<Result<Option<HeaderMap>, Self::Error>> {
         Poll::Ready(Ok(None))
     }
@@ -128,6 +134,20 @@ impl<T: Serialize + Send + Clone> HttpBody for DetailedResponse<T> {
 impl<T: Serialize + Send + Clone + 'static> IntoResponse for DetailedResponse<T> {
     fn into_response(self) -> axum::response::Response {
         axum::response::Response::new(axum::body::boxed(self))
+    }
+}
+
+impl<T> Display for DetailedResponse<T>
+where T: Serialize + Send + Clone + 'static {
+   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+       write!(f, "{:?}", serde_json::to_string(&self.clone()))
+   }
+}
+
+impl<T> Debug for DetailedResponse<T>
+where T: Serialize + Send + Clone + Sized + 'static {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:#?}", serde_json::to_string_pretty(&self.clone()))
     }
 }
 
@@ -146,7 +166,7 @@ impl APIError {
     }
 }
 
-impl std::fmt::Display for APIError {
+impl Display for APIError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -157,7 +177,7 @@ impl std::fmt::Display for APIError {
     }
 }
 
-impl std::fmt::Debug for APIError {
+impl Debug for APIError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
