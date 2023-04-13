@@ -19,7 +19,8 @@ use mongodb::{
 use crate::data_types::{
     characters::{
         Class,
-        Ability
+        Ability,
+        ClassEnum
     },
     common::{
         DetailedResponse,
@@ -87,6 +88,7 @@ pub async fn get(
     let mut response: DetailedResponse<Class> =
         DetailedResponse::new(Class { 
             class_id: ObjectId::new(), 
+            class_enum: ClassEnum::default(),
             class_desc: "".to_string(), 
             class_perks: "".to_string(), 
             class_abilities: Vec::<Ability>::new(), 

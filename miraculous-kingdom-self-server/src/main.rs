@@ -43,7 +43,7 @@ async fn main() {
                 VecCharDetailedResponse, CharDetialedResponse,
                 Ability, Might, MightStat, Clock, GameInfo,
                 GameCreation, MightRequirement, Progress, MightEnum,
-                Season, RewardTypes, RollTier
+                Season, RewardTypes, RollTier, ClassEnum,
             ),
         ),
         tags(
