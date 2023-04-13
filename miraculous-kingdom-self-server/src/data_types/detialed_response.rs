@@ -3,19 +3,19 @@ use axum::{
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
 };
+use futures::Future;
 use serde::Serialize;
 use serde_json;
 use std::{
     convert::Infallible,
+    fmt::{Debug, Display},
     pin::Pin,
     task::{Context, Poll},
-    fmt::{Debug, Display},
 };
-use futures::Future;
 
+use super::common::Season;
 use crate::data_types::characters::{Character, Class};
 use crate::data_types::engine::GameInfo;
-use super::common::Season;
 
 #[derive(Serialize, Clone, utoipa::ToSchema)]
 pub enum Progress {
@@ -69,11 +69,10 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
     pub fn nil(message: String) -> String {
         let nil: DetailedResponse<Option<bool>> = DetailedResponse {
             data: None,
-            success: Progress::Failing(
-                APIError::new(
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    message.clone(),
-                    )),
+            success: Progress::Failing(APIError::new(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                message.clone(),
+            )),
             message,
             code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
         };
@@ -89,7 +88,7 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
             let res = f(self.clone()).await;
             if let Progress::Succeeding = res.success {
                 *self = res;
-            } else if let Progress::Failing(e) = res.success{
+            } else if let Progress::Failing(e) = res.success {
                 self.set_code(Some(e));
             }
         }
@@ -97,7 +96,9 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
     }
 
     pub fn absorb<S>(&mut self, to: &mut DetailedResponse<S>) -> Self
-    where S: Serialize + Send + Clone, {
+    where
+        S: Serialize + Send + Clone,
+    {
         to.success = self.success.clone();
         to.message = self.message.clone();
         to.code = self.code;
@@ -138,14 +139,18 @@ impl<T: Serialize + Send + Clone + 'static> IntoResponse for DetailedResponse<T>
 }
 
 impl<T> Display for DetailedResponse<T>
-where T: Serialize + Send + Clone + 'static {
-   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-       write!(f, "{:?}", serde_json::to_string(&self.clone()))
-   }
+where
+    T: Serialize + Send + Clone + 'static,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", serde_json::to_string(&self.clone()))
+    }
 }
 
 impl<T> Debug for DetailedResponse<T>
-where T: Serialize + Send + Clone + Sized + 'static {
+where
+    T: Serialize + Send + Clone + Sized + 'static,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:#?}", serde_json::to_string_pretty(&self.clone()))
     }
@@ -171,8 +176,7 @@ impl Display for APIError {
         write!(
             f,
             "Status Code: {} occured. Error: {}",
-            &self.status_code,
-            &self.message
+            &self.status_code, &self.message
         )
     }
 }
@@ -182,8 +186,7 @@ impl Debug for APIError {
         write!(
             f,
             "Status Code: {} occured. Error: {}",
-            &self.status_code,
-            &self.message
+            &self.status_code, &self.message
         )
     }
 }

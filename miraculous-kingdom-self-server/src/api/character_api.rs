@@ -1,30 +1,18 @@
-use axum::{
-    Extension,
-    http::StatusCode,
-    Json,
-    extract::Path,
-};
-use mongodb::{
-    Database,
-    bson::{
-        oid::ObjectId,
-        doc
-    },
-};
 use crate::data_types::{
     characters::Character,
-    engine::Game,
     common::{
-        DetailedResponse,
-        VecCharDetailedResponse,
-        CharDetialedResponse,
-        Repository,
-        Progress
-    }
+        CharDetialedResponse, DetailedResponse, Progress, Repository, VecCharDetailedResponse,
+    },
+    engine::Game,
 };
+use axum::{extract::Path, http::StatusCode, Extension, Json};
 use futures::stream::TryStreamExt;
+use mongodb::{
+    bson::{doc, oid::ObjectId},
+    Database,
+};
 
-/// Endpoint to find all characters that the players is participating in for their specific secret. 
+/// Endpoint to find all characters that the players is participating in for their specific secret.
 ///
 /// # Example
 ///
@@ -89,18 +77,21 @@ use futures::stream::TryStreamExt;
 )]
 pub async fn get_characters(
     Extension(mongo): Extension<Database>,
-    Path(secret): Path<String>
+    Path(secret): Path<String>,
 ) -> Json<DetailedResponse<Vec<Character>>> {
-    let mut response =
-        DetailedResponse::new(Vec::<Character>::new());
+    let mut response = DetailedResponse::new(Vec::<Character>::new());
 
     let mut repository = Repository::<Character>::new(&mongo, "characters");
-    response.run(|a| repository.get_all_with_filter(
-        a,
-        doc! {
-            "secret": secret.clone(),
-        }, 
-    )).await;
+    response
+        .run(|a| {
+            repository.get_all_with_filter(
+                a,
+                doc! {
+                    "secret": secret.clone(),
+                },
+            )
+        })
+        .await;
 
     Json(response)
 }
@@ -140,26 +131,27 @@ pub async fn get_character_for_game(
     let mut game_response = DetailedResponse::new(Game::new());
 
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
-    
-    game_response.run(|a| game_repo.get_by_document(
-        a,
-        doc! { "generated_pass": pass.clone() },
-    ))
+
+    game_response
+        .run(|a| game_repo.get_by_document(a, doc! { "generated_pass": pass.clone() }))
         .await
         .absorb(&mut char_response);
 
     if let Progress::Succeeding = char_response.success {
-        let _throw: Vec<&mut Character> 
-            = game_response
-                .data
-                .game_chars
-                .clone()
-                .iter_mut()
-                .map(|a| if a.clone().secret == secret {
+        let _throw: Vec<&mut Character> = game_response
+            .data
+            .game_chars
+            .clone()
+            .iter_mut()
+            .map(|a| {
+                if a.clone().secret == secret {
                     char_response.data = a.clone();
                     a
-                } else  { a })
-                .collect();
+                } else {
+                    a
+                }
+            })
+            .collect();
     }
 
     Json(char_response)

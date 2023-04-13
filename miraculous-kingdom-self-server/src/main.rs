@@ -1,25 +1,22 @@
 pub mod api;
 pub mod data_types;
+pub mod ws;
 
-use axum::{
-    routing::*,
-    http::method::Method,
-    Extension 
-};
-use tower_http::cors::{CorsLayer, Any};
+use axum::{http::method::Method, routing::*, Extension};
+use tower_http::cors::{Any, CorsLayer};
 //use std::sync::Arc;
 //use data_types::engine::Game;
-use utoipa::OpenApi;
-use utoipa_swagger_ui::SwaggerUi;
-use data_types::common::*;
 use data_types::characters::*;
 use data_types::clock::*;
+use data_types::common::*;
 use data_types::engine::*;
 use data_types::might::*;
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 #[tokio::main]
 async fn main() {
-    #[derive(OpenApi)] 
+    #[derive(OpenApi)]
     #[openapi(
         paths(
             api::class_api::get_all,
@@ -58,17 +55,19 @@ async fn main() {
         .allow_methods([Method::GET, Method::POST])
         .allow_origin(Any);
 
-    let mongo_client = mongodb::Client::with_options(client_opt).unwrap().database("mkdb");
-        
+    let mongo_client = mongodb::Client::with_options(client_opt)
+        .unwrap()
+        .database("mkdb");
+
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger").url("/api-docs/openapi.json", APIDoc::openapi()))
-        .route("/", get(|| async { 
-            "And the serve did not go down, quoth the admin \"Nevermore\"" 
-            }))
+        .route(
+            "/",
+            get(|| async { "And the serve did not go down, quoth the admin \"Nevermore\"" }),
+        )
         .nest("/api", api::routes::construct_api_router())
         .layer(cors)
         .layer(Extension(mongo_client));
-        
 
     axum::Server::bind(&"0.0.0.0:8050".parse().unwrap())
         .serve(app.into_make_service())

@@ -1,34 +1,18 @@
 pub mod class_routes {
-    pub use super::get_all;
     pub use super::get;
+    pub use super::get_all;
 }
 
-use axum::{
-    Extension,
-    Json,
-    extract::Path,
-    http::StatusCode,
-};
-use mongodb::{
-    Database,
-    bson::{
-        oid::ObjectId,
-        doc
-    },
-};
 use crate::data_types::{
-    characters::{
-        Class,
-        Ability,
-        ClassEnum
-    },
+    characters::{Ability, Class, ClassEnum},
     common::{
-        DetailedResponse,
-        VecClassDetailedResponse,
-        ClassDetailedResponse,
-        Repository,
-        verify_id,
-    }
+        verify_id, ClassDetailedResponse, DetailedResponse, Repository, VecClassDetailedResponse,
+    },
+};
+use axum::{extract::Path, http::StatusCode, Extension, Json};
+use mongodb::{
+    bson::{doc, oid::ObjectId},
+    Database,
 };
 
 #[utoipa::path(
@@ -45,19 +29,15 @@ use crate::data_types::{
         body = VecClassDetailedResponse 
     ))
 )]
-pub async fn get_all(
-    Extension(mongo): Extension<Database>
-) -> Json<DetailedResponse<Vec<Class>>> {
-    let mut response: DetailedResponse<Vec<Class>> =
-        DetailedResponse::new(Vec::<Class>::new());
+pub async fn get_all(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<Vec<Class>>> {
+    let mut response: DetailedResponse<Vec<Class>> = DetailedResponse::new(Vec::<Class>::new());
     let mut repository = Repository::<Class>::new(&mongo, "classes");
 
     response.run(|a| repository.get_all(a)).await;
     println!("{:#?}", response);
 
-    Json( response.clone())
+    Json(response.clone())
 }
-
 
 #[utoipa::path(
     get,
@@ -83,27 +63,26 @@ pub async fn get_all(
 )]
 pub async fn get(
     Extension(mongo): Extension<Database>,
-    Path(id): Path<String>
+    Path(id): Path<String>,
 ) -> Json<DetailedResponse<Class>> {
-    let mut response: DetailedResponse<Class> =
-        DetailedResponse::new(Class { 
-            class_id: ObjectId::new(), 
-            class_enum: ClassEnum::default(),
-            class_desc: "".to_string(), 
-            class_perks: "".to_string(), 
-            class_abilities: Vec::<Ability>::new(), 
-            class_name: "dummy".to_string()
-        }); 
+    let mut response: DetailedResponse<Class> = DetailedResponse::new(Class {
+        class_id: ObjectId::new(),
+        class_enum: ClassEnum::default(),
+        class_desc: "".to_string(),
+        class_perks: "".to_string(),
+        class_abilities: Vec::<Ability>::new(),
+        class_name: "dummy".to_string(),
+    });
 
     let mut repository = Repository::<Class>::new(&mongo, "classes");
 
-    if let Err(e) = verify_id(
-        id, 
-        &mut response.data.class_id
-    ).await { response.clone().set_code(Some(e)); }
-    
-    Json(response
-         .run(|a| repository.get_by_oid(a.clone(), a.data.class_id))
-         .await
+    if let Err(e) = verify_id(id, &mut response.data.class_id).await {
+        response.clone().set_code(Some(e));
+    }
+
+    Json(
+        response
+            .run(|a| repository.get_by_oid(a.clone(), a.data.class_id))
+            .await,
     )
 }
