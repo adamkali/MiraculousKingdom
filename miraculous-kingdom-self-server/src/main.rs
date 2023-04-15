@@ -3,6 +3,8 @@ pub mod data_types;
 pub mod ws;
 
 use axum::{http::method::Method, routing::*, Extension};
+use std::{net::SocketAddr, path::PathBuf};
+use axum_server::tls_rustls::RustlsConfig;
 use tower_http::cors::{Any, CorsLayer};
 //use std::sync::Arc;
 //use data_types::engine::Game;
@@ -14,21 +16,27 @@ use data_types::might::*;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
+#[derive(Clone, Copy)]
+struct Ports {
+    http: u16,
+    https: u16,
+}
+
 #[tokio::main]
 async fn main() {
     #[derive(OpenApi)]
     #[openapi(
         paths(
-            api::class_api::get_all,
-            api::class_api::get,
-            api::game_api::get_all,
+            api::class_api::get_classes,
+            api::class_api::get_class,
+            api::game_api::get_games,
             api::game_api::start_game,
-            api::game_api::get,
+            api::game_api::get_game,
             api::game_api::add_character,
             api::character_api::get_character_for_game,
             api::character_api::get_characters,
-            api::season_api::get_all,
-            api::season_api::get,
+            api::season_api::get_seasons,
+            api::season_api::get_season,
             api::season_api::roll
         ),
         components(
@@ -59,6 +67,25 @@ async fn main() {
         .unwrap()
         .database("mkdb");
 
+
+    // construct tcp and https://
+    // using use axum_server::tls_rustls::RustlsConfig
+    let ports = Ports {
+        http: 8500,
+        https: 8050,
+    };
+
+    let config = RustlsConfig::from_pem_file(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("certs")
+            .join("cacert.pem"),
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("certs")
+            .join("privkey.pem"),
+    )
+    .await
+    .unwrap();
+
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger").url("/api-docs/openapi.json", APIDoc::openapi()))
         .route(
@@ -69,7 +96,13 @@ async fn main() {
         .layer(cors)
         .layer(Extension(mongo_client));
 
-    axum::Server::bind(&"0.0.0.0:8050".parse().unwrap())
+    //axum::Server::bind(&"0.0.0.0:8050".parse().unwrap())
+    //    .serve(app.into_make_service())
+    //    .await
+    //    .unwrap();
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], ports.https));
+    axum_server::bind_rustls(addr, config)
         .serve(app.into_make_service())
         .await
         .unwrap();

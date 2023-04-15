@@ -23,7 +23,7 @@ use rand::seq::SliceRandom;
         body = SeasonsDetailedResponse 
     ))
 )]
-pub async fn get_all(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<Vec<Season>>> {
+pub async fn get_seasons(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<Vec<Season>>> {
     let mut response: DetailedResponse<Vec<Season>> = DetailedResponse::new(Vec::<Season>::new());
     let mut repository = Repository::<Season>::new(&mongo, "seasons");
 
@@ -53,7 +53,7 @@ pub async fn get_all(Extension(mongo): Extension<Database>) -> Json<DetailedResp
         ("id" = String, Path, description = "ObjectId for mongodb")
     )
 )]
-pub async fn get(
+pub async fn get_season(
     Extension(mongo): Extension<Database>,
     Path(id): Path<String>,
 ) -> Json<DetailedResponse<Season>> {
@@ -108,7 +108,7 @@ pub async fn roll(Extension(mongo): Extension<Database>) -> Json<DetailedRespons
         event_reward: RewardTypes::Experience(1),
     });
 
-    let mut repository = Repository::<Season>::new(&mongo, "classes");
+    let mut repository = Repository::<Season>::new(&mongo, "seasons");
 
     seasons_response
         .run(|a| repository.get_all(a))
@@ -130,7 +130,7 @@ pub async fn roll(Extension(mongo): Extension<Database>) -> Json<DetailedRespons
 }
 
 pub mod season_routes {
-    pub use super::get;
-    pub use super::get_all;
+    pub use super::get_seasons;
+    pub use super::get_season;
     pub use super::roll;
 }

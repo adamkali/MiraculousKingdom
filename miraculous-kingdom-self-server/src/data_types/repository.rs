@@ -39,14 +39,12 @@ impl<T: Default + Clone + Serialize + Sync + Send + Unpin + DeserializeOwned + s
                     match res {
                         Some(r) => data.data.push(r),
                         None => {
-                            println!("{:#?}", data.data);
                             break;
                         }
                     }
                 }
             }
             Err(e) => {
-                println!("{}", e);
                 return data
                     .set_code(Some(APIError::new(
                         StatusCode::INTERNAL_SERVER_ERROR,

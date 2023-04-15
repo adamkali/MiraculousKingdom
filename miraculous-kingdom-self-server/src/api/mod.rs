@@ -16,17 +16,17 @@ pub mod routes {
 
     pub fn construct_api_router() -> Router {
         let class_route = Router::new()
-            .route("/", get(class_routes::get_all)) // G
-            .route("/:id", get(class_routes::get)); // G
+            .route("/", get(class_routes::get_classes)) // G
+            .route("/:id", get(class_routes::get_class)); // G
         let game_route = Router::new()
             .route(
                 "/",
-                get(game_routes::get_all) // G
+                get(game_routes::get_games) // G
                     .post(game_routes::start_game),
             ) // G
             .route(
                 "/:pass",
-                get(game_routes::get) // G
+                get(game_routes::get_game) // G
                     .post(game_routes::add_character),
             ); // x, x
         let character_route = Router::new()
@@ -36,8 +36,8 @@ pub mod routes {
                 get(character_routes::get_character_for_game),
             );
         let season_route = Router::new()
-            .route("/", get(season_routes::get_all))
-            .route("/:id", get(season_routes::get))
+            .route("/", get(season_routes::get_seasons))
+            .route("/:id", get(season_routes::get_season))
             .route("/roll", get(season_routes::roll));
 
         Router::new()

@@ -27,7 +27,7 @@ use utoipa::openapi::Schema;
         )
     )
 )]
-pub async fn get_all(
+pub async fn get_games(
     Extension(mongo): Extension<Database>,
 ) -> Json<DetailedResponse<Vec<GameInfo>>> {
     let mut response: DetailedResponse<Vec<GameInfo>> =
@@ -63,7 +63,7 @@ pub async fn get_all(
         ("pass" = String, Path, description = "Password for entering the game.")
     )
 )]
-pub async fn get(
+pub async fn get_game(
     Extension(mongo): Extension<Database>,
     Path(pass): Path<String>,
 ) -> Json<DetailedResponse<GameInfo>> {
@@ -229,7 +229,7 @@ pub async fn add_character(
 
 pub mod game_routes {
     pub use super::add_character;
-    pub use super::get;
-    pub use super::get_all;
+    pub use super::get_games;
+    pub use super::get_game;
     pub use super::start_game;
 }

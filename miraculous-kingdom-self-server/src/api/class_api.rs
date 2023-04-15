@@ -1,6 +1,6 @@
 pub mod class_routes {
-    pub use super::get;
-    pub use super::get_all;
+    pub use super::get_class;
+    pub use super::get_classes;
 }
 
 use crate::data_types::{
@@ -9,7 +9,7 @@ use crate::data_types::{
         verify_id, ClassDetailedResponse, DetailedResponse, Repository, VecClassDetailedResponse,
     },
 };
-use axum::{extract::Path, http::StatusCode, Extension, Json};
+use axum::{extract::Path, Extension, Json};
 use mongodb::{
     bson::{doc, oid::ObjectId},
     Database,
@@ -29,13 +29,10 @@ use mongodb::{
         body = VecClassDetailedResponse 
     ))
 )]
-pub async fn get_all(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<Vec<Class>>> {
+pub async fn get_classes(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<Vec<Class>>> {
     let mut response: DetailedResponse<Vec<Class>> = DetailedResponse::new(Vec::<Class>::new());
     let mut repository = Repository::<Class>::new(&mongo, "classes");
-
     response.run(|a| repository.get_all(a)).await;
-    println!("{:#?}", response);
-
     Json(response.clone())
 }
 
@@ -61,7 +58,7 @@ pub async fn get_all(Extension(mongo): Extension<Database>) -> Json<DetailedResp
         ("id" = String, Path, description = "ObjectId for mongodb")
     )
 )]
-pub async fn get(
+pub async fn get_class(
     Extension(mongo): Extension<Database>,
     Path(id): Path<String>,
 ) -> Json<DetailedResponse<Class>> {
