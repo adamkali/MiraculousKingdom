@@ -1,0 +1,17 @@
+FROM rust:1.65.0 as staging 
+
+COPY . .
+RUN cargo build --release
+
+RUN apt-get update && \
+    apt-get install -y libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Final image
+FROM alpine:latest
+COPY --from=staging /target ./
+COPY --from=staging /certs ./
+
+EXPOSE 8050
+
+CMD ["./target/release/miraculous-kingdom-self-server"]

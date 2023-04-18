@@ -25,7 +25,10 @@ export default function RootLayout({
                     </div>
                     <div className="col-span-4">
                         <div className="flex flex-row justify-center text-3xl font-bold text-blue-800 dark:text-blue-600">
-                            <Link className="flex flex-row" href="/rules">
+                            <Link
+                                className="flex flex-row items-center align-middle"
+                                href="/rules"
+                            >
                                 <BsBookFill className="mr-8" />
                                 <div className="">Rules</div>
                             </Link>
@@ -48,7 +51,9 @@ export default function RootLayout({
                         </div>
                     </div>
                 </nav>
-                {children}
+                <div className="flex flex-col items-center h-fit pb-12">
+                    {children}
+                </div>
             </body>
         </html>
     );
