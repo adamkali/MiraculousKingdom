@@ -1,17 +1,18 @@
-FROM rust:1.65.0 as staging 
-
+# build stage
+FROM rust:1.69.0 AS build
+WORKDIR /app
 COPY . .
 RUN cargo build --release
+RUN mkdir -p /target/release && cp target/release/miraculous-kingdom-self-server /target/release/miraculous-kingdom-self-server
 
-RUN apt-get update && \
-    apt-get install -y libssl-dev && \
-    rm -rf /var/lib/apt/lists/*
-
-# Final image
+# final stage
 FROM alpine:latest
-COPY --from=staging /target ./
-COPY --from=staging /certs ./
+RUN mkdir /app
+WORKDIR /app
+COPY --from=build /target/release/miraculous-kingdom-self-server ./miraculous-kingdom-self-server
+RUN apk add openssl
+RUN mkdir -p /certs && openssl req -newkey rsa:4096 -nodes -keyout /certs/privkey.pem -x509 -days 365 -out /certs/cacert.pem -subj "/C=US/ST=Florida/L=St. Petersburg/O=Miraculous Kingdom/OU=Software/CN=localhost"
+RUN chmod +x miraculous-kingdom-self-server
+RUN echo $(ls -la .)
+CMD ["./miraculous-kingdom-self-server"]
 
-EXPOSE 8050
-
-CMD ["./target/release/miraculous-kingdom-self-server"]
