@@ -13,9 +13,13 @@ use std::{
     task::{Context, Poll},
 };
 
-use super::common::Season;
-use crate::data_types::characters::{Character, Class};
-use crate::data_types::engine::GameInfo;
+use super::common::{
+    MkResponse,
+    MKModel,
+};
+use crate::data_types::characters::{CharacterResponse, ClassResponse};
+use crate::data_types::engine::{GameInfo, SeasonResponse};
+
 
 #[derive(Serialize, Clone, utoipa::ToSchema)]
 pub enum Progress {
@@ -25,22 +29,20 @@ pub enum Progress {
 
 #[derive(Serialize, Clone, utoipa::ToSchema)]
 #[aliases(
-    VecClassDetailedResponse = DetailedResponse<Vec<Class>>,
-    ClassDetailedResponse = DetailedResponse<Class>,
+    VecClassDetailedResponse = DetailedResponse<Vec<ClassResponse>>,
+    ClassDetailedResponse = DetailedResponse<ClassResponse>,
     GameInfoDetailedResponse = DetailedResponse<GameInfo>,
     GamesInfoDetailedResponse = DetailedResponse<Vec<GameInfo>>,
     PassDetailedResponse = DetailedResponse<String>,
-    CharAddedDetailedResponse = DetailedResponse<Character>,
-    VecCharDetailedResponse = DetailedResponse<Vec<Character>>,
-    CharDetialedResponse = DetailedResponse<Character>,
-    SeasonDetailedResponse = DetailedResponse<Season>,
-    SeasonsDetailedResponse = DetailedResponse<Vec<Season>>,
+    CharAddedDetailedResponse = DetailedResponse<ClassResponse>,
+    VecCharDetailedResponse = DetailedResponse<Vec<CharacterResponse>>,
+    CharDetialedResponse = DetailedResponse<CharacterResponse>,
+    SeasonDetailedResponse = DetailedResponse<SeasonResponse>,
+    SeasonsDetailedResponse = DetailedResponse<Vec<SeasonResponse>>,
 )]
 pub struct DetailedResponse<T: Clone + Serialize> {
     pub data: T,
     pub success: Progress,
-    pub message: String,
-    pub code: u16,
 }
 
 impl<T: Serialize + Send + Clone> DetailedResponse<T> {
@@ -48,20 +50,14 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
         DetailedResponse {
             data: d,
             success: Progress::Succeeding,
-            message: "".to_string(),
-            code: StatusCode::OK.as_u16(),
         }
     }
 
     pub fn set_code(&mut self, error: Option<APIError>) -> &mut Self {
         if let Some(err) = error {
-            self.code = err.status_code;
             self.success = Progress::Failing(err.clone());
-            self.message = err.message;
         } else {
-            self.code = 200;
             self.success = Progress::Succeeding;
-            self.message = String::new()
         }
         self
     }
@@ -73,8 +69,6 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
                 StatusCode::INTERNAL_SERVER_ERROR,
                 message.clone(),
             )),
-            message,
-            code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
         };
         serde_json::to_string(&nil).unwrap_or_else(|_| "well... $hit".to_string())
     }
@@ -100,8 +94,6 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
         S: Serialize + Send + Clone,
     {
         to.success = self.success.clone();
-        to.message = self.message.clone();
-        to.code = self.code;
         self.clone()
     }
 }

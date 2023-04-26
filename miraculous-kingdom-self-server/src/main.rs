@@ -41,14 +41,15 @@ async fn main() {
         ),
         components(
             schemas(
-                Character, NewCharacter, Class,
+                CharacterResponse, NewCharacter, ClassResponse,
                 VecClassDetailedResponse, ClassDetailedResponse,
                 GameInfoDetailedResponse, GamesInfoDetailedResponse,
                 PassDetailedResponse, CharAddedDetailedResponse,
                 VecCharDetailedResponse, CharDetialedResponse,
                 Ability, Might, MightStat, Clock, GameInfo,
                 GameCreation, MightRequirement, Progress, MightEnum,
-                Season, RewardTypes, RollTier, ClassEnum,
+                SeasonResponse, RewardTypes, RollTier, ClassEnum, CharacterState,
+                APIError, 
             ),
         ),
         tags(
@@ -96,13 +97,14 @@ async fn main() {
         .layer(cors)
         .layer(Extension(mongo_client));
 
-    //axum::Server::bind(&"0.0.0.0:8050".parse().unwrap())
-    //    .serve(app.into_make_service())
-    //    .await
-    //    .unwrap();
-
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.https));
+    let addr_http = SocketAddr::from(([127, 0, 0, 1], ports.http));
     axum_server::bind_rustls(addr, config)
+        .serve(app.clone().into_make_service())
+        .await
+        .unwrap();
+
+    axum_server::bind(addr_http)
         .serve(app.into_make_service())
         .await
         .unwrap();

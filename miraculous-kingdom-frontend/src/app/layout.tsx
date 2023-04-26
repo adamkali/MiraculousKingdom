@@ -51,7 +51,7 @@ export default function RootLayout({
                         </div>
                     </div>
                 </nav>
-                <div className="flex flex-col items-center h-fit pb-12">
+                <div className="flex h-fit flex-col items-center pb-12">
                     {children}
                 </div>
             </body>

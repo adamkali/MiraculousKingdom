@@ -5,9 +5,7 @@ import { BsSearch } from "react-icons/bs";
 import { Rule, RulesConst } from "./rules";
 import { rule } from "postcss";
 
-
 export default function Page() {
-
     const [ruleSearch, setRuleSearch] = useState("");
     const [rules, setRules] = useState([] as Rule[]);
 
@@ -39,7 +37,6 @@ export default function Page() {
         }
     }, [ruleSearch]);
 
-
     return (
         <div className="flex max-h-fit flex-col items-center justify-center overflow-y-scroll">
             <div className="py-8 text-6xl text-red-700">Rules</div>
@@ -53,18 +50,20 @@ export default function Page() {
                 />
             </div>
             <div className="flex flex-col overflow-y-auto overflow-x-hidden text-center text-lg">
-                {rules.sort((rule0, rule1) => {
-                    return rule0.title.localeCompare(rule1.title);
-                }).map((node) => {
-                    return (
-                        <div className="flex flex-col justify-center mx-8 mb-4 pb-8 text-xl rounded-xl bg-slate-500/50">
-                            <div className="text-2xl text-blue-500">
-                                {node.title}
+                {rules
+                    .sort((rule0, rule1) => {
+                        return rule0.title.localeCompare(rule1.title);
+                    })
+                    .map((node) => {
+                        return (
+                            <div className="mx-8 mb-4 flex flex-col justify-center rounded-xl bg-slate-500/50 pb-8 text-xl">
+                                <div className="text-2xl text-blue-500">
+                                    {node.title}
+                                </div>
+                                {node.ele}
                             </div>
-                            {node.ele}
-                        </div>
-                    );
-                })}
+                        );
+                    })}
             </div>
         </div>
     );

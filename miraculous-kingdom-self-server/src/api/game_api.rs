@@ -1,6 +1,5 @@
 use crate::data_types::{
     characters::{Character, Class, NewCharacter},
-    common::APIError,
     common::DetailedResponse,
     common::Repository,
     engine::*,
@@ -8,8 +7,6 @@ use crate::data_types::{
 };
 use axum::{extract::Path, http::StatusCode, Extension, Json};
 use mongodb::{bson::doc, Database};
-use std::sync::Mutex;
-use utoipa::openapi::Schema;
 
 #[utoipa::path(
     get,
@@ -67,11 +64,7 @@ pub async fn get_game(
     Extension(mongo): Extension<Database>,
     Path(pass): Path<String>,
 ) -> Json<DetailedResponse<GameInfo>> {
-    let mut response: DetailedResponse<GameInfo> = DetailedResponse::new(GameInfo {
-        game_name: "".to_string(),
-        game_ruler: "".to_string(),
-        game_chars: Vec::<String>::new(),
-    });
+    let mut response: DetailedResponse<GameInfo> = DetailedResponse::new(GameInfo::default());
     let mut game_response: DetailedResponse<Game> = DetailedResponse::new(Game::new());
 
     let mut repository = Repository::new(&mongo, "games");

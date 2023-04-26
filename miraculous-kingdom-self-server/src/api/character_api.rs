@@ -1,14 +1,21 @@
 use crate::data_types::{
-    characters::Character,
+    characters::{
+        CharacterResponse,
+        Character
+    },
     common::{
-        CharDetialedResponse, DetailedResponse, Progress, Repository, VecCharDetailedResponse,
+        CharDetialedResponse, 
+        DetailedResponse, 
+        Progress, 
+        Repository, 
+        VecCharDetailedResponse,
+        MKModel,
     },
     engine::Game,
 };
-use axum::{extract::Path, http::StatusCode, Extension, Json};
-use futures::stream::TryStreamExt;
+use axum::{extract::Path, Extension, Json};
 use mongodb::{
-    bson::{doc, oid::ObjectId},
+    bson::doc,
     Database,
 };
 
@@ -78,7 +85,7 @@ use mongodb::{
 pub async fn get_characters(
     Extension(mongo): Extension<Database>,
     Path(secret): Path<String>,
-) -> Json<DetailedResponse<Vec<Character>>> {
+) -> Json<DetailedResponse<Vec<CharacterResponse>>> {
     let mut response = DetailedResponse::new(Vec::<Character>::new());
 
     let mut repository = Repository::<Character>::new(&mongo, "characters");
@@ -92,8 +99,9 @@ pub async fn get_characters(
             )
         })
         .await;
-
-    Json(response)
+    let mut resp = DetailedResponse::new(Vec::<CharacterResponse>::new());
+    response.data.iter().for_each(|a| resp.data.push(a.clone().as_response()));
+    Json(resp)
 }
 
 #[utoipa::path(
@@ -126,7 +134,7 @@ pub async fn get_character_for_game(
     Extension(mongo): Extension<Database>,
     Path(secret): Path<String>,
     Path(pass): Path<String>,
-) -> Json<DetailedResponse<Character>> {
+) -> Json<DetailedResponse<CharacterResponse>> {
     let mut char_response = DetailedResponse::new(Character::new());
     let mut game_response = DetailedResponse::new(Game::new());
 
@@ -154,7 +162,8 @@ pub async fn get_character_for_game(
             .collect();
     }
 
-    Json(char_response)
+    let resp = DetailedResponse::new(char_response.data.as_response());
+    Json(resp)
 }
 
 pub mod character_routes {

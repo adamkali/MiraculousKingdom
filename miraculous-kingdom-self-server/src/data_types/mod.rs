@@ -1,14 +1,15 @@
 mod data;
 mod detialed_response;
 mod repository;
+mod traits;
 
 pub mod common {
     pub use super::data::Reward;
     pub use super::data::RewardTypes;
-    pub use super::data::Season;
     pub use super::detialed_response::*;
     pub use super::repository::verify_id;
     pub use super::repository::Repository;
+    pub use super::traits::*;
 }
 
 pub use data::characters;
@@ -28,6 +29,7 @@ pub async fn game_to_info(
         .clone()
         .map(|a| a.char_name.clone())
         .collect();
+    info.game_pass = game.generated_pass;
     Ok(())
 }
 
@@ -36,11 +38,7 @@ pub async fn games_to_info(
     infos: &mut Vec<engine::GameInfo>,
 ) -> Result<(), common::APIError> {
     for game in games {
-        let mut info = engine::GameInfo {
-            game_name: String::new(),
-            game_ruler: String::new(),
-            game_chars: Vec::<String>::new(),
-        };
+        let mut info = engine::GameInfo::default();
         game_to_info(game, &mut info).await?;
         infos.push(info);
     }

@@ -1,12 +1,24 @@
-use crate::data_types::common::{
-    verify_id, APIError, DetailedResponse, Repository, RewardTypes, Season, SeasonDetailedResponse,
-    SeasonsDetailedResponse,
+use crate::data_types::{
+    common::{
+        verify_id,
+        APIError,
+        DetailedResponse,
+        Repository,
+        RewardTypes,
+        SeasonDetailedResponse,
+        SeasonsDetailedResponse,
+        MKModel,
+    },
+    engine::{
+        Season, SeasonResponse
+    } 
 };
 use axum::{extract::Path, http::StatusCode, Extension, Json};
 use mongodb::{
     bson::{doc, oid::ObjectId},
     Database,
 };
+
 use rand::seq::SliceRandom;
 
 #[utoipa::path(
@@ -23,12 +35,18 @@ use rand::seq::SliceRandom;
         body = SeasonsDetailedResponse 
     ))
 )]
-pub async fn get_seasons(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<Vec<Season>>> {
+pub async fn get_seasons(Extension(mongo): Extension<Database>) 
+-> Json<DetailedResponse<Vec<SeasonResponse>>> {
     let mut response: DetailedResponse<Vec<Season>> = DetailedResponse::new(Vec::<Season>::new());
     let mut repository = Repository::<Season>::new(&mongo, "seasons");
 
     response.run(|a| repository.get_all(a)).await;
-    Json(response.clone())
+    let mut res: DetailedResponse<Vec<SeasonResponse>> 
+        = DetailedResponse::new(Vec::new());
+    res.absorb(&mut response.clone());
+    response.data.iter().for_each(|a| res.data.push(a.clone().as_response()));
+
+    Json(res)
 }
 
 #[utoipa::path(
@@ -56,7 +74,7 @@ pub async fn get_seasons(Extension(mongo): Extension<Database>) -> Json<Detailed
 pub async fn get_season(
     Extension(mongo): Extension<Database>,
     Path(id): Path<String>,
-) -> Json<DetailedResponse<Season>> {
+) -> Json<DetailedResponse<SeasonResponse>> {
     let mut response: DetailedResponse<Season> = DetailedResponse::new(Season {
         event_id: ObjectId::new(),
         event_name: String::new(),
@@ -71,11 +89,14 @@ pub async fn get_season(
         response.clone().set_code(Some(e));
     }
 
-    Json(
-        response
-            .run(|a| repository.get_by_oid(a.clone(), a.data.event_id))
-            .await,
-    )
+    response
+        .run(|a| repository.get_by_oid(a.clone(), a.data.event_id))
+        .await;
+
+    let mut res: DetailedResponse<SeasonResponse> =
+        DetailedResponse::new(response.data.as_response());
+    res.absorb(&mut response);
+    Json(res)
 }
 
 #[utoipa::path(
@@ -97,7 +118,8 @@ pub async fn get_season(
         body = SeasonDetailedResponse 
     ))
 )]
-pub async fn roll(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<Season>> {
+pub async fn roll(Extension(mongo): Extension<Database>)
+-> Json<DetailedResponse<SeasonResponse>> {
     let mut seasons_response: DetailedResponse<Vec<Season>> =
         DetailedResponse::new(Vec::<Season>::new());
     let mut response: DetailedResponse<Season> = DetailedResponse::new(Season {
@@ -125,8 +147,10 @@ pub async fn roll(Extension(mongo): Extension<Database>) -> Json<DetailedRespons
             )));
         }
     }
-
-    Json(response.clone())
+    let mut res: DetailedResponse<SeasonResponse> =
+        DetailedResponse::new(response.data.as_response());
+    res.absorb(&mut response);
+    Json(res)
 }
 
 pub mod season_routes {

@@ -4,9 +4,14 @@ pub mod class_routes {
 }
 
 use crate::data_types::{
-    characters::{Ability, Class, ClassEnum},
+    characters::{Ability, Class, ClassEnum, ClassResponse},
     common::{
-        verify_id, ClassDetailedResponse, DetailedResponse, Repository, VecClassDetailedResponse,
+        verify_id,
+        ClassDetailedResponse,
+        DetailedResponse,
+        Repository,
+        VecClassDetailedResponse,
+        MKModel 
     },
 };
 use axum::{extract::Path, Extension, Json};
@@ -29,11 +34,15 @@ use mongodb::{
         body = VecClassDetailedResponse 
     ))
 )]
-pub async fn get_classes(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<Vec<Class>>> {
+pub async fn get_classes(Extension(mongo): Extension<Database>) 
+-> Json<DetailedResponse<Vec<ClassResponse>>> {
     let mut response: DetailedResponse<Vec<Class>> = DetailedResponse::new(Vec::<Class>::new());
     let mut repository = Repository::<Class>::new(&mongo, "classes");
     response.run(|a| repository.get_all(a)).await;
-    Json(response.clone())
+    let mut resp = DetailedResponse::new(Vec::<ClassResponse>::new());
+    resp.absorb(&mut response.clone());
+    response.data.iter().for_each(|a| resp.data.push(a.as_response()));
+    Json(resp)
 }
 
 #[utoipa::path(
@@ -61,7 +70,7 @@ pub async fn get_classes(Extension(mongo): Extension<Database>) -> Json<Detailed
 pub async fn get_class(
     Extension(mongo): Extension<Database>,
     Path(id): Path<String>,
-) -> Json<DetailedResponse<Class>> {
+) -> Json<DetailedResponse<ClassResponse>> {
     let mut response: DetailedResponse<Class> = DetailedResponse::new(Class {
         class_id: ObjectId::new(),
         class_enum: ClassEnum::default(),
@@ -77,9 +86,10 @@ pub async fn get_class(
         response.clone().set_code(Some(e));
     }
 
-    Json(
-        response
-            .run(|a| repository.get_by_oid(a.clone(), a.data.class_id))
-            .await,
-    )
+    response
+        .run(|a| repository.get_by_oid(a.clone(), a.data.class_id))
+        .await;
+
+    let mut resp = DetailedResponse::new(response.data.as_response());
+    Json(resp.absorb(&mut response.clone()))
 }
