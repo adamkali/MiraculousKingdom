@@ -1,15 +1,33 @@
-# build stage
+
+# build stage ====================================
 FROM rust:1.68.0 AS build
 WORKDIR /usr/src/app
 COPY . .
 RUN cargo install --path . 
+# =================================================
 
-# final stage
+
+# final stage =====================================
 FROM debian:latest
+
+#COPY over files
 COPY --from=build /usr/local/cargo/bin/miraculous-kingdom-self-server /usr/local/bin/miraculous-kingdom-self-server
-RUN apt-get update && apt-get install -y extra-runtime-dependencies openssl 
-RUN mkdir -p /usr/local/bin/certs && openssl req -newkey rsa:4096 -nodes -keyout /usr/local/bin/certs/privkey.pem -x509 -days 365 -out ./certs/cacert.pem -subj "/C=US/ST=Florida/L=St. Petersburg/O=Miraculous Kingdom/OU=Software/CN=localhost"
-RUN chmod +x miraculous-kingdom-self-server
-RUN echo $(ls -la .)
-CMD ["./miraculous-kingdom-self-server"]
+RUN mkdir -p /working/certs
+
+WORKDIR /working
+COPY --from=build /usr/src/app/certs/ ./certs
+RUN apt-get update && apt-get install -y openssl 
+
+# Make the ssl
+RUN openssl req -newkey rsa:4096 -nodes -keyout certs/privkey.pem -x509 -days 365 -out certs/cacert.pem -subj "/C=US/ST=Florida/L=St. Petersburg/O=Miraculous Kingdom/OU=Software/CN=localhost"
+RUN chmod +x /usr/local/bin/miraculous-kingdom-self-server
+
+
+EXPOSE 8050
+VOLUME /working/certs
+
+# run 
+CMD ["miraculous-kingdom-self-server"]
+# =================================================
+
 

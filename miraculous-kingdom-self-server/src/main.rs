@@ -76,17 +76,6 @@ async fn main() {
         https: 8050,
     };
 
-    let config = RustlsConfig::from_pem_file(
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("certs")
-            .join("cacert.pem"),
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("certs")
-            .join("privkey.pem"),
-    )
-    .await
-    .unwrap();
-
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger").url("/api-docs/openapi.json", APIDoc::openapi()))
         .route(
@@ -98,14 +87,36 @@ async fn main() {
         .layer(Extension(mongo_client));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.https));
-    let addr_http = SocketAddr::from(([127, 0, 0, 1], ports.http));
-    axum_server::bind_rustls(addr, config)
-        .serve(app.clone().into_make_service())
-        .await
-        .unwrap();
 
-    axum_server::bind(addr_http)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    match RustlsConfig::from_pem_file(
+        // XXX: for local
+        // PathBuf::from("./certs/cacert.pem").as_path(),
+        // PathBuf::from("./certs/privkey.pem").as_path()
+        // XXX: for docker!
+        PathBuf::from("/working/certs/cacert.pem").as_path(),
+        PathBuf::from("/working/certs/privkey.pem").as_path()
+    ).await {
+        Ok(conf) => { 
+            println!("Connection opened on https://{:?}", addr.to_string());
+            axum_server::bind_rustls(addr, conf)
+                .serve(app.clone().into_make_service())
+                .await
+                .unwrap();
+        },
+        Err(e) => {
+            println!("{:?}\n cacert: {:#?}\n privkey: {:#?}\n",
+                e,
+                std::fs::File::open(
+                    PathBuf::from("/working/certs/cacert.pem").as_path()
+                ).is_ok(),
+                std::fs::File::open(
+                    PathBuf::from("/working/certs/privkey.pem").as_path()
+                ).is_ok()
+            );
+            axum_server::bind(addr)
+                .serve(app.into_make_service())
+                .await
+                .unwrap();
+        }
+    };
 }
