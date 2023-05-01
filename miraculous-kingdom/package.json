@@ -1,0 +1,37 @@
+{
+  "name": "miraculous-kingdom",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "pretty": "prettier --config .prettierrc ./src/**/*.* --write",
+    "gen-doc": "openapi --input ./openapi.json --output ./src/models --client axios",
+    "gen-url": "openapi --input https://localhot:8050/api-docs/openapi.json --output ./src/models --client axios"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^2.0.3",
+    "@tsconfig/svelte": "^4.0.1",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.23",
+    "prettier": "^2.8.8",
+    "prettier-plugin-svelte": "^2.10.0",
+    "prettier-plugin-tailwindcss": "^0.2.8",
+    "svelte": "^3.57.0",
+    "svelte-check": "^2.10.3",
+    "tailwindcss": "^3.3.2",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.2"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "form-data": "^4.0.0",
+    "openapi-typescript-codegen": "^0.24.0",
+    "svelte-icons": "^2.1.0",
+    "svelte-navigator": "^3.2.2"
+  }
+}
