@@ -2,10 +2,31 @@ pub mod api;
 pub mod data_types;
 pub mod ws;
 
-use axum::{http::method::Method, routing::*, Extension};
+use axum::{
+    http::{
+        Method,
+        HeaderMap, 
+        HeaderValue,
+        Request
+    }, 
+    routing::*, 
+    Extension,
+    extract::MatchedPath,
+};
 use std::{net::SocketAddr, path::PathBuf};
 use axum_server::tls_rustls::RustlsConfig;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::{
+    trace::TraceLayer,
+    cors::{
+        Any,
+        CorsLayer,
+    }
+};
+use tracing_subscriber::{
+    layer::SubscriberExt, 
+    util::SubscriberInitExt
+};
+use tracing::{info_span, Span};
 //use std::sync::Arc;
 //use data_types::engine::Game;
 use data_types::characters::*;
@@ -26,6 +47,9 @@ struct Ports {
 async fn main() {
     #[derive(OpenApi)]
     #[openapi(
+        servers(
+            (url =  "http://0.0.0.0:8050")
+        ),
         paths(
             api::class_api::get_classes,
             api::class_api::get_class,
@@ -58,11 +82,19 @@ async fn main() {
     )]
     struct APIDoc;
 
+    
+
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
+                "example_tracing_aka_logging=debug,tower_http=debug,axum::rejection=trace".into()
+            })
+        )
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     let uri = "mongodb://root:mk2023!@localhost:8100";
     let client_opt = mongodb::options::ClientOptions::parse(uri).await.unwrap();
-    let cors = CorsLayer::new()
-        .allow_methods([Method::GET, Method::POST])
-        .allow_origin(Any);
 
     let mongo_client = mongodb::Client::with_options(client_opt)
         .unwrap()
@@ -83,25 +115,57 @@ async fn main() {
             get(|| async { "And the serve did not go down, quoth the admin \"Nevermore\"" }),
         )
         .nest("/api", api::routes::construct_api_router())
-        .layer(cors)
-        .layer(Extension(mongo_client));
+        .layer(Extension(mongo_client))
+        .layer(
+            CorsLayer::new()
+                .allow_origin(Any)
+                .allow_methods(Any),
+            )
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(|request: &Request<_>| {
+                    let matched_path = request
+                        .extensions()
+                        .get::<MatchedPath>()
+                        .map(MatchedPath::as_str);
+
+                    info_span!(
+                        "http_request",
+                        method = ?request.method(),
+                        matched_path,
+                        some_other_field = tracing::field::Empty,
+                    )
+                })
+                .on_request(|_request: &Request<_>, _span: &Span| {
+                    // You can use `_span.record("some_other_field", value)` in one of these
+                    // closures to attach a value to the initially empty field in the info_span
+                    // created above.
+                    _span.record("uri:", _request.uri().path().to_string())
+                        .record("method: ", _request.method().to_string());
+                })
+            );
 
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.https));
 
     match RustlsConfig::from_pem_file(
         // XXX: for local
-        // PathBuf::from("./certs/cacert.pem").as_path(),
-        // PathBuf::from("./certs/privkey.pem").as_path()
+        PathBuf::from("./certs/cacert.pem").as_path(),
+        PathBuf::from("./certs/privkey.pem").as_path()
         // XXX: for docker!
-        PathBuf::from("/working/certs/cacert.pem").as_path(),
-        PathBuf::from("/working/certs/privkey.pem").as_path()
+        //PathBuf::from("/working/certs/cacert.pem").as_path(),
+        //PathBuf::from("/working/certs/privkey.pem").as_path()
     ).await {
         Ok(conf) => { 
             println!("Connection opened on https://{:?}", addr.to_string());
-            axum_server::bind_rustls(addr, conf)
-                .serve(app.clone().into_make_service())
+            tracing::debug!("listening on {}", addr);
+            axum_server::bind(addr)
+                .serve(app.into_make_service())
                 .await
                 .unwrap();
+            //axum_server::bind_rustls(addr, conf)
+            //    .serve(app.clone().into_make_service())
+            //    .await
+            //    .unwrap();
         },
         Err(e) => {
             println!("{:?}\n cacert: {:#?}\n privkey: {:#?}\n",

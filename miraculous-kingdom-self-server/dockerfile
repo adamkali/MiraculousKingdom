@@ -3,7 +3,7 @@
 FROM rust:1.68.0 AS build
 WORKDIR /usr/src/app
 COPY . .
-RUN cargo install --path . 
+RUN cargo install  --path . 
 # =================================================
 
 
@@ -15,11 +15,10 @@ COPY --from=build /usr/local/cargo/bin/miraculous-kingdom-self-server /usr/local
 RUN mkdir -p /working/certs
 
 WORKDIR /working
-COPY --from=build /usr/src/app/certs/ ./certs
 RUN apt-get update && apt-get install -y openssl 
 
 # Make the ssl
-RUN openssl req -newkey rsa:4096 -nodes -keyout certs/privkey.pem -x509 -days 365 -out certs/cacert.pem -subj "/C=US/ST=Florida/L=St. Petersburg/O=Miraculous Kingdom/OU=Software/CN=localhost"
+RUN openssl req -newkey rsa:4096 -nodes -keyout ./certs/privkey.pem -x509 -days 365 -out ./certs/cacert.pem -subj "/C=US/ST=Florida/L=St. Petersburg/O=Miraculous Kingdom/OU=Software/CN=api.miraculous-kingdom.gg"
 RUN chmod +x /usr/local/bin/miraculous-kingdom-self-server
 
 
