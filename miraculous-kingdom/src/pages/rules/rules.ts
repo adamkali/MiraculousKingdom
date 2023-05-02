@@ -5,15 +5,15 @@ import {
     GiJerusalemCross,
     GiPapers,
     GiSpy,
-} from "react-icons/gi";
+} from 'react-icons/gi'
 
 export type Rule = {
-    id: number;
-    title: string;
-    ele: JSX.Element;
-    searchableName: string[];
-    continue: JSX.Element;
-};
+    id: number
+    title: string
+    ele: JSX.Element
+    searchableName: string[]
+    continue: JSX.Element
+}
 
 //
 //    {
@@ -40,7 +40,7 @@ export type Rule = {
 const RulesConst: Rule[] = [
     {
         id: 0,
-        title: "Starting a Game",
+        title: 'Starting a Game',
         ele: (
             <Link
                 href="/rules/0"
@@ -49,15 +49,15 @@ const RulesConst: Rule[] = [
                 <div className="w-2/3 justify-center">
                     Starting a Game is a very simple process. One of the players
                     presses <b className="text-red-700">Start Game</b> in the
-                    game menu. From there they will get a code like{" "}
+                    game menu. From there they will get a code like{' '}
                     <b className="text-red-700">0000AAA</b>. This will be what
-                    you put in when you click{" "}
+                    you put in when you click{' '}
                     <b className="text-red-700">Join</b>. It will then ask for a
                     passcode...
                 </div>
             </Link>
         ),
-        searchableName: ["Set Up", "Setting Up", "Start"],
+        searchableName: ['Set Up', 'Setting Up', 'Start'],
         continue: (
             <div className="mx-8 flex flex-col items-center justify-center pb-8 text-xl">
                 <div className="w-2/3">
@@ -72,7 +72,7 @@ const RulesConst: Rule[] = [
     },
     {
         id: 1,
-        title: "Character Creation",
+        title: 'Character Creation',
         ele: (
             <Link
                 href="/rules/1"
@@ -80,7 +80,7 @@ const RulesConst: Rule[] = [
             >
                 <div className="w-2/3">
                     <div className="pb-4">
-                        You will enter in a name, and choose a{" "}
+                        You will enter in a name, and choose a{' '}
                         <Link href="/rule/2" className="text-red-600">
                             Class
                         </Link>
@@ -117,11 +117,11 @@ const RulesConst: Rule[] = [
             </Link>
         ),
         searchableName: [
-            "Creation",
-            "Characters",
-            "Create",
-            "Character",
-            "Might",
+            'Creation',
+            'Characters',
+            'Create',
+            'Character',
+            'Might',
         ],
         continue: (
             <div className="mx-8 flex flex-col items-center justify-center pb-8 text-xl">
@@ -135,7 +135,7 @@ const RulesConst: Rule[] = [
     },
     {
         id: 2,
-        title: "Classes",
+        title: 'Classes',
         ele: (
             <Link
                 href="/rules/2"
@@ -168,13 +168,13 @@ const RulesConst: Rule[] = [
             </Link>
         ),
         searchableName: [
-            "Classes",
-            "War General",
-            "Cultural Aficianado",
-            "Royal Scientist",
-            "Cardinal",
-            "Spy Master",
-            "Diplomat",
+            'Classes',
+            'War General',
+            'Cultural Aficianado',
+            'Royal Scientist',
+            'Cardinal',
+            'Spy Master',
+            'Diplomat',
         ],
         continue: (
             <div className="mx-8 flex flex-col items-center justify-center pb-8 text-xl">
@@ -185,6 +185,6 @@ const RulesConst: Rule[] = [
             </div>
         ),
     },
-];
+]
 
-export { RulesConst };
+export { RulesConst }

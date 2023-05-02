@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "pretty": "prettier --config .prettierrc ./src/**/*.* --write",
+    "pretty": "prettier --config ./prettier.yaml ./src/**/*.* --write",
     "gen-doc": "openapi --input ./openapi.json --output ./src/models --client axios",
     "gen-url": "openapi --input https://localhot:8050/api-docs/openapi.json --output ./src/models --client axios"
   },

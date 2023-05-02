@@ -1,12 +1,80 @@
 <script lang="ts">
-    import "./app.css";
+    import './app.css'
 
-    import { Router, Link, Route } from "svelte-navigator";
+    import FaYoutube from 'svelte-icons/fa/FaYoutube.svelte'
+    import DiGithubAlt from 'svelte-icons/di/DiGithubAlt.svelte'
+    import DiDocker from 'svelte-icons/di/DiDocker.svelte'
+    import GiHourglass from 'svelte-icons/gi/GiHourglass.svelte'
+    import GiOpenBook from 'svelte-icons/gi/GiOpenBook.svelte'
+    import GiDiceTwentyFacesTwenty from 'svelte-icons/gi/GiDiceTwentyFacesTwenty.svelte'
+    import { Router, Link, Route } from 'svelte-navigator'
+    import Home from './pages/Home.svelte'
 </script>
 
-<main class="w-screen h-screen bg-gradient-to-tr from-blue-700 to-fuchsia-700">
+<main
+    class="min-w-screen -transform-y-4 mb-4 min-h-screen items-center justify-center bg-gradient-to-tr from-blue-700 to-fuchsia-700"
+>
     <Router>
-        <nav class="my-2 mx-8 w-full bg-black/75 backdrop-blur-lg rounded-s-2xl px-4 py-2 text-lg">
+        <nav
+            class="m-8 grid h-16 w-11/12 grid-cols-5 rounded-xl bg-black/75 p-4 px-4 py-2 text-2xl backdrop-blur-lg"
+        >
+            <div class="left-0 text-4xl text-red-600">Miraculous Kingdom</div>
+            <div class="col-span-3 flex flex-row justify-center">
+                <div
+                    class="mr-4 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                >
+                    <Link to="/start">
+                        <GiDiceTwentyFacesTwenty />
+                        <div>Start</div>
+                    </Link>
+                </div>
+                <div
+                    class="mr-4 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                >
+                    <Link to="/rules">
+                        <GiOpenBook />
+                        <div>Rules</div>
+                    </Link>
+                </div>
+                <div
+                    class="mr-4 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                >
+                    <Link to="/get-in">
+                        <GiHourglass />
+                        <div>Get In</div>
+                    </Link>
+                </div>
+            </div>
+            <div class="right-0 col-span-1 flex flex-row">
+                <div
+                    class="mr-8 h-12 text-red-600 transition duration-150 hover:text-fuchsia-600"
+                >
+                    <Link to="https://github.com/adamkali/MiraculousKingdom">
+                        <DiGithubAlt />
+                    </Link>
+                </div>
+                <div
+                    class="h-12 text-red-600 transition duration-150 hover:text-fuchsia-600"
+                >
+                    <Link
+                        to="https://hub.docker.com/repository/docker/adamkali/miraculous-kingdom/general"
+                    >
+                        <DiDocker />
+                    </Link>
+                </div>
+                <!--<Link 
+                    class="text-red-600 transition duration-150 hover:text-fuchsia-600"
+                    to="/"
+                >
+                    <FaYoutube /> 
+                </Link>-->
+            </div>
         </nav>
+        <Route path="/">
+            <Home />
+        </Route>
+        <Route path="/rules">
+            <Classes />
+        </Route>
     </Router>
 </main>
