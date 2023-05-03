@@ -25,7 +25,9 @@
             <b>{ability.ability_clock.clock_name}</b>
             {ability.ability_clock.clock_desc}
         </p>
-        <p class="h-12 text-blue-600">
+        <div
+            class="flex h-10 flex-row place-items-start justify-start text-lg text-blue-600"
+        >
             {#if ability.ability_clock.clock_conf}
                 <FaVolumeMute />
             {/if}
@@ -33,7 +35,7 @@
                 ability.ability_clock.clock_remaining +
                 '/' +
                 ability.ability_clock.clock_duration}
-        </p>
+        </div>
     {/if}
     <div class="justify-end">
         <div class="items flex flex-row text-lg">

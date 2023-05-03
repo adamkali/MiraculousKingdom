@@ -11,6 +11,10 @@
     import Classes from './pages/rules/Classes.svelte'
     import Special from './components/Special.svelte'
     import Abilities from './pages/rules/Abilities.svelte'
+
+    const backToHome = () => {
+        window.location.href = '/'
+    }
 </script>
 
 <main
@@ -20,7 +24,12 @@
         <nav
             class="m-8 grid h-16 w-11/12 grid-cols-5 rounded-xl bg-black/75 p-4 px-4 py-2 text-2xl backdrop-blur-lg"
         >
-            <div class="left-0 text-4xl text-red-600">Miraculous Kingdom</div>
+            <div
+                on:click={() => backToHome()}
+                class="left-0 text-4xl text-red-600"
+            >
+                Miraculous Kingdom
+            </div>
             <div class="col-span-3 flex flex-row justify-center">
                 <div
                     class="mr-4 h-8 flex-row items-center text-blue-600 transition duration-150 hover:text-cyan-600"
@@ -76,11 +85,11 @@
             <Home />
         </Route>
         <Route path="/rules/*">
-            <Route path="classes">
-                <Classes />
-            </Route>
             <Route path="abilities">
                 <Abilities />
+            </Route>
+            <Route path="classes">
+                <Classes />
             </Route>
         </Route>
     </Router>

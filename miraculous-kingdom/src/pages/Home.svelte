@@ -3,23 +3,30 @@
 </script>
 
 <div
-    class="flex w-10/12 flex-col justify-center rounded-xl bg-slate-600/70 px-4 py-16 text-justify backdrop-blur-lg"
+    class="flex min-h-screen w-10/12 flex-col rounded-xl bg-slate-600/70 px-12 pt-6 text-center align-top text-xl text-slate-300 backdrop-blur-lg"
 >
-    <div class="top-0 text-2xl text-red-600">Character Class</div>
+    <div
+        class="top-0 mb-8 rounded-xl bg-slate-800 p-8 text-7xl font-bold text-blue-600"
+    >
+        Miraculous Kingdom
+    </div>
+    <br />
+    <br />
     <p class="text-lg text-slate-300">
         Have you ever wanted to backstab your friends and still retain your
         friendship? Well then this is the game! Welcome to the Miraculous
         Kingdom. Miraculous Kingdom is a deck building game about backstabbing,
-        skullduggery, and betrayal. Each <Special href="/rules/character"
+        skullduggery, and betrayal. Each <Special href="/rules/characters"
             >Character</Special
         > has its own <Special href="/rules/classes">Class</Special> with its own
         cards called
         <Special href="/rules/abilities">Abilities</Special>. Take turns
         leveaging abilities through out the game to get more resources,
         abilities, and strategies to win the round called a <Special
-            href="/rules/season">Season</Special
+            href="/rules/seasons">Season</Special
         >. Think of this game as a season or an arc in one of your favorite
         dramas like Game of Thrones, Last of Us, or The Wire.
+        <br />
         <br />
         To begin a game: Go to <Special href="/start/create">Create</Special> and
         make a setting for your game. Have the rest of your friends using the password
@@ -36,6 +43,7 @@
         ability is played and its conditions are met. A game ending ability is denoted
         on the ability's card face.
         <br />
+        <br />
         Remember if you have any questions check the <Special href="/rules"
             >Rules</Special
         >. If you dont find the answer you are looking for, or if you find a
@@ -44,6 +52,7 @@
         pull request on the github as well! You can also self host the server,
         by using the docker link above. Follow the instructions from there, to
         begin.
+        <br />
         <br />
         Now get out there, betray your friends, take part in backend deals, and have
         a fun time taking part of the Miraculous Kingdom.
