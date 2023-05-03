@@ -12,8 +12,8 @@
         Kingdom. Miraculous Kingdom is a deck building game about backstabbing,
         skullduggery, and betrayal. Each <Special href="/rules/character"
             >Character</Special
-        > has its own <Special href="/rules/class">Class</Special> with its own cards
-        called
+        > has its own <Special href="/rules/classes">Class</Special> with its own
+        cards called
         <Special href="/rules/abilities">Abilities</Special>. Take turns
         leveaging abilities through out the game to get more resources,
         abilities, and strategies to win the round called a <Special

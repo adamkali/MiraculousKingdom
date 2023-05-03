@@ -1,10 +1,15 @@
 <script lang="ts">
     import { Link } from 'svelte-navigator'
     export let href: string
+
+    const onClick = (to: string) => {
+        window.location.href = to
+    }
 </script>
 
-<div class="font-bold text-blue-600 hover:text-cyan-600">
-    <Link to={href}>
-        <slot />
-    </Link>
-</div>
+<span
+    class="font-bold text-blue-600 hover:text-cyan-600"
+    on:click={() => onClick(href)}
+>
+    <slot />
+</span>
