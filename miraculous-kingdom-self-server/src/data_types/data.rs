@@ -86,7 +86,7 @@ pub struct NewCharacter {
     /// SpyMaster, Diplomat, Merchant, Prince,
     pub char_class: ClassEnum,
     /// The character's might.
-    pub char_might: HashMap<String, u8>,
+    pub char_might: HashMap<MightEnum, u8>,
 }
 
 impl Character {
@@ -387,7 +387,7 @@ pub struct Might {
 }
 
 impl Might {
-    pub async fn new(stats: HashMap<String, u8>) -> Result<Might, APIError> {
+    pub async fn new(stats: HashMap<MightEnum, u8>) -> Result<Might, APIError> {
         let mut might: Might = Might::new_dumb();
         let option_error: Arc<Mutex<Option<APIError>>> = Arc::new(Mutex::new(None));
         let futs: Arc<Mutex<Vec<MightStat>>> = Arc::new(Mutex::new(Vec::with_capacity(6)));
@@ -500,7 +500,17 @@ pub struct MightStat {
     pub stat_token: u8,
 }
 
-#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+#[derive(
+    Default,
+    Serialize,
+    Deserialize,
+    Clone,
+    ToSchema,
+    Debug,
+    Eq,
+    PartialEq,
+    Hash
+)]
 pub enum MightEnum {
     #[default]
     Military,
@@ -508,10 +518,21 @@ pub enum MightEnum {
     Religion,
     Science,
     Diplomacy,
-    Espionage,
+    Espionage 
 }
 
 impl MightEnum {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::Espionage => "Espionage",
+            Self::Military => "Military",
+            Self::Culture => "Culture",
+            Self::Science => "Science",
+            Self::Religion => "Religion",
+            Self::Diplomacy => "Diplomacy",
+        } 
+    }
+
     pub fn determine(value: String) -> Result<MightEnum, APIError> {
         if value == *"Military".to_string() {
             Ok(MightEnum::Military)
@@ -533,11 +554,10 @@ impl MightEnum {
         }
     }
 
-    pub fn create_might(name: String, value: u8) -> Result<MightStat, APIError> {
-        let type_of: MightEnum = MightEnum::determine(name.clone())?;
+    pub fn create_might(name: MightEnum, value: u8) -> Result<MightStat, APIError> {
         Ok(MightStat {
-            stat_enum: type_of,
-            stat_name: name,
+            stat_enum: name.clone(),
+            stat_name: name.as_str().to_string(),
             stat_value: value as i16 - 2_i16,
             stat_exp: 0,
             stat_token: 0,

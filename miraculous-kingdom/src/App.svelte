@@ -8,9 +8,9 @@
     import { Router, Link, Route } from 'svelte-navigator'
 
     import Home from './pages/Home.svelte'
-    import Classes from './pages/rules/Classes.svelte'
-    import Special from './components/Special.svelte'
-    import Abilities from './pages/rules/Abilities.svelte'
+    import { StartGame } from './pages/games'
+    import { Abilities, Characters, Classes } from './pages/rules'
+    import { Special } from './components'
 
     const backToHome = () => {
         window.location.href = '/'
@@ -90,6 +90,14 @@
             </Route>
             <Route path="classes">
                 <Classes />
+            </Route>
+            <Route path="characters">
+                <Characters />
+            </Route>
+        </Route>
+        <Route path="/games/*">
+            <Route path="start">
+                <StartGame />
             </Route>
         </Route>
     </Router>

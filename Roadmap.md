@@ -17,7 +17,7 @@
 
 ### More Classes
 - [ ] Cardinal
-- [ ] Royal Scientist
+- [x] Royal Scientist
 
 ### Add More events
 - [ ] add in enough events for 20 seasons at least.

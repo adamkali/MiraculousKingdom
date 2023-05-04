@@ -173,6 +173,100 @@ db.classes.insertMany([
             }
         ],
     },
+    {
+        class_name: "Royal Scientist", 
+        class_enum: "Scientist",
+        class_desc: "A Scientist tasked with aiding and enriching the kingdom with new great technologie. The Royal Scientist thrives off drawing cards.",
+        class_perks: "Each turn, draw two Abilities instead of one. When you are at 10 cards and would normally throw away any cards drawn put them back in the deck.",
+        class_abilities: [
+            {
+                "ability_name": "Reseach",
+                "ability_desc": "Draw 2 Abilities from your deck.",
+                "ability_unlock": {
+                    "might" : "Science",
+                    "roll_tier": "None",
+                    "unlock": 0
+                }
+            },
+            {
+                "ability_name": "Eureka",
+                "ability_desc": "Roll a Scientific Might roll, On a Fantastic Roll, Gain a new Ability from the pool.",
+                "ability_unlock": {
+                    "might" : "Science",
+                    "roll_tier": "Fantastic",
+                    "unlock": 3
+                }
+            },
+            {
+                "ability_name": "Scientific Inquery",
+                "ability_desc": "Roll a Scientific Might roll, on a Good or better roll, Discard a card, from your Deck. Gain a new Ability from the pool.",
+                "ability_unlock": {
+                    "might" : "Science",
+                    "roll_tier": "Good",
+                    "unlock": 3
+                }
+            },
+            {
+                "ability_name": "Reseach Papers",
+                "ability_desc": "Make a Diplomatic Might Roll. On a Great or better roll, trade anability with another character.",
+                "ability_unlock": {
+                    "might" : "Diplomacy",
+                    "roll_tier": "Great",
+                    "unlock": 5
+                }
+            },
+            {
+                "ability_name": "Forsight",
+                "ability_desc": "Can only be played at the beginning of the season. No matter the results of the Season, you still get to pull an Ability during the Resolution Faze.",
+                "ability_unlock": {
+                    "might" : "Science",
+                    "roll_tier": "None",
+                    "unlock": 5
+                }
+            },
+            {
+                "ability_name": "The Scientific Method.",
+                "ability_desc": "Can only be played at the beginning of the season. When a Character plays a confidential clock during the time that this clock is in effect, look at the effect of the clock. You cannot tell anyone else until this clock ends.",
+                "ability_clock": {
+                    "clock_duration": 6,
+                    "clock_remaining": 6,
+                    "clock_name": "The Scientific Method",
+                    "clock_desc": "Set a clock. Announce that you get to know the effects of any confidential clock. During the lifetime of this clock, you get to see the effect of any confidential Clock in play. You cannot tell anyone other than the Clock's owner until this Clock ends",
+                    "clock_conf": false, 
+                },
+                "ability_unlock": {
+                    "might" : "Espionage",
+                    "roll_tier": "None",
+                    "unlock": 5
+                }
+            },
+            {
+                "ability_name": "Sic Parvus Magnum",
+                "ability_desc": "Can only be played at the beginning of the season. Set a Clock, activates when you draw a card.",
+                "ability_clock": {
+                    "clock_duration": 4,
+                    "clock_remaining": 4,
+                    "clock_name": "Sic Parvus Magnum",
+                    "clock_desc": "During the time that this clock is active, when you draw a card, you can you can immediatley discard it, and draw another.",
+                    "clock_conf": true, 
+                },
+                "ability_unlock": {
+                    "might" : "Espionage",
+                    "roll_tier": "None",
+                    "unlock": 5
+                }
+            },
+            {
+                "ability_name": "Scientific Revolution.",
+                "ability_desc": "Can only be played at the beginning of the round. On a Great roll or higher, discard your entire hand. Draw 10 Abilities.",
+                "ability_unlock": {
+                    "might" : "Science",
+                    "roll_tier": "Great",
+                    "unlock": 7
+                }
+            },
+        ],
+    },
 ]);
 
 db.seasons.insertMany([
@@ -230,5 +324,5 @@ db.seasons.insertMany([
                 }
             }
         }
-    }
+    },
 ])
