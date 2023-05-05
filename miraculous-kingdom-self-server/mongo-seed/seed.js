@@ -171,7 +171,7 @@ db.classes.insertMany([
                     "unlock": 6
                 }
             }
-        ],
+        ]
     },
     {
         class_name: "Royal Scientist", 
@@ -264,9 +264,9 @@ db.classes.insertMany([
                     "roll_tier": "Great",
                     "unlock": 7
                 }
-            },
-        ],
-    },
+            }
+        ]
+    }
 ]);
 
 db.seasons.insertMany([

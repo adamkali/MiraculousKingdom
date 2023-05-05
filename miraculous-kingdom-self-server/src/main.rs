@@ -49,7 +49,7 @@ async fn main() {
     #[derive(OpenApi)]
     #[openapi(
         servers(
-            (url =  "http://0.0.0.0:8050")
+            (url =  "http://127.0.0.1:8050")
         ),
         paths(
             api::class_api::get_classes,
