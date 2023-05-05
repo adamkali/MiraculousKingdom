@@ -5,10 +5,16 @@
         MightEnum,
         type NewCharacter,
     } from '../../models'
-    import { Input } from '../../components'
+    import { Input, Button } from '../../components'
 
     export let pass: string
     let character: NewCharacter
+
+    let classArr = [
+        ClassEnum.WAR_GENERAL,
+        ClassEnum.AFICIANADO,
+        ClassEnum.RESEARCHER,
+    ]
 
     let record: Record<string, number>
     record[MightEnum.MILITARY] = 0
@@ -21,14 +27,23 @@
     const handleSubmit = () => {
         ApiGameApiService.addCharacter(pass, character)
             .then((res) => {
-                console.log({ response: res })
+                console.log(res);
             })
             .catch((err) => {
                 console.log({ error: err })
-            })
+            });
     }
 
-    const handleInput = () => {}
+    const isClassEnum = (val: string): ClassEnum => {
+        if (val === ClassEnum.WAR_GENERAL) {
+            return ClassEnum.WAR_GENERAL;
+        } else if (val === ClassEnum.AFICIANADO) {
+            return ClassEnum.AFICIANADO;
+        } else if (val === ClassEnum.RESEARCHER) {
+            return ClassEnum.RESEARCHER;
+        } else { return ClassEnum.WAR_GENERAL; }
+    }
+
 </script>
 
 <div
@@ -43,11 +58,17 @@
         <Input
             label="Character Name"
             placeholder="Tywin Lanister"
-            onChange={handleSubmit}
+            onChange={(value) => {
+                character.char_name = value;
+            }}
             value={character.char_name}
         />
-        <select bind:value={character.char_class} on:change={(e) => character.char_class =   }>
-            {#each ClassEnum as c }
+        <select
+            bind:value={character.char_class}
+            on:change={(e) => {
+                character.char_class = isClassEnum(e.currentTarget.value)
+            }}>
+            {#each classArr as c }
                 <option value={c.toString()}>
                     {c.toString()} 
                 </option>
@@ -116,14 +137,19 @@
                     }}
                 />
             </div>
-            <Input
-                label={"Character Password"}
-                placeholder="GOTMaster!"
-                value={character.secret}
-                onChange={(value) => {
-                    character.secret = value
-                }}
-            />
         </div>
+        <Input
+            label={"Character Password"}
+            placeholder="GOTMaster!"
+            value={character.secret}
+            onChange={(value) => {
+                character.secret = value
+            }}
+        />
+        <Button
+            onClick={() => {
+                handleSubmit();
+            }}
+        />
     </form>
 </div>

@@ -10,16 +10,16 @@
         class="lg absolute -inset-0.5 rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur"
     />
     <div
-        class="relative flex flex-row items-center divide-x divide-red-600 rounded-lg bg-black/80 px-8 py-4 text-lg leading-none"
+        class="relative flex my-8 flex-row items-center divide-x divide-red-600 rounded-lg bg-black px-8 py-4 text-lg leading-none"
     >
-        <div class="text-red-600">
+        <div class="text-red-600 mr-4">
             {label}
         </div>
         <input
             on:change={(e) => onChange(e.currentTarget.value)}
-            {placeholder}
-            {value}
-            class="text-slate-300 placeholder-slate-600"
+            placeholder={placeholder}
+            value={value ? value : ""}
+            class="bg-black text-slate-300 placeholder-slate-600 h-full p-4 ml-4 focus:outline-none"
         />
     </div>
 </div>

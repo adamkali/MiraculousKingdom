@@ -8,7 +8,7 @@
     import { Router, Link, Route } from 'svelte-navigator'
 
     import Home from './pages/Home.svelte'
-    import { StartGame } from './pages/games'
+    import { StartGame, JoinGame, CreateCharacter } from './pages/games'
     import { Abilities, Characters, Classes } from './pages/rules'
     import { Special } from './components'
 
@@ -22,7 +22,7 @@
 >
     <Router>
         <nav
-            class="m-8 grid h-16 w-11/12 grid-cols-5 rounded-xl bg-black/75 p-4 px-4 py-2 text-2xl backdrop-blur-lg"
+            class="m-8 grid h-24 w-11/12 grid-cols-5 rounded-xl bg-black/75 p-4 px-4 py-2 text-2xl backdrop-blur-lg"
         >
             <div
                 on:click={() => backToHome()}
@@ -32,27 +32,27 @@
             </div>
             <div class="col-span-3 flex flex-row justify-center">
                 <div
-                    class="mr-4 h-8 flex-row items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                    class="mr-16 h-8 flex-row items-center text-blue-600 transition duration-150 hover:text-cyan-600"
                 >
-                    <Special href="/start">
+                    <Special href="/games/start">
                         <GiDiceTwentyFacesTwenty />
                         <div>Start</div>
                     </Special>
                 </div>
                 <div
-                    class="mr-4 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                    class="mr-16 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                >
+                    <Link to="/games/join">
+                        <GiHourglass />
+                        <div>Join</div>
+                    </Link>
+                </div>
+                <div
+                    class="mr-18 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
                 >
                     <Link to="/rules">
                         <GiOpenBook />
                         <div>Rules</div>
-                    </Link>
-                </div>
-                <div
-                    class="mr-4 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
-                >
-                    <Link to="/get-in">
-                        <GiHourglass />
-                        <div>Get In</div>
                     </Link>
                 </div>
             </div>
@@ -98,6 +98,12 @@
         <Route path="/games/*">
             <Route path="start">
                 <StartGame />
+            </Route>
+            <Route path="create_character/:pass" let:params>
+                <CreateCharacter pass={params.pass} />
+            </Route>
+            <Route path="join">
+                <JoinGame />
             </Route>
         </Route>
     </Router>
