@@ -13,7 +13,7 @@
     let classArr = [
         ClassEnum.WAR_GENERAL,
         ClassEnum.AFICIANADO,
-        ClassEnum.RESEARCHER,
+        ClassEnum.SCIENTIST,
     ]
 
     let record: Record<string, number> = {} as Record<string, number>
@@ -42,8 +42,8 @@
             return ClassEnum.WAR_GENERAL
         } else if (val === ClassEnum.AFICIANADO) {
             return ClassEnum.AFICIANADO
-        } else if (val === ClassEnum.RESEARCHER) {
-            return ClassEnum.RESEARCHER
+        } else if (val === ClassEnum.SCIENTIST) {
+            return ClassEnum.SCIENTIST
         } else {
             return ClassEnum.WAR_GENERAL
         }
