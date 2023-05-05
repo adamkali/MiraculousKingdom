@@ -18,7 +18,7 @@
 </script>
 
 <main
-    class="mb-4 flex flex-col items-center justify-center bg-gradient-to-tr from-red-700 to-blue-700"
+    class="mb-4 flex flex-col items-center justify-center bg-gradient-to-tr from-red-700 to-blue-700 font-victo-mono"
 >
     <Router>
         <nav

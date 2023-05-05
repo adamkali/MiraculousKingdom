@@ -2,13 +2,13 @@
     export let onClick: () => void
 </script>
 
-<div class="relative w-full">
+<div class="group relative h-full w-full">
     <div
-        class="lg absolute -inset-0.5 w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur"
+        class="lg absolute -inset-0.5 h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur transition duration-150 ease-in-out group-hover:from-fuchsia-500 group-hover:to-blue-500 group-hover:opacity-90 group-hover:blur-lg"
     />
     <button
         on:click={onClick}
-        class="relative flex w-full items-center rounded-lg bg-black px-8 py-4 leading-none"
+        class="relative flex h-full w-full items-center rounded-lg bg-black px-8 py-4 leading-none"
     >
         <slot />
     </button>

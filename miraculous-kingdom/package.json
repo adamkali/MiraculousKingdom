@@ -32,6 +32,7 @@
     "form-data": "^4.0.0",
     "openapi-typescript-codegen": "^0.24.0",
     "svelte-icons": "^2.1.0",
-    "svelte-navigator": "^3.2.2"
+    "svelte-navigator": "^3.2.2",
+    "victormono": "^1.5.5"
   }
 }

@@ -5,12 +5,12 @@
     export let onChange: (value: string) => void
 </script>
 
-<div class="relative">
+<div class="relative w-full">
     <div
-        class="lg absolute -inset-0.5 rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur"
+        class="absolute h-24 w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur"
     />
     <div
-        class="relative my-8 flex flex-row items-center divide-x divide-red-600 rounded-lg bg-black px-8 py-4 text-lg leading-none"
+        class="relative my-8 flex w-full flex-row items-center divide-x divide-red-600 rounded-lg bg-black px-8 py-4 text-lg leading-none"
     >
         <div class="mr-4 text-red-600">
             {label}
@@ -19,7 +19,7 @@
             on:change={(e) => onChange(e.currentTarget.value)}
             {placeholder}
             value={value ? value : ''}
-            class="ml-4 h-full bg-black p-4 w-full text-slate-300 placeholder-slate-600 focus:outline-none"
+            class="ml-4 h-full w-full bg-black p-4 text-slate-300 placeholder-slate-600 focus:outline-none"
         />
     </div>
 </div>

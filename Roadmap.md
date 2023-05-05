@@ -17,7 +17,7 @@
 
 ### More Classes
 - [ ] Cardinal
-- [x] Royal Scientist
+- [ ] Royal Scientist
 
 ### Add More events
 - [ ] add in enough events for 20 seasons at least.
@@ -28,7 +28,7 @@
 - [ ] figure out bettier loggin to get all of the endpoints and sent byte count.
 
 ### Cors
-- [ ] Athorization and Accept
+- [x] Athorization and Accept
 
 ## Frontend 
 
@@ -48,7 +48,8 @@
 ### Start game
 - [x] Develop Start Game page.
 - [x] Develop join Game page.
-- [ ] Develop get in Game page.
+- [ ] Develop Play Game page.
+- [x] Develop Create Character
 
 ### Containerize the Frontend
 - [ ] make a docker container for the front end.

@@ -21,10 +21,10 @@
 </script>
 
 <div
-    class="flex min-h-screen w-10/12 flex-col  items-center rounded-xl bg-slate-600/70 px-12 pt-6 text-center align-top text-xl text-slate-300 backdrop-blur-lg"
+    class="flex min-h-screen w-10/12 flex-col items-center rounded-xl bg-slate-600/70 px-12 pt-6 text-center align-top text-xl text-slate-300 backdrop-blur-lg"
 >
     <div
-        class="top-0 mb-8 rounded-xl w-full bg-slate-800 p-8 text-7xl font-bold text-blue-600"
+        class="top-0 mb-8 w-full rounded-xl bg-slate-800 p-8 text-7xl font-bold text-blue-600"
     >
         Start Game
     </div>
@@ -47,7 +47,7 @@
                 label={'Ruler'}
             />
         </div>
-        <div class="mt-24 flex w-1/3 flex-row items-center align-middle ">
+        <div class="mt-24 flex w-1/3 flex-row items-center align-middle">
             <Components.Button {onClick}>Create a Game</Components.Button>
         </div>
     </div>

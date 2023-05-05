@@ -7,7 +7,7 @@ use axum::{
         Method,
         HeaderMap, 
         HeaderValue,
-        Request
+        Request,
     }, 
     routing::*, 
     Extension,
@@ -20,7 +20,8 @@ use tower_http::{
     cors::{
         Any,
         CorsLayer,
-    }
+        AllowHeaders,
+    },
 };
 use tracing_subscriber::{
     layer::SubscriberExt, 
@@ -119,7 +120,8 @@ async fn main() {
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
-                .allow_methods(Any),
+                .allow_methods(Any)
+                .allow_headers(AllowHeaders::any()),
             )
         .layer(
             TraceLayer::new_for_http()
