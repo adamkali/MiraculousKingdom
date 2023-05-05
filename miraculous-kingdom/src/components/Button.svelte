@@ -4,7 +4,7 @@
 
 <div class="relative w-full">
     <div
-        class="lg absolute w-full -inset-0.5 rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur"
+        class="lg absolute -inset-0.5 w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur"
     />
     <button
         on:click={onClick}

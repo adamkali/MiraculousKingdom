@@ -27,6 +27,9 @@
 - [ ] figure out how tower logging works 
 - [ ] figure out bettier loggin to get all of the endpoints and sent byte count.
 
+### Cors
+- [ ] Athorization and Accept
+
 ## Frontend 
 
 ### Get all the rules i can think of
@@ -43,8 +46,8 @@
 - [ ] have a listener for when everyone is ready.
 
 ### Start game
-- [ ] Develop Start Game page.
-- [ ] Develop join Game page.
+- [x] Develop Start Game page.
+- [x] Develop join Game page.
 - [ ] Develop get in Game page.
 
 ### Containerize the Frontend

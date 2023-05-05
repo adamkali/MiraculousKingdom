@@ -27,23 +27,24 @@
     const handleSubmit = () => {
         ApiGameApiService.addCharacter(pass, character)
             .then((res) => {
-                console.log(res);
+                console.log(res)
             })
             .catch((err) => {
                 console.log({ error: err })
-            });
+            })
     }
 
     const isClassEnum = (val: string): ClassEnum => {
         if (val === ClassEnum.WAR_GENERAL) {
-            return ClassEnum.WAR_GENERAL;
+            return ClassEnum.WAR_GENERAL
         } else if (val === ClassEnum.AFICIANADO) {
-            return ClassEnum.AFICIANADO;
+            return ClassEnum.AFICIANADO
         } else if (val === ClassEnum.RESEARCHER) {
-            return ClassEnum.RESEARCHER;
-        } else { return ClassEnum.WAR_GENERAL; }
+            return ClassEnum.RESEARCHER
+        } else {
+            return ClassEnum.WAR_GENERAL
+        }
     }
-
 </script>
 
 <div
@@ -59,7 +60,7 @@
             label="Character Name"
             placeholder="Tywin Lanister"
             onChange={(value) => {
-                character.char_name = value;
+                character.char_name = value
             }}
             value={character.char_name}
         />
@@ -67,10 +68,11 @@
             bind:value={character.char_class}
             on:change={(e) => {
                 character.char_class = isClassEnum(e.currentTarget.value)
-            }}>
-            {#each classArr as c }
+            }}
+        >
+            {#each classArr as c}
                 <option value={c.toString()}>
-                    {c.toString()} 
+                    {c.toString()}
                 </option>
             {/each}
         </select>
@@ -139,7 +141,7 @@
             </div>
         </div>
         <Input
-            label={"Character Password"}
+            label={'Character Password'}
             placeholder="GOTMaster!"
             value={character.secret}
             onChange={(value) => {
@@ -148,7 +150,7 @@
         />
         <Button
             onClick={() => {
-                handleSubmit();
+                handleSubmit()
             }}
         />
     </form>
