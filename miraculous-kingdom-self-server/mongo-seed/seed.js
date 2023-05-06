@@ -171,7 +171,7 @@ db.classes.insertMany([
                     "unlock": 6
                 }
             }
-        ],
+        ]
     },
     {
         class_name: "Royal Scientist", 
@@ -263,6 +263,100 @@ db.classes.insertMany([
                     "might" : "Science",
                     "roll_tier": "Great",
                     "unlock": 7
+                }
+            }
+        ]
+    },
+    {
+        class_name: "Spy Master", 
+        class_enum: "SpyMaster",
+        class_desc: "The Royal Spy Master is a cunning adversary, but then again those who are on her side can find that their plans always seem to come through at the end of the day. But whose side is she on anyway?",
+        class_perks: "Every turn, You can either: Choose a character other than your self. You can sabotage their roll. Or: Choose a character and give them a strategem.",
+        class_abilities: [
+            {
+                "ability_name": "Insight",
+                "ability_desc": "Can only be used at the beginning of a round, roll an Espionage Roll, if the result is Neutral or better, you can choose a character and you know what they will play during ability phase.",
+                "ability_unlock": {
+                    "might" : "Espionage",
+                    "roll_tier": "Neutral",
+                    "unlock": 0
+                }
+            },
+            {
+                "ability_name": "Open for buisness",
+                "ability_desc": "At any point when a character has to make a roll, you can play this Ability. The Character in question has the option of paying you 3 of any token. If they do they get a strategem.",
+                "ability_unlock": {
+                    "might" : "Espionage",
+                    "roll_tier": "None",
+                    "unlock": 2
+                }
+            },
+            {
+                "ability_name": "Know your Enemy",
+                "ability_desc": "You can only play this ability during a season witht the word 'Siege' in the name. Choose a target and Roll an Military roll. If the result is Great or better, the target will give you their Resources won during the Siege. If the result is Bad or worse they get yours.",
+                "ability_unlock": {
+                    "might" : "Military",
+                    "roll_tier": "Great",
+                    "unlock": 2
+                }
+            },
+            {
+                "ability_name": "'Would I Lie to You?'",
+                "ability_desc": "At any point when a character has to make a roll, you can play this Ability, Choose a target and Roll an Espionage roll. If the result is Great or better, the target will need to get one lower tier or better on thier roll in order to activater it. If the result is Bad or worse they must make a one tier better roll or better.",
+                "ability_unlock": {
+                    "might" : "Espionage",
+                    "roll_tier": "Great",
+                    "unlock": 4
+                }
+            },
+            {
+                "ability_name": "Spy Network",
+                "ability_desc": "You can only play this ability during the start of the Season. Roll an Espionage roll. If the roll is Good or better, You get a strategem. If your Espionage might is 6 or 7 you get two. If your Espionage Might is 8 or 9 you get three.",
+                "ability_unlock": {
+                    "might" : "Espionage",
+                    "roll_tier": "Good",
+                    "unlock": 4
+                }
+            },
+            {
+                "ability_name": "'All part of my master plan!'",
+                "ability_desc": "This can only be played during the beginning of an episode. Spend the Sum of 10 tokens. Declare to the Table That this Ability's Clock is in Effect.",
+                "ability_clock": {
+                    "clock_duration": 5,
+                    "clock_remaining": 5,
+                    "clock_name": "Coup de ta",
+                    "clock_desc": "During this Clock any roll other than the Spy Master takes minus one roll_tier to their rolls. Fantastic rolls are not Affected. Failure rolls contribute 3 tokens to your resources.",
+                    "clock_conf": false, 
+                },
+                "ability_unlock": {
+                    "might" : "Espionage",
+                    "roll_tier": "None",
+                    "unlock": 6
+                }
+            },
+            {
+                "ability_name": "Assasination",
+                "ability_desc": "Can only be used at the beginning of the season. Roll a dice and make a note of the Roll Tier.",
+                "ability_clock": {
+                    "clock_duration": 4,
+                    "clock_remaining": 4,
+                    "clock_name": "Assasination",
+                    "clock_desc": "The First player to make the Roll Tier as you, is marked for Assasination. Make a combat roll. If you win you can now Assasinate the target. They must create a new character.",
+                    "clock_conf": true, 
+                },
+                "ability_unlock": {
+                    "might" : "Espionage",
+                    "roll_tier": "None",
+                    "unlock": 6
+                }
+            },
+            {
+                "ability_name": "Grand Theft.",
+                "ability_desc": "Can only be used during the resolution of the Season. Target the Character that has won the Season. They must make Either a Military Might or an Espionage Might roll. If they do not get a Fantastic roll, take their rewards.",
+                "ability_unlock": {
+                    "might" : "Espionage",
+                    "roll_tier": "None",
+                    "unlock": 8
                 }
             },
         ],

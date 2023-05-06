@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "http://0.0.0.0:8050"
+      "url": "http://127.0.0.1:8050"
     }
   ],
   "paths": {
@@ -592,19 +592,14 @@
           "char_class",
           "char_clocks",
           "char_might",
-          "abilities",
+          "char_deck",
+          "char_hand",
+          "char_discard",
           "char_state"
         ],
         "properties": {
-          "abilities": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Ability"
-            },
-            "description": "The character's abilities."
-          },
           "char_class": {
-            "$ref": "#/components/schemas/ClassResponse"
+            "$ref": "#/components/schemas/ClassEnum"
           },
           "char_clocks": {
             "type": "array",
@@ -612,6 +607,25 @@
               "$ref": "#/components/schemas/Clock"
             },
             "description": "The character's clocks."
+          },
+          "char_deck": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ability"
+            },
+            "description": "The character's abilities."
+          },
+          "char_discard": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ability"
+            }
+          },
+          "char_hand": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ability"
+            }
           },
           "char_might": {
             "$ref": "#/components/schemas/Might"
@@ -658,7 +672,7 @@
         "enum": [
           "WarGeneral",
           "Aficianado",
-          "Researcher",
+          "Scientist",
           "Cardinal",
           "SpyMaster",
           "Diplomat",

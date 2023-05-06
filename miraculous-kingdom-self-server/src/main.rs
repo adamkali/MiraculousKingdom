@@ -8,15 +8,19 @@ use axum::{
         HeaderMap, 
         HeaderValue,
         Request,
+        Response,
     }, 
     routing::*, 
     Extension,
     extract::MatchedPath,
+    body::HttpBody,
 };
-use std::{net::SocketAddr, path::PathBuf};
+use std::{net::SocketAddr, path::PathBuf, time::Duration};
 use axum_server::tls_rustls::RustlsConfig;
 use tower_http::{
-    trace::TraceLayer,
+    trace::{
+        TraceLayer,
+    },
     cors::{
         Any,
         CorsLayer,
@@ -27,7 +31,7 @@ use tracing_subscriber::{
     layer::SubscriberExt, 
     util::SubscriberInitExt
 };
-use tracing::{info_span, Span};
+use tracing::{info_span, Span, Value};
 //use std::sync::Arc;
 //use data_types::engine::Game;
 use data_types::characters::*;
@@ -43,13 +47,23 @@ struct Ports {
     http: u16,
     https: u16,
 }
+enum DetailedResponseEnum {
+    VecClassDetailedResponse(VecClassDetailedResponse), 
+    ClassDetailedResponse(ClassDetailedResponse),
+    GameInfoDetailedResponse(GameInfoDetailedResponse), 
+    GamesInfoDetailedResponse(GamesInfoDetailedResponse),
+    PassDetailedResponse(PassDetailedResponse), 
+    CharAddedDetailedResponse(CharAddedDetailedResponse),
+    VecCharDetailedResponse(VecCharDetailedResponse), 
+    CharDetialedResponse(CharDetialedResponse),
+} 
 
 #[tokio::main]
 async fn main() {
     #[derive(OpenApi)]
     #[openapi(
         servers(
-            (url =  "http://0.0.0.0:8050")
+            (url =  "http://127.0.0.1:8050")
         ),
         paths(
             api::class_api::get_classes,
@@ -85,14 +99,12 @@ async fn main() {
 
     
 
-    tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                "tower_http=info".into()
-            })
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var(
+            "RUST_LOG",
+            "miraculous-kingdom-self-server=trace,tower_http=trace"
         )
-        .with(tracing_subscriber::fmt::layer())
-        .init();
+    }
 
     let uri = "mongodb://root:mk2023!@localhost:8100";
     let client_opt = mongodb::options::ClientOptions::parse(uri).await.unwrap();

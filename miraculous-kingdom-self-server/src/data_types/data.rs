@@ -48,7 +48,9 @@ pub struct Character {
     pub char_might: Might,
     /// The character's abilities.
     // TODO(adamkali):
-    pub abilities: Vec<Ability>,
+    pub char_deck: Vec<Ability>,
+    pub char_hand: Vec<Ability>,
+    pub char_discard: Vec<Ability>,
     /// The character's state.
     pub char_state: CharacterState,
 }
@@ -60,14 +62,16 @@ pub struct CharacterResponse {
     /// The name of the character.
     pub char_name: String,
     /// The class of the character.
-    pub char_class: ClassResponse,
+    pub char_class: ClassEnum,
     /// The character's clocks.
     pub char_clocks: Vec<Clock>,
     /// The character's might.
     pub char_might: Might,
     /// The character's abilities.
     // TODO(adamkali):
-    pub abilities: Vec<Ability>,
+    pub char_deck: Vec<Ability>,
+    pub char_hand: Vec<Ability>,
+    pub char_discard: Vec<Ability>,
     /// The character's state.
     pub char_state: CharacterState,
 }
@@ -97,7 +101,9 @@ impl Character {
             char_name: "No Character".to_string(),
             char_clocks: Vec::<Clock>::new(),
             char_might: Might::new_dumb(),
-            abilities: Vec::<Ability>::new(),
+            char_deck: Vec::<Ability>::new(),
+            char_hand: Vec::<Ability>::new(),
+            char_discard: Vec::<Ability>::new(),
             char_state: CharacterState::Waiting,
             char_class: Class {
                 class_id: ObjectId::new(),
@@ -165,7 +171,9 @@ impl Character {
             char_class: class.clone(),
             char_clocks: Vec::<Clock>::new(),
             char_might: might,
-            abilities: class.class_abilities.iter().clone().cloned().collect(),
+            char_deck: class.class_abilities.iter().clone().cloned().collect(),
+            char_hand: Vec::<Ability>::new(),
+            char_discard: Vec::<Ability>::new(),
             char_state: CharacterState::Waiting,
         })
     }
@@ -183,10 +191,12 @@ impl MKModel for Character {
         CharacterResponse {
             secret: self.secret.clone(),
             char_name: self.char_name.clone(),
-            char_class: self.char_class.clone().as_response(),
+            char_class: self.char_class.clone().as_response().class_enum,
             char_clocks: self.char_clocks.clone(),
             char_might: self.char_might.clone(),
-            abilities: self.abilities.clone(),
+            char_discard: self.char_discard.clone(),
+            char_hand: self.char_hand.clone(),
+            char_deck: self.char_deck.clone(),
             char_state: self.char_state.clone(),
         } 
     }
@@ -647,7 +657,7 @@ pub enum ClassEnum {
     #[default]
     WarGeneral,
     Aficianado,
-    Researcher,
+    Scientist,
     Cardinal,
     SpyMaster,
     Diplomat,
@@ -660,6 +670,8 @@ impl ToString for ClassEnum {
         match *self {
             Self::Aficianado => "Aficianado".to_string(),
             Self::WarGeneral => "WarGeneral".to_string(),
+            Self::Scientist => "Scientist".to_string(),
+            Self::SpyMaster => "SpyMaster".to_string(),
             _ => "Not Implemented".to_string(),
         }
     }
