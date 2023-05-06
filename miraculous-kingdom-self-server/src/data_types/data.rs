@@ -1,10 +1,6 @@
 use super::common::APIError;
-use mongodb::bson::{
-    oid::ObjectId,
-    serde_helpers::{
-        serialize_object_id_as_hex_string,
-    }
-};
+use super::traits::*;
+use mongodb::bson::{oid::ObjectId, serde_helpers::serialize_object_id_as_hex_string};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::{
@@ -12,7 +8,6 @@ use std::{
     sync::{Arc, Mutex},
 };
 use utoipa::ToSchema;
-use super::traits::*;
 
 // Character ================================
 
@@ -32,7 +27,7 @@ pub enum CharacterState {
 pub struct Character {
     /// The ObjectId representing the character in MongoDB.
     #[serde(
-        serialize_with = "serialize_object_id_as_hex_string", 
+        serialize_with = "serialize_object_id_as_hex_string",
         skip_deserializing
     )]
     pub game: ObjectId,
@@ -198,22 +193,22 @@ impl MKModel for Character {
             char_hand: self.char_hand.clone(),
             char_deck: self.char_deck.clone(),
             char_state: self.char_state.clone(),
-        } 
+        }
     }
 }
 
 pub mod characters {
     pub use super::Ability;
     pub use super::Character;
+    pub use super::CharacterResponse;
     pub use super::CharacterState;
     pub use super::Class;
     pub use super::ClassEnum;
+    pub use super::ClassResponse;
     pub use super::MightEnum;
     pub use super::MightRequirement;
     pub use super::NewCharacter;
     pub use super::RollTier;
-    pub use super::ClassResponse;
-    pub use super::CharacterResponse;
 }
 // =========================================
 
@@ -258,7 +253,7 @@ impl Default for GameInfo {
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct Game {
     #[serde(
-        serialize_with = "serialize_object_id_as_hex_string", 
+        serialize_with = "serialize_object_id_as_hex_string",
         skip_deserializing
     )]
     pub game_id: ObjectId,
@@ -286,7 +281,9 @@ impl MKModel for Game {
     type Response = GameResponse;
     fn as_response(&self) -> Self::Response {
         let game_chars: Vec<CharacterResponse> = Vec::new();
-        self.game_chars.iter().for_each(|a| { a.clone().as_response(); });
+        self.game_chars.iter().for_each(|a| {
+            a.clone().as_response();
+        });
         Self::Response {
             game_chars,
             game_clocks: self.game_clocks.clone(),
@@ -339,10 +336,10 @@ pub mod engine {
     pub use super::Game;
     pub use super::GameCreation;
     pub use super::GameInfo;
-    pub use super::State;
     pub use super::GameResponse;
     pub use super::Season;
     pub use super::SeasonResponse;
+    pub use super::State;
 }
 
 // =========================================
@@ -510,17 +507,7 @@ pub struct MightStat {
     pub stat_token: u8,
 }
 
-#[derive(
-    Default,
-    Serialize,
-    Deserialize,
-    Clone,
-    ToSchema,
-    Debug,
-    Eq,
-    PartialEq,
-    Hash
-)]
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug, Eq, PartialEq, Hash)]
 pub enum MightEnum {
     #[default]
     Military,
@@ -528,7 +515,7 @@ pub enum MightEnum {
     Religion,
     Science,
     Diplomacy,
-    Espionage 
+    Espionage,
 }
 
 impl MightEnum {
@@ -540,7 +527,7 @@ impl MightEnum {
             Self::Science => "Science",
             Self::Religion => "Religion",
             Self::Diplomacy => "Diplomacy",
-        } 
+        }
     }
 
     pub fn determine(value: String) -> Result<MightEnum, APIError> {
@@ -617,7 +604,7 @@ pub struct MightRequirement {
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct Class {
     #[serde(
-        serialize_with = "serialize_object_id_as_hex_string", 
+        serialize_with = "serialize_object_id_as_hex_string",
         skip_deserializing
     )]
     pub class_id: ObjectId,
@@ -637,7 +624,7 @@ pub struct ClassResponse {
     pub class_name: String,
 }
 
-impl MkResponse for ClassResponse { }
+impl MkResponse for ClassResponse {}
 
 impl MKModel for Class {
     type Response = ClassResponse;
@@ -703,7 +690,7 @@ impl Default for Class {
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct Season {
     #[serde(
-        serialize_with = "serialize_object_id_as_hex_string", 
+        serialize_with = "serialize_object_id_as_hex_string",
         skip_deserializing
     )]
     pub event_id: ObjectId,
@@ -725,7 +712,7 @@ pub struct SeasonResponse {
     pub event_reward: RewardTypes,
 }
 
-impl MkResponse for SeasonResponse { }
+impl MkResponse for SeasonResponse {}
 
 impl MKModel for Season {
     type Response = SeasonResponse;
@@ -750,6 +737,3 @@ pub enum RewardTypes {
     Ability(Ability),
     Experience(u8),
 }
-
-
-

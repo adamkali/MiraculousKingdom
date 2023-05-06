@@ -13,13 +13,9 @@ use std::{
     task::{Context, Poll},
 };
 
-use super::common::{
-    MkResponse,
-    MKModel,
-};
+use super::common::{MKModel, MkResponse};
 use crate::data_types::characters::{CharacterResponse, ClassResponse};
 use crate::data_types::engine::{GameInfo, SeasonResponse};
-
 
 #[derive(Serialize, Clone, utoipa::ToSchema)]
 pub enum Progress {

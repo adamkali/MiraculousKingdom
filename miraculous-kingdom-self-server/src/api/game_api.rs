@@ -1,9 +1,9 @@
 use crate::data_types::{
     characters::{Character, CharacterResponse, Class, NewCharacter},
     common::DetailedResponse,
-    common::Repository,
-    common::Progress,
     common::MKModel,
+    common::Progress,
+    common::Repository,
     engine::*,
     game_to_info, games_to_info,
 };
@@ -44,19 +44,19 @@ pub async fn get_games(
     get,
     path = "/api/game/{pass}",
     responses((
-        status = 200, 
-        description = "Found class from database", 
-        body = GameInfoDetailedResponse 
+        status = 200,
+        description = "Found class from database",
+        body = GameInfoDetailedResponse
     ),
     (
-        status = 404, 
-        description = "Could not find class from database", 
-        body = GameInfoDetailedResponse 
+        status = 404,
+        description = "Could not find class from database",
+        body = GameInfoDetailedResponse
     ),
     (
-        status = 500, 
-        description = " Internal error occured", 
-        body = GameInfoDetailedResponse 
+        status = 500,
+        description = " Internal error occured",
+        body = GameInfoDetailedResponse
     )),
     params(
         ("pass" = String, Path, description = "Password for entering the game.")
@@ -81,22 +81,22 @@ pub async fn get_game(
 }
 
 #[utoipa::path(
-    post,  
+    post,
     path = "/api/game",
     request_body = GameCreation,
     responses((
-        status = 200, 
-        description = "Found class from database", 
+        status = 200,
+        description = "Found class from database",
         body = PassDetailedResponse
     ),
     (
-        status = 304, 
-        description = "Could not find class from database", 
+        status = 304,
+        description = "Could not find class from database",
         body = PassDetailedResponse
     ),
     (
-        status = 500, 
-        description = " Internal error occured", 
+        status = 500,
+        description = " Internal error occured",
         body = PassDetailedResponse
     ))
 )]
@@ -122,23 +122,23 @@ pub async fn start_game(
     path = "/api/game/{pass}",
     request_body = NewCharacter,
     responses((
-        status = 200, 
-        description = "Added Character to Game", 
+        status = 200,
+        description = "Added Character to Game",
         body = CharAddedDetailedResponse
     ),
     (
-        status = 400, 
-        description = "Bad request", 
+        status = 400,
+        description = "Bad request",
         body = CharAddedDetailedResponse
     ),
     (
-        status = 404, 
-        description = "Could not find class from database", 
+        status = 404,
+        description = "Could not find class from database",
         body = CharAddedDetailedResponse
     ),
     (
-        status = 500, 
-        description = " Internal error occured", 
+        status = 500,
+        description = " Internal error occured",
         body = CharAddedDetailedResponse
     )),
     params(
@@ -164,12 +164,7 @@ pub async fn add_character(
     println!("{:?}", doc);
 
     class_response
-        .run(|a| {
-            class_repo.get_by_document(
-                a,
-                doc
-            )
-        })
+        .run(|a| class_repo.get_by_document(a, doc))
         .await;
 
     if let Progress::Failing(f) = class_response.success {
@@ -183,7 +178,6 @@ pub async fn add_character(
 
     println!("{:?}", class_response.data.clone());
 
-     
     let ch = Character::new_game(
         game_response.data.game_id,
         request,
@@ -213,12 +207,11 @@ pub async fn add_character(
         Err(e) => {
             let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
             return Json(
-                resp        
-                    .set_code(Some(crate::data_types::common::APIError::new(
-                        StatusCode::BAD_REQUEST,
-                        e.to_string(),
-                    )))
-                    .clone(),
+                resp.set_code(Some(crate::data_types::common::APIError::new(
+                    StatusCode::BAD_REQUEST,
+                    e.to_string(),
+                )))
+                .clone(),
             );
         }
     }
@@ -235,8 +228,6 @@ pub async fn add_character(
         })
         .await;
 
-
-    
     let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
     resp.absorb(&mut char_response);
     Json(resp)
@@ -244,7 +235,7 @@ pub async fn add_character(
 
 pub mod game_routes {
     pub use super::add_character;
-    pub use super::get_games;
     pub use super::get_game;
+    pub use super::get_games;
     pub use super::start_game;
 }

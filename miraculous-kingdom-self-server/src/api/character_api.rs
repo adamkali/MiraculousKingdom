@@ -1,23 +1,13 @@
 use crate::data_types::{
-    characters::{
-        CharacterResponse,
-        Character
-    },
+    characters::{Character, CharacterResponse},
     common::{
-        CharDetialedResponse, 
-        DetailedResponse, 
-        Progress, 
-        Repository, 
+        CharDetialedResponse, DetailedResponse, MKModel, Progress, Repository,
         VecCharDetailedResponse,
-        MKModel,
     },
     engine::Game,
 };
 use axum::{extract::Path, Extension, Json};
-use mongodb::{
-    bson::doc,
-    Database,
-};
+use mongodb::{bson::doc, Database};
 
 /// Endpoint to find all characters that the players is participating in for their specific secret.
 ///
@@ -100,7 +90,10 @@ pub async fn get_characters(
         })
         .await;
     let mut resp = DetailedResponse::new(Vec::<CharacterResponse>::new());
-    response.data.iter().for_each(|a| resp.data.push(a.clone().as_response()));
+    response
+        .data
+        .iter()
+        .for_each(|a| resp.data.push(a.clone().as_response()));
     Json(resp)
 }
 

@@ -6,12 +6,8 @@ pub mod class_routes {
 use crate::data_types::{
     characters::{Ability, Class, ClassEnum, ClassResponse},
     common::{
-        verify_id,
-        ClassDetailedResponse,
-        DetailedResponse,
-        Repository,
+        verify_id, ClassDetailedResponse, DetailedResponse, MKModel, Repository,
         VecClassDetailedResponse,
-        MKModel 
     },
 };
 use axum::{extract::Path, Extension, Json};
@@ -34,14 +30,18 @@ use mongodb::{
         body = VecClassDetailedResponse 
     ))
 )]
-pub async fn get_classes(Extension(mongo): Extension<Database>) 
--> Json<DetailedResponse<Vec<ClassResponse>>> {
+pub async fn get_classes(
+    Extension(mongo): Extension<Database>,
+) -> Json<DetailedResponse<Vec<ClassResponse>>> {
     let mut response: DetailedResponse<Vec<Class>> = DetailedResponse::new(Vec::<Class>::new());
     let mut repository = Repository::<Class>::new(&mongo, "classes");
     response.run(|a| repository.get_all(a)).await;
     let mut resp = DetailedResponse::new(Vec::<ClassResponse>::new());
     resp.absorb(&mut response.clone());
-    response.data.iter().for_each(|a| resp.data.push(a.as_response()));
+    response
+        .data
+        .iter()
+        .for_each(|a| resp.data.push(a.as_response()));
     Json(resp)
 }
 
