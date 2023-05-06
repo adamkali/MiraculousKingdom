@@ -1,7 +1,9 @@
 use crate::data_types::{
-    characters::{Character, Class, NewCharacter},
+    characters::{Character, CharacterResponse, Class, NewCharacter},
     common::DetailedResponse,
     common::Repository,
+    common::Progress,
+    common::MKModel,
     engine::*,
     game_to_info, games_to_info,
 };
@@ -147,7 +149,7 @@ pub async fn add_character(
     Extension(mongo): Extension<Database>,
     Path(pass): Path<String>,
     Json(request): Json<NewCharacter>,
-) -> Json<DetailedResponse<Character>> {
+) -> Json<DetailedResponse<CharacterResponse>> {
     let mut char_response: DetailedResponse<Character> = DetailedResponse::new(Character::new());
     let mut class_response: DetailedResponse<Class> = DetailedResponse::new(Class::new());
     let mut game_response: DetailedResponse<Game> = DetailedResponse::new(Game::new());
@@ -156,30 +158,45 @@ pub async fn add_character(
     let mut class_repo = Repository::<Class>::new(&mongo, "classes");
     let mut char_repo = Repository::<Character>::new(&mongo, "characters");
 
+    println!("{:?}", request.char_class.clone());
+
+    let doc = doc! { "class_enum": request.char_class.to_string() };
+    println!("{:?}", doc);
+
     class_response
         .run(|a| {
             class_repo.get_by_document(
                 a,
-                doc! { "class_enum": request.char_class.clone().to_string() },
+                doc
             )
         })
         .await;
+
+    if let Progress::Failing(f) = class_response.success {
+        let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
+        return Json(resp.set_code(Some(f)).clone());
+    }
 
     game_response
         .run(|a| game_repo.get_by_document(a, doc! { "generated_pass": pass.clone() }))
         .await;
 
+    println!("{:?}", class_response.data.clone());
+
+     
     let ch = Character::new_game(
         game_response.data.game_id,
         request,
         class_response.data.clone(),
     )
     .await;
+
     // turn into match
     if let Ok(character) = ch {
         char_response.data = character;
     } else if let Err(e) = ch {
-        return Json(char_response.set_code(Some(e)).clone());
+        let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
+        return Json(resp.set_code(Some(e)).clone());
     }
 
     char_response
@@ -194,8 +211,9 @@ pub async fn add_character(
             char_to_append = d;
         }
         Err(e) => {
+            let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
             return Json(
-                char_response
+                resp        
                     .set_code(Some(crate::data_types::common::APIError::new(
                         StatusCode::BAD_REQUEST,
                         e.to_string(),
@@ -217,7 +235,11 @@ pub async fn add_character(
         })
         .await;
 
-    Json(char_response.clone())
+
+    
+    let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
+    resp.absorb(&mut char_response);
+    Json(resp)
 }
 
 pub mod game_routes {

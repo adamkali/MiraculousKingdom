@@ -14,6 +14,7 @@
         ClassEnum.WAR_GENERAL,
         ClassEnum.AFICIANADO,
         ClassEnum.SCIENTIST,
+        ClassEnum.SPY_MASTER,
     ]
 
     let record: Record<string, number> = {} as Record<string, number>
@@ -39,13 +40,15 @@
 
     const isClassEnum = (val: string): ClassEnum => {
         if (val === ClassEnum.WAR_GENERAL) {
-            return ClassEnum.WAR_GENERAL
+            return ClassEnum.WAR_GENERAL;
         } else if (val === ClassEnum.AFICIANADO) {
-            return ClassEnum.AFICIANADO
+            return ClassEnum.AFICIANADO;
         } else if (val === ClassEnum.SCIENTIST) {
-            return ClassEnum.SCIENTIST
+            return ClassEnum.SCIENTIST;
+        } else if (val === ClassEnum.SPY_MASTER) {
+            return ClassEnum.SPY_MASTER; 
         } else {
-            return ClassEnum.WAR_GENERAL
+            return ClassEnum.WAR_GENERAL;
         }
     }
 </script>
@@ -58,8 +61,9 @@
     >
         Create a Character
     </div>
-    <form class="flex-col" on:submit|preventDefault={handleSubmit}>
+    <form class="flex-col" on:submit|preventDefault={() => handleSubmit()}>
         <Input
+            inputType={null}
             label="Character Name"
             placeholder="Tywin Lanister"
             onChange={(value) => {
@@ -69,6 +73,7 @@
         />
         <div>
             <Input
+                inputType={null}
                 label={'Character Password'}
                 placeholder="GOTMaster!"
                 value={character.secret}
@@ -80,6 +85,7 @@
                 <div class="flex w-full flex-row">
                     <div class="mr-4">
                         <Input
+                            inputType={"number"}
                             label={MightEnum.MILITARY}
                             placeholder="0"
                             value={record[MightEnum.MILITARY].toString()}
@@ -90,6 +96,7 @@
                     </div>
                     <div class="mr-4">
                         <Input
+                            inputType={"number"}
                             label={MightEnum.CULTURE}
                             placeholder="0"
                             value={record[MightEnum.CULTURE].toString()}
@@ -100,6 +107,7 @@
                     </div>
                     <div>
                         <Input
+                            inputType={"number"}
                             label={MightEnum.SCIENCE}
                             placeholder="0"
                             value={record[MightEnum.SCIENCE].toString()}
@@ -112,6 +120,7 @@
                 <div class="flex flex-row">
                     <div class="mr-4">
                         <Input
+                            inputType={"number"}
                             label={MightEnum.RELIGION}
                             placeholder="0"
                             value={record[MightEnum.RELIGION].toString()}
@@ -122,6 +131,7 @@
                     </div>
                     <div class="mr-4">
                         <Input
+                            inputType={"number"}
                             label={MightEnum.DIPLOMACY}
                             placeholder="0"
                             value={record[MightEnum.DIPLOMACY].toString()}
@@ -132,6 +142,7 @@
                     </div>
                     <div class="mr-4">
                         <Input
+                            inputType={"number"}
                             label={MightEnum.ESPIONAGE}
                             placeholder="0"
                             value={record[MightEnum.ESPIONAGE].toString()}
@@ -159,11 +170,7 @@
                             {/each}
                         </select>
                     </div>
-                    <Button
-                        onClick={() => {
-                            handleSubmit()
-                        }}
-                    >
+                    <Button buttonType="submit" >
                         Create Your Character
                     </Button>
                 </div>

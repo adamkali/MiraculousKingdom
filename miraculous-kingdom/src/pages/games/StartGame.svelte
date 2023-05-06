@@ -31,14 +31,16 @@
     <div class="justify-content flex w-1/2 flex-col">
         <div class="place-items-start">
             <Components.Input
+                inputType={null}
                 placeholder="Tywin Lanister"
                 value={name}
                 onChange={(value) => {
                     name = value
                 }}
-                label={'Name'}
+                label={'Country Name'}
             />
             <Components.Input
+                inputType={null}
                 placeholder="Godrick The Grafted"
                 value={ruler_name}
                 onChange={(value) => {

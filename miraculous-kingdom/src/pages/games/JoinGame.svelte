@@ -35,16 +35,18 @@
                     class="relative flex items-center rounded-lg bg-black/80 px-8 py-4 leading-none"
                 >
                     <div
-                        class="flex flex-row divide-x-2 divide-slate-400 text-red-600"
+                        class="flex flex-row divide-x-2 divide-red-400 text-red-600"
                     >
                         <div>{game.game_name}</div>
                         <div>{game.game_ruler}</div>
                     </div>
-                    <ul class="list-none">
-                        {#each game.game_chars as char}
-                            <li>{char}</li>
-                        {/each}
-                    </ul>
+                    <div class="flex flex-col text-slate-300">
+                        <ul class="list-none">
+                            {#each game.game_chars as char}
+                                <li>{char}</li>
+                            {/each}
+                        </ul>
+                    </div>
                 </div>
             </div>
         {/each}

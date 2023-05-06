@@ -670,6 +670,8 @@ impl ToString for ClassEnum {
         match *self {
             Self::Aficianado => "Aficianado".to_string(),
             Self::WarGeneral => "WarGeneral".to_string(),
+            Self::Scientist => "Scientist".to_string(),
+            Self::SpyMaster => "SpyMaster".to_string(),
             _ => "Not Implemented".to_string(),
         }
     }
