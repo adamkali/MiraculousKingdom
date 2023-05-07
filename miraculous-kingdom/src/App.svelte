@@ -8,13 +8,24 @@
     import { Router, Link, Route } from 'svelte-navigator'
 
     import Home from './pages/Home.svelte'
-    import { StartGame, JoinGame, CreateCharacter } from './pages/games'
+    import {
+        StartGame,
+        JoinGame,
+        CreateCharacter,
+        CharacterSheet,
+    } from './pages/games'
     import { Abilities, Characters, Classes } from './pages/rules'
     import { Special } from './components'
+    import { currentGame, gameCharacter } from './store'
 
     const backToHome = () => {
         window.location.href = '/'
     }
+
+    let game = currentGame.get()
+    let char = gameCharacter.get()
+
+    console.log($currentGame, $gameCharacter)
 </script>
 
 <main
@@ -96,6 +107,9 @@
             </Route>
         </Route>
         <Route path="/games/*">
+            <Route path="sheet">
+                <CharacterSheet {game} character={char} />
+            </Route>
             <Route path="start">
                 <StartGame />
             </Route>

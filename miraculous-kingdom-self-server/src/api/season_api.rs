@@ -1,17 +1,9 @@
 use crate::data_types::{
     common::{
-        verify_id,
-        APIError,
-        DetailedResponse,
-        Repository,
-        RewardTypes,
-        SeasonDetailedResponse,
-        SeasonsDetailedResponse,
-        MKModel,
+        verify_id, APIError, DetailedResponse, MKModel, Repository, RewardTypes,
+        SeasonDetailedResponse, SeasonsDetailedResponse,
     },
-    engine::{
-        Season, SeasonResponse
-    } 
+    engine::{Season, SeasonResponse},
 };
 use axum::{extract::Path, http::StatusCode, Extension, Json};
 use mongodb::{
@@ -35,16 +27,19 @@ use rand::seq::SliceRandom;
         body = SeasonsDetailedResponse 
     ))
 )]
-pub async fn get_seasons(Extension(mongo): Extension<Database>) 
--> Json<DetailedResponse<Vec<SeasonResponse>>> {
+pub async fn get_seasons(
+    Extension(mongo): Extension<Database>,
+) -> Json<DetailedResponse<Vec<SeasonResponse>>> {
     let mut response: DetailedResponse<Vec<Season>> = DetailedResponse::new(Vec::<Season>::new());
     let mut repository = Repository::<Season>::new(&mongo, "seasons");
 
     response.run(|a| repository.get_all(a)).await;
-    let mut res: DetailedResponse<Vec<SeasonResponse>> 
-        = DetailedResponse::new(Vec::new());
+    let mut res: DetailedResponse<Vec<SeasonResponse>> = DetailedResponse::new(Vec::new());
     res.absorb(&mut response.clone());
-    response.data.iter().for_each(|a| res.data.push(a.clone().as_response()));
+    response
+        .data
+        .iter()
+        .for_each(|a| res.data.push(a.clone().as_response()));
 
     Json(res)
 }
@@ -118,8 +113,7 @@ pub async fn get_season(
         body = SeasonDetailedResponse 
     ))
 )]
-pub async fn roll(Extension(mongo): Extension<Database>)
--> Json<DetailedResponse<SeasonResponse>> {
+pub async fn roll(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<SeasonResponse>> {
     let mut seasons_response: DetailedResponse<Vec<Season>> =
         DetailedResponse::new(Vec::<Season>::new());
     let mut response: DetailedResponse<Season> = DetailedResponse::new(Season {
@@ -154,7 +148,7 @@ pub async fn roll(Extension(mongo): Extension<Database>)
 }
 
 pub mod season_routes {
-    pub use super::get_seasons;
     pub use super::get_season;
+    pub use super::get_seasons;
     pub use super::roll;
 }

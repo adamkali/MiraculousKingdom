@@ -3,35 +3,20 @@ pub mod data_types;
 pub mod ws;
 
 use axum::{
-    http::{
-        Method,
-        HeaderMap, 
-        HeaderValue,
-        Request,
-        Response,
-    }, 
-    routing::*, 
-    Extension,
-    extract::MatchedPath,
     body::HttpBody,
+    extract::MatchedPath,
+    http::{HeaderMap, HeaderValue, Method, Request, Response},
+    routing::*,
+    Extension,
 };
-use std::{net::SocketAddr, path::PathBuf, time::Duration};
 use axum_server::tls_rustls::RustlsConfig;
+use std::{net::SocketAddr, path::PathBuf, time::Duration};
 use tower_http::{
-    trace::{
-        TraceLayer,
-    },
-    cors::{
-        Any,
-        CorsLayer,
-        AllowHeaders,
-    },
-};
-use tracing_subscriber::{
-    layer::SubscriberExt, 
-    util::SubscriberInitExt
+    cors::{AllowHeaders, Any, CorsLayer},
+    trace::TraceLayer,
 };
 use tracing::{info_span, Span, Value};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 //use std::sync::Arc;
 //use data_types::engine::Game;
 use data_types::characters::*;
@@ -47,16 +32,6 @@ struct Ports {
     http: u16,
     https: u16,
 }
-enum DetailedResponseEnum {
-    VecClassDetailedResponse(VecClassDetailedResponse), 
-    ClassDetailedResponse(ClassDetailedResponse),
-    GameInfoDetailedResponse(GameInfoDetailedResponse), 
-    GamesInfoDetailedResponse(GamesInfoDetailedResponse),
-    PassDetailedResponse(PassDetailedResponse), 
-    CharAddedDetailedResponse(CharAddedDetailedResponse),
-    VecCharDetailedResponse(VecCharDetailedResponse), 
-    CharDetialedResponse(CharDetialedResponse),
-} 
 
 #[tokio::main]
 async fn main() {
@@ -88,7 +63,7 @@ async fn main() {
                 Ability, Might, MightStat, Clock, GameInfo,
                 GameCreation, MightRequirement, Progress, MightEnum,
                 SeasonResponse, RewardTypes, RollTier, ClassEnum, CharacterState,
-                APIError, 
+                APIError, SeasonEnum,
             ),
         ),
         tags(
@@ -97,12 +72,10 @@ async fn main() {
     )]
     struct APIDoc;
 
-    
-
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var(
             "RUST_LOG",
-            "miraculous-kingdom-self-server=trace,tower_http=trace"
+            "miraculous-kingdom-self-server=trace,tower_http=trace",
         )
     }
 
@@ -112,7 +85,6 @@ async fn main() {
     let mongo_client = mongodb::Client::with_options(client_opt)
         .unwrap()
         .database("mkdb");
-
 
     // construct tcp and https://
     // using use axum_server::tls_rustls::RustlsConfig
@@ -134,7 +106,7 @@ async fn main() {
                 .allow_origin(Any)
                 .allow_methods(Any)
                 .allow_headers(AllowHeaders::any()),
-            )
+        )
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(|request: &Request<_>| {
@@ -154,22 +126,24 @@ async fn main() {
                     // You can use `_span.record("some_other_field", value)` in one of these
                     // closures to attach a value to the initially empty field in the info_span
                     // created above.
-                    _span.record("uri:", _request.uri().path().to_string())
+                    _span
+                        .record("uri:", _request.uri().path().to_string())
                         .record("method: ", _request.method().to_string());
-                })
-            );
+                }),
+        );
 
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.https));
 
     match RustlsConfig::from_pem_file(
         // XXX: for local
         PathBuf::from("./certs/cacert.pem").as_path(),
-        PathBuf::from("./certs/privkey.pem").as_path()
-        // XXX: for docker!
-        //PathBuf::from("/working/certs/cacert.pem").as_path(),
-        //PathBuf::from("/working/certs/privkey.pem").as_path()
-    ).await {
-        Ok(conf) => { 
+        PathBuf::from("./certs/privkey.pem").as_path(), // XXX: for docker!
+                                                        //PathBuf::from("/working/certs/cacert.pem").as_path(),
+                                                        //PathBuf::from("/working/certs/privkey.pem").as_path()
+    )
+    .await
+    {
+        Ok(conf) => {
             println!("Connection opened on https://{:?}", addr.to_string());
             tracing::debug!("listening on {}", addr);
             axum_server::bind(addr)
@@ -180,16 +154,13 @@ async fn main() {
             //    .serve(app.clone().into_make_service())
             //    .await
             //    .unwrap();
-        },
+        }
         Err(e) => {
-            println!("{:?}\n cacert: {:#?}\n privkey: {:#?}\n",
+            println!(
+                "{:?}\n cacert: {:#?}\n privkey: {:#?}\n",
                 e,
-                std::fs::File::open(
-                    PathBuf::from("/working/certs/cacert.pem").as_path()
-                ).is_ok(),
-                std::fs::File::open(
-                    PathBuf::from("/working/certs/privkey.pem").as_path()
-                ).is_ok()
+                std::fs::File::open(PathBuf::from("/working/certs/cacert.pem").as_path()).is_ok(),
+                std::fs::File::open(PathBuf::from("/working/certs/privkey.pem").as_path()).is_ok()
             );
             axum_server::bind(addr)
                 .serve(app.into_make_service())
