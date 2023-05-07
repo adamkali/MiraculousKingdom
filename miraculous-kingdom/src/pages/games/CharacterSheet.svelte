@@ -5,12 +5,10 @@
         type CharacterResponse,
         type GameInfo,
     } from '../../models'
-    import { currentGame, gameCharacter } from '../../store';
+    import { currentGame, gameCharacter } from '../../store'
 
-    export let game: GameInfo;
+    export let game: GameInfo
     export let character: CharacterResponse
-   
-    console.log(game, character, $currentGame, $gameCharacter)
 </script>
 
 <div
@@ -21,94 +19,63 @@
     >
         Miraculous Kingdom
     </div>
-    <div class="grid grid-rows-6 gap-y-4">
-        <div class="grid-cols-4 gap-x-8">
-            <Components.Input
-                label="Name"
-                placeholder=""
-                value={character.char_name}
-                onChange={(_value) => {}}
-                inputType="text"
-            />
-            <Components.Input
-                label="Class"
-                placeholder=""
-                value={character.char_class}
-                onChange={(_value) => {}}
-                inputType="text"
-            />
-            <Components.Input
-                label="Country Name"
-                placeholder=""
-                value={game.game_name}
-                onChange={(_value) => {}}
-                inputType="text"
-            />
-            <Components.Input
-                label="Ruler"
-                placeholder=""
-                value={game.game_ruler}
-                onChange={(_value) => {}}
-                inputType="text"
-            />
-        </div>
-        <div class="flex w-full flex-row">
-            <div class="mr-4">
+    <div class="grid grid-rows-5 gap-y-4">
+        <div class="flex h-24 flex-row justify-center">
+            <div class="mx-4">
                 <Components.Input
-                    inputType={'number'}
-                    label={MightEnum.MILITARY}
-                    placeholder="0"
-                    value={character.char_might.might_military.stat_value.toString()}
+                    label="Name"
+                    placeholder=""
+                    value={character.char_name}
                     onChange={(_value) => {}}
+                    inputType="text"
                 />
             </div>
-            <div class="mr-4">
+            <div class="mx-4">
                 <Components.Input
-                    inputType={'number'}
-                    label={MightEnum.CULTURE}
-                    placeholder="0"
-                    value={character.char_might.might_culture.stat_value.toString()}
+                    label="Class"
+                    placeholder=""
+                    value={character.char_class}
                     onChange={(_value) => {}}
+                    inputType="text"
                 />
             </div>
-            <div>
+            <div class="mx-4">
                 <Components.Input
-                    inputType={'number'}
-                    label={MightEnum.SCIENCE}
-                    placeholder="0"
-                    value={character.char_might.might_science.stat_value.toString()}
+                    label="Country Name"
+                    placeholder=""
+                    value={game.game_name}
                     onChange={(_value) => {}}
+                    inputType="text"
+                />
+            </div>
+            <div class="mx-4">
+                <Components.Input
+                    label="Ruler"
+                    placeholder=""
+                    value={game.game_ruler}
+                    onChange={(_value) => {}}
+                    inputType="text"
                 />
             </div>
         </div>
-        <div class="flex flex-row">
-            <div class="mr-4">
-                <Components.Input
-                    inputType={'number'}
-                    label={MightEnum.RELIGION}
-                    placeholder="0"
-                    value={character.char_might.might_religion.stat_value.toString()}
-                    onChange={(_value) => {}}
-                />
-            </div>
-            <div class="mr-4">
-                <Components.Input
-                    inputType={'number'}
-                    label={MightEnum.DIPLOMACY}
-                    placeholder="0"
-                    value={character.char_might.might_diplomacy.stat_value.toString()}
-                    onChange={(_value) => {}}
-                />
-            </div>
-            <div>
-                <Components.Input
-                    inputType={'number'}
-                    label={MightEnum.ESPIONAGE}
-                    placeholder="0"
-                    value={character.char_might.might_espionage.stat_value.toString()}
-                    onChange={(_value) => {}}
-                />
-            </div>
+        <div class="row-span-4 w-full justify-center">
+            <Components.MightTable might={character.char_might} />
+        </div>
+        <Components.Button
+            onClick={() => {
+                currentGame.set(null)
+                gameCharacter.set(null)
+                window.location.href = '/'
+            }}
+        >
+            Exit
+        </Components.Button>
+        <div class="grid grid-cols-9 w-full overflow-x-scroll">
+            {#each character.char_deck as ability }
+                <div class="mx-16 w-full h-full p-8">
+                    <Components.Ability ability={ability} />
+                </div>
+            {/each} 
         </div>
     </div>
 </div>

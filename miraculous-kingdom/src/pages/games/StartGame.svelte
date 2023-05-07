@@ -1,7 +1,7 @@
 <script lang="ts">
     import { ApiGameApiService, type GameCreation } from '../../models'
     import * as Components from '../../components'
-    import { currentGame } from '../../store';
+    import { currentGame } from '../../store'
 
     let name: string
     let ruler_name: string
@@ -16,7 +16,7 @@
         ApiGameApiService.startGame(request)
             .then((resp) => {
                 if (resp.success !== 'Succeeding') {
-                    console.log({err: resp.success.Failing.message})
+                    console.log({ err: resp.success.Failing.message })
                 }
                 window.location.href = `/games/create_character/${resp.data}`
             })

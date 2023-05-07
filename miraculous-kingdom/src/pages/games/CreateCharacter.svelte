@@ -36,11 +36,11 @@
                 if (res.success != 'Succeeding') {
                     console.log({ error: res.success.Failing.message })
                 }
-                gameCharacter.update(prev => {return {...prev, ...res.data}});
+                gameCharacter.set(res.data)
                 console.log($gameCharacter)
             })
-            .then(() => { 
-                window.location.href = "/games/sheet"
+            .then(() => {
+                window.location.href = '/games/sheet'
             })
             .catch((err) => {
                 console.log({ error: err })

@@ -125,8 +125,7 @@ pub async fn get_characters(
 )]
 pub async fn get_character_for_game(
     Extension(mongo): Extension<Database>,
-    Path(secret): Path<String>,
-    Path(pass): Path<String>,
+    Path((secret, pass)): Path<(String, String)>,
 ) -> Json<DetailedResponse<CharacterResponse>> {
     let mut char_response = DetailedResponse::new(Character::new());
     let mut game_response = DetailedResponse::new(Game::new());

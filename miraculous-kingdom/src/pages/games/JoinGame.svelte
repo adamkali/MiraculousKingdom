@@ -1,6 +1,16 @@
 <script lang="ts">
-    import { ApiGameApiService, type GameInfo } from '../../models'
-    import { currentGame } from '../../store'
+    import {
+        ApiCharacterApiService,
+        ApiGameApiService,
+        type GameInfo,
+    } from '../../models'
+    import { currentGame, gameCharacter } from '../../store'
+    import * as Components from '../../components'
+    import { onMount } from 'svelte'
+
+    onMount(() => {
+        currentGame.set({} as GameInfo)
+    })
 
     const getGames = async (): Promise<GameInfo[]> => {
         const response = await ApiGameApiService.getGames()
@@ -10,10 +20,37 @@
         return response.data
     }
 
-    const onClick = (g: GameInfo): void => {
-        currentGame.update(prev => {return { ...prev, ...g}});
-        console.log($currentGame)
+    const handleJoinNew = (g: GameInfo): void => {
+        currentGame.set(g)
+        window.location.href = `/games/create_character/${g.game_pass}`
     }
+
+    const handleJoinExisting = (secret: string, g: GameInfo): void => {
+        ApiCharacterApiService.getCharacterForGame(secret, g.game_pass)
+            .then((res) => {
+                if (res.success !== 'Succeeding') {
+                    console.log({
+                        'error code': res.success.Failing.status_code,
+                        'error message': res.success.Failing.message,
+                    })
+                } else {
+                    gameCharacter.set(res.data)
+                    currentGame.set(g)
+                    window.location.href = `/games/sheet`
+                }
+            })
+            .catch((err) => {
+                console.log({
+                    message: err,
+                })
+            })
+    }
+
+    const handleSecretChange = (value: string) => {
+        secret = value
+    }
+
+    let secret: string
 </script>
 
 <div
@@ -28,30 +65,32 @@
         <div>...waiting</div>
     {:then games}
         {#each games as game}
-            <div class="relative">
-                <div
-                    class="lg absolute -inset-0.5 rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur hover:opacity-100"
-                />
-                <div
-                    on:click={() => {
-                        onClick(game);
-                        window.location.href = `/games/create_character/${game.game_pass}`
-                    }}
-                    class="relative flex items-center rounded-lg bg-black/80 px-8 py-4 leading-none"
-                >
-                    <div
-                        class="flex flex-row divide-x-2 divide-red-400 text-red-600"
-                    >
-                        <div>{game.game_name}</div>
-                        <div>{game.game_ruler}</div>
-                    </div>
-                    <div class="flex flex-col text-slate-300">
-                        <ul class="list-none">
-                            {#each game.game_chars as char}
-                                <li>{char}</li>
-                            {/each}
-                        </ul>
-                    </div>
+            <div
+                class="flex h-48 flex-row items-center align-middle"
+            >
+                <div class="h-full w-full p-4">
+                    <Components.Input
+                        label={game.game_name}
+                        value={game.game_ruler}
+                        onChange={(_value) => {}}
+                        disabled={true}
+                        inputType="text"
+                        placeholder=""
+                    />
+                </div>
+                <div class="h-full w-full align-middle p-4">
+                    <Components.Button onClick={() => handleJoinNew(game)}>
+                        Join With New Character
+                    </Components.Button>
+                </div>
+                <div class="h-full w-full p-4">
+                    <Components.InputButton
+                        label="Join With Existing Character"
+                        value={secret}
+                        onClick={() => handleJoinExisting(secret, game)}
+                        onChange={(value) => handleSecretChange(value)}
+                        placeholder="WireWatcher11235!"
+                    />
                 </div>
             </div>
         {/each}
