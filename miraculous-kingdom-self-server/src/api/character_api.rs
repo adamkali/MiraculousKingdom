@@ -1,13 +1,15 @@
 use crate::data_types::{
-    characters::{Character, CharacterResponse},
+    characters::{Character, CharacterResponse, Ability},
     common::{
         CharDetialedResponse, DetailedResponse, MKModel, Progress, Repository,
-        VecCharDetailedResponse,
+        VecCharDetailedResponse, APIError,
+
     },
     engine::Game,
 };
-use axum::{extract::Path, Extension, Json};
+use axum::{extract::Path, Extension, Json, http::StatusCode};
 use mongodb::{bson::doc, Database};
+use rand::seq::SliceRandom;
 
 /// Endpoint to find all characters that the players is participating in for their specific secret.
 ///
@@ -158,7 +160,104 @@ pub async fn get_character_for_game(
     Json(resp)
 }
 
+async fn shuffle(
+    input: DetailedResponse<Character>
+) -> DetailedResponse<Character> {
+    let mut resp = input.clone();
+    let mut temp0: Vec<Ability> = input.data.char_deck;
+    let mut temp1: Vec<Ability> = Vec::<Ability>::with_capacity(temp0.len());
+    temp0.clone().iter_mut().for_each(|_| {
+        let temp = temp0.iter()
+                        .as_slice()
+                        .choose(&mut rand::thread_rng())
+                        .unwrap()
+                        .clone();
+
+        let index = temp0.iter()
+                         .position(|x| x.clone().ability_name == temp.clone().ability_name);
+
+        match index {
+            Some(i) => {
+                temp0.remove(i);
+                temp1.push(temp);
+            }
+            None => {
+                resp.set_code(Some(APIError {
+                    status_code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
+                    message: "Could not shuffle".to_string()
+                }));
+            }
+        }
+    });
+    resp.data.char_deck = temp1;
+    
+    resp
+}
+
+
+async fn draw_new_hand(
+    input: DetailedResponse<Character>
+) -> DetailedResponse<Character> {
+    let mut resp = input.clone();
+    (0_u8..4_u8).for_each(|_| resp.data.char_hand.push(resp.data.char_deck.pop().unwrap().clone()));
+    resp
+}
+
+async fn draw(
+    input: DetailedResponse<Character>
+) -> DetailedResponse<Character> {
+    let mut resp = input.clone();
+    resp.data.char_hand.push(resp.data.char_deck.pop().unwrap().clone());
+    resp
+}
+
+// /api/char/init_hand
+pub async fn init_hand(
+    Extension(mongo): Extension<Database>,
+    Json((secret, pass)): Json<(String, String)>,
+) -> Json<DetailedResponse<CharacterResponse>> {
+    let mut char_response = DetailedResponse::new(Character::new());
+
+    char_response
+        .run(|a| {
+            shuffle(a)
+        })  
+        .await
+        .run(|a| {
+            draw_new_hand(a)
+        })
+        .await;
+
+    let resp = DetailedResponse::new(char_response.data.as_response());
+    Json(resp)
+}
+
+// /api/char/draw
+pub async fn draw_card(
+    Extension(mongo): Extension<Database>,
+    Json((secret, pass)): Json<(String, String)>,
+) -> Json<DetailedResponse<CharacterResponse>> {
+    let mut char_response = DetailedResponse::new(Character::new());
+
+    char_response
+        .run(|a| {
+            shuffle(a)
+        })  
+        .await
+        .run(|a| {
+            draw_new_hand(a)
+        })
+        .await;
+
+    let resp = DetailedResponse::new(char_response.data.as_response());
+    Json(resp)
+}
+
 pub mod character_routes {
     pub use super::get_character_for_game;
     pub use super::get_characters;
 }
+
+
+
+

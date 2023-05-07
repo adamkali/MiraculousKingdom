@@ -2,6 +2,7 @@ pub mod character_api;
 pub mod class_api;
 pub mod game_api;
 pub mod season_api;
+pub mod ability_api;
 
 pub mod routes {
     use ::axum::{
