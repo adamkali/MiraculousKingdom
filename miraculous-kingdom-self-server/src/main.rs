@@ -32,16 +32,6 @@ struct Ports {
     http: u16,
     https: u16,
 }
-enum DetailedResponseEnum {
-    VecClassDetailedResponse(VecClassDetailedResponse),
-    ClassDetailedResponse(ClassDetailedResponse),
-    GameInfoDetailedResponse(GameInfoDetailedResponse),
-    GamesInfoDetailedResponse(GamesInfoDetailedResponse),
-    PassDetailedResponse(PassDetailedResponse),
-    CharAddedDetailedResponse(CharAddedDetailedResponse),
-    VecCharDetailedResponse(VecCharDetailedResponse),
-    CharDetialedResponse(CharDetialedResponse),
-}
 
 #[tokio::main]
 async fn main() {
@@ -73,7 +63,7 @@ async fn main() {
                 Ability, Might, MightStat, Clock, GameInfo,
                 GameCreation, MightRequirement, Progress, MightEnum,
                 SeasonResponse, RewardTypes, RollTier, ClassEnum, CharacterState,
-                APIError, 
+                APIError, SeasonEnum,
             ),
         ),
         tags(

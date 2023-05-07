@@ -1,11 +1,11 @@
 <script lang="ts">
-    export let label: string;
-    export let placeholder: string;
-    export let value: string;
-    export let onChange: (value: string) => void;
-    export let inputType: string | null | undefined;
-    
-    inputType = inputType ? inputType : "text";
+    export let label: string
+    export let placeholder: string
+    export let value: string
+    export let onChange: (value: string) => void
+    export let inputType: string | null | undefined
+
+    inputType = inputType ? inputType : 'text'
 </script>
 
 <div class="relative w-full">

@@ -3,9 +3,11 @@
         ApiGameApiService,
         ClassEnum,
         MightEnum,
+        type CharacterResponse,
         type NewCharacter,
     } from '../../models'
     import { Input, Button } from '../../components'
+    import { gameCharacter } from '../../store'
 
     export let pass: string
     let character: NewCharacter = {} as NewCharacter
@@ -31,7 +33,14 @@
         character.char_might = record
         ApiGameApiService.addCharacter(pass, character)
             .then((res) => {
-                console.log(res)
+                if (res.success != 'Succeeding') {
+                    console.log({ error: res.success.Failing.message })
+                }
+                gameCharacter.update(prev => {return {...prev, ...res.data}});
+                console.log($gameCharacter)
+            })
+            .then(() => { 
+                window.location.href = "/games/sheet"
             })
             .catch((err) => {
                 console.log({ error: err })
@@ -40,15 +49,15 @@
 
     const isClassEnum = (val: string): ClassEnum => {
         if (val === ClassEnum.WAR_GENERAL) {
-            return ClassEnum.WAR_GENERAL;
+            return ClassEnum.WAR_GENERAL
         } else if (val === ClassEnum.AFICIANADO) {
-            return ClassEnum.AFICIANADO;
+            return ClassEnum.AFICIANADO
         } else if (val === ClassEnum.SCIENTIST) {
-            return ClassEnum.SCIENTIST;
+            return ClassEnum.SCIENTIST
         } else if (val === ClassEnum.SPY_MASTER) {
-            return ClassEnum.SPY_MASTER; 
+            return ClassEnum.SPY_MASTER
         } else {
-            return ClassEnum.WAR_GENERAL;
+            return ClassEnum.WAR_GENERAL
         }
     }
 </script>
@@ -85,7 +94,7 @@
                 <div class="flex w-full flex-row">
                     <div class="mr-4">
                         <Input
-                            inputType={"number"}
+                            inputType={'number'}
                             label={MightEnum.MILITARY}
                             placeholder="0"
                             value={record[MightEnum.MILITARY].toString()}
@@ -96,7 +105,7 @@
                     </div>
                     <div class="mr-4">
                         <Input
-                            inputType={"number"}
+                            inputType={'number'}
                             label={MightEnum.CULTURE}
                             placeholder="0"
                             value={record[MightEnum.CULTURE].toString()}
@@ -107,7 +116,7 @@
                     </div>
                     <div>
                         <Input
-                            inputType={"number"}
+                            inputType={'number'}
                             label={MightEnum.SCIENCE}
                             placeholder="0"
                             value={record[MightEnum.SCIENCE].toString()}
@@ -120,7 +129,7 @@
                 <div class="flex flex-row">
                     <div class="mr-4">
                         <Input
-                            inputType={"number"}
+                            inputType={'number'}
                             label={MightEnum.RELIGION}
                             placeholder="0"
                             value={record[MightEnum.RELIGION].toString()}
@@ -131,7 +140,7 @@
                     </div>
                     <div class="mr-4">
                         <Input
-                            inputType={"number"}
+                            inputType={'number'}
                             label={MightEnum.DIPLOMACY}
                             placeholder="0"
                             value={record[MightEnum.DIPLOMACY].toString()}
@@ -142,7 +151,7 @@
                     </div>
                     <div class="mr-4">
                         <Input
-                            inputType={"number"}
+                            inputType={'number'}
                             label={MightEnum.ESPIONAGE}
                             placeholder="0"
                             value={record[MightEnum.ESPIONAGE].toString()}
@@ -170,9 +179,7 @@
                             {/each}
                         </select>
                     </div>
-                    <Button buttonType="submit" >
-                        Create Your Character
-                    </Button>
+                    <Button buttonType="submit">Create Your Character</Button>
                 </div>
             </div>
         </div>

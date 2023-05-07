@@ -1,6 +1,6 @@
 <script lang="ts">
-    export let onClick: () => void = () => {};
-    export let buttonType: any = "button";
+    export let onClick: () => void = () => {}
+    export let buttonType: any = 'button'
 </script>
 
 <div class="group relative h-full w-full">

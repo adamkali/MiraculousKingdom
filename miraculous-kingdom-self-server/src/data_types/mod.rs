@@ -30,6 +30,7 @@ pub async fn game_to_info(
         .map(|a| a.char_name.clone())
         .collect();
     info.game_pass = game.generated_pass;
+    info.game_season = game.game_season;
     Ok(())
 }
 

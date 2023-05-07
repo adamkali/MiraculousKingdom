@@ -30,7 +30,7 @@ pub enum Progress {
     GameInfoDetailedResponse = DetailedResponse<GameInfo>,
     GamesInfoDetailedResponse = DetailedResponse<Vec<GameInfo>>,
     PassDetailedResponse = DetailedResponse<String>,
-    CharAddedDetailedResponse = DetailedResponse<ClassResponse>,
+    CharAddedDetailedResponse = DetailedResponse<CharacterResponse>,
     VecCharDetailedResponse = DetailedResponse<Vec<CharacterResponse>>,
     CharDetialedResponse = DetailedResponse<CharacterResponse>,
     SeasonDetailedResponse = DetailedResponse<SeasonResponse>,

@@ -8,13 +8,20 @@
     import { Router, Link, Route } from 'svelte-navigator'
 
     import Home from './pages/Home.svelte'
-    import { StartGame, JoinGame, CreateCharacter } from './pages/games'
+    import { StartGame, JoinGame, CreateCharacter, CharacterSheet } from './pages/games'
     import { Abilities, Characters, Classes } from './pages/rules'
     import { Special } from './components'
+    import { currentGame, gameCharacter } from './store';
 
     const backToHome = () => {
         window.location.href = '/'
     }
+
+    currentGame.subscribe((x) => {return x})
+    gameCharacter.subscribe((x) => {return x})
+
+
+    console.log($currentGame, $gameCharacter)
 </script>
 
 <main
@@ -96,6 +103,9 @@
             </Route>
         </Route>
         <Route path="/games/*">
+            <Route path="sheet">
+                <CharacterSheet game={$currentGame} character={$gameCharacter}/>
+            </Route>
             <Route path="start">
                 <StartGame />
             </Route>

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { ApiGameApiService, type GameInfo } from '../../models'
+    import { currentGame } from '../../store'
 
     const getGames = async (): Promise<GameInfo[]> => {
         const response = await ApiGameApiService.getGames()
@@ -9,8 +10,9 @@
         return response.data
     }
 
-    const onClick = (pass: string): void => {
-        window.location.href = `/games/create_character/${pass}`
+    const onClick = (g: GameInfo): void => {
+        currentGame.update(prev => {return { ...prev, ...g}});
+        console.log($currentGame)
     }
 </script>
 
@@ -31,7 +33,10 @@
                     class="lg absolute -inset-0.5 rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur hover:opacity-100"
                 />
                 <div
-                    on:click={() => onClick(game.game_pass)}
+                    on:click={() => {
+                        onClick(game);
+                        window.location.href = `/games/create_character/${game.game_pass}`
+                    }}
                     class="relative flex items-center rounded-lg bg-black/80 px-8 py-4 leading-none"
                 >
                     <div

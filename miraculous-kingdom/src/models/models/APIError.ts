@@ -3,6 +3,6 @@
 /* eslint-disable */
 
 export type APIError = {
-    message: string;
-    status_code: number;
-};
+    message: string
+    status_code: number
+}

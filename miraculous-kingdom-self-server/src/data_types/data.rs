@@ -237,6 +237,7 @@ pub struct GameInfo {
     pub game_ruler: String,
     pub game_chars: Vec<String>,
     pub game_pass: String,
+    pub game_season: SeasonEnum,
 }
 
 impl Default for GameInfo {
@@ -246,6 +247,7 @@ impl Default for GameInfo {
             game_ruler: String::new(),
             game_chars: Vec::<String>::new(),
             game_pass: "0000AAAA".to_string(),
+            game_season: SeasonEnum::None,
         }
     }
 }
@@ -263,6 +265,7 @@ pub struct Game {
     pub game_name: String,
     pub game_ruler: String,
     pub generated_pass: String,
+    pub game_season: SeasonEnum
 }
 
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
@@ -273,6 +276,7 @@ pub struct GameResponse {
     pub game_name: String,
     pub game_ruler: String,
     pub generated_pass: String,
+    pub game_season: SeasonEnum,
 }
 
 impl MkResponse for GameResponse {}
@@ -291,6 +295,7 @@ impl MKModel for Game {
             game_name: self.game_name.clone(),
             game_ruler: self.game_ruler.clone(),
             generated_pass: self.generated_pass.clone(),
+            game_season: self.game_season.clone(),
         }
     }
 }
@@ -307,6 +312,7 @@ impl Game {
             game_name: "Not Started".to_string(),
             game_ruler: "Not Started".to_string(),
             generated_pass: "".to_string(),
+            game_season: SeasonEnum::None,
         }
     }
 
@@ -322,6 +328,7 @@ impl Game {
         ret.generated_pass = ObjectId::new().to_string();
 
         ret.generated_pass.truncate(8);
+        ret.game_season = SeasonEnum::None;
         ret
     }
 }
@@ -339,6 +346,7 @@ pub mod engine {
     pub use super::GameResponse;
     pub use super::Season;
     pub use super::SeasonResponse;
+    pub use super::SeasonEnum;
     pub use super::State;
 }
 
@@ -710,6 +718,13 @@ pub struct SeasonResponse {
     pub event_name: String,
     pub event_desc: String,
     pub event_reward: RewardTypes,
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub enum SeasonEnum {
+    #[default]
+    None,
+    SeasonResponse(SeasonResponse),
 }
 
 impl MkResponse for SeasonResponse {}
