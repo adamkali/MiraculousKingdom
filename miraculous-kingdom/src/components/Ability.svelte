@@ -13,7 +13,7 @@
 
 <div class="group relative h-full w-full">
     <div
-        class="lg absolute h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur transition duration-150 ease-in-out group-hover:from-fuchsia-500 group-hover:to-blue-500 group-hover:opacity-90 group-hover:blur-lg"
+        class="lg absolute h-96 w-96 rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur transition duration-150 ease-in-out group-hover:from-fuchsia-500 group-hover:to-blue-500 group-hover:opacity-90 group-hover:blur-lg"
     />
     <div
         class="mx-2 flex h-full w-full flex-col justify-center overflow-y-auto rounded-lg bg-black px-4 py-2 text-justify text-lg backdrop-blur"
@@ -50,7 +50,9 @@
                 {:else if ability.ability_unlock.might == MightEnum.RELIGION}
                     <span class="h-10 text-cyan-400"><GiCrossShield /></span>
                 {:else if ability.ability_unlock.might == MightEnum.SCIENCE}
-                    <span class="h-10 text-blue-600"><GiMaterialsScience /></span>
+                    <span class="h-10 text-blue-600"
+                        ><GiMaterialsScience /></span
+                    >
                 {:else if ability.ability_unlock.might == MightEnum.DIPLOMACY}
                     <span class="h-10 text-yellow-400"><GiSecretBook /></span>
                 {:else if ability.ability_unlock.might == MightEnum.ESPIONAGE}

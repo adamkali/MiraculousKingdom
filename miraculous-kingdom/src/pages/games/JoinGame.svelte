@@ -65,9 +65,7 @@
         <div>...waiting</div>
     {:then games}
         {#each games as game}
-            <div
-                class="flex h-48 flex-row items-center align-middle"
-            >
+            <div class="flex h-48 flex-row items-center align-middle">
                 <div class="h-full w-full p-4">
                     <Components.Input
                         label={game.game_name}
@@ -78,7 +76,7 @@
                         placeholder=""
                     />
                 </div>
-                <div class="h-full w-full align-middle p-4">
+                <div class="h-full w-full p-4 align-middle">
                     <Components.Button onClick={() => handleJoinNew(game)}>
                         Join With New Character
                     </Components.Button>

@@ -2,6 +2,7 @@ use axum::{
     body::{Bytes, HttpBody},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
+    async_trait,
 };
 use futures::Future;
 use serde::Serialize;
@@ -178,3 +179,4 @@ impl Debug for APIError {
         )
     }
 }
+

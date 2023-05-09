@@ -49,6 +49,9 @@ async fn main() {
             api::game_api::add_character,
             api::character_api::get_character_for_game,
             api::character_api::get_characters,
+            api::character_api::init_hand,
+            api::character_api::draw_card,
+            api::character_api::discard_card,
             api::season_api::get_seasons,
             api::season_api::get_season,
             api::season_api::roll

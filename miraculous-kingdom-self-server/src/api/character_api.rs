@@ -2,7 +2,7 @@ use crate::data_types::{
     characters::{Character, CharacterResponse, Ability},
     common::{
         CharDetialedResponse, DetailedResponse, MKModel, Progress, Repository,
-        VecCharDetailedResponse, APIError,
+        VecCharDetailedResponse, APIError 
 
     },
     engine::Game,
@@ -10,6 +10,8 @@ use crate::data_types::{
 use axum::{extract::Path, Extension, Json, http::StatusCode};
 use mongodb::{bson::doc, Database};
 use rand::seq::SliceRandom;
+use futures::future::join_all;
+
 
 /// Endpoint to find all characters that the players is participating in for their specific secret.
 ///
@@ -161,8 +163,8 @@ pub async fn get_character_for_game(
 }
 
 async fn shuffle(
-    input: DetailedResponse<Character>
-) -> DetailedResponse<Character> {
+    input: DetailedResponse<CharacterResponse>
+) -> DetailedResponse<CharacterResponse> {
     let mut resp = input.clone();
     let mut temp0: Vec<Ability> = input.data.char_deck;
     let mut temp1: Vec<Ability> = Vec::<Ability>::with_capacity(temp0.len());
@@ -196,48 +198,67 @@ async fn shuffle(
 
 
 async fn draw_new_hand(
-    input: DetailedResponse<Character>
-) -> DetailedResponse<Character> {
-    let mut resp = input.clone();
-    (0_u8..4_u8).for_each(|_| resp.data.char_hand.push(resp.data.char_deck.pop().unwrap().clone()));
+    input: DetailedResponse<CharacterResponse>
+) -> DetailedResponse<CharacterResponse> {
+    let mut resp = input;
+    (0_u8..4_u8).for_each(|_| 
+        resp.data.char_hand.push(resp.data.char_deck.pop().unwrap())
+    );
     resp
 }
 
 async fn draw(
-    input: DetailedResponse<Character>
-) -> DetailedResponse<Character> {
-    let mut resp = input.clone();
-    resp.data.char_hand.push(resp.data.char_deck.pop().unwrap().clone());
+    input: DetailedResponse<CharacterResponse>
+) -> DetailedResponse<CharacterResponse> {
+    let mut resp = input;
+    resp.data.char_hand.push(resp.data.char_deck.pop().unwrap());
     resp
 }
 
-// /api/char/init_hand
-pub async fn init_hand(
-    Extension(mongo): Extension<Database>,
-    Json((secret, pass)): Json<(String, String)>,
-) -> Json<DetailedResponse<CharacterResponse>> {
-    let mut char_response = DetailedResponse::new(Character::new());
-
-    char_response
-        .run(|a| {
-            shuffle(a)
-        })  
-        .await
-        .run(|a| {
-            draw_new_hand(a)
-        })
-        .await;
-
-    let resp = DetailedResponse::new(char_response.data.as_response());
-    Json(resp)
+async fn reload(
+    input: DetailedResponse<CharacterResponse>
+) -> DetailedResponse<CharacterResponse> {
+    let mut resp = input.clone();
+    let temp = resp.clone().data.char_discard;
+    resp.data.char_discard = Vec::<Ability>::new();
+    resp.data.char_deck = temp;
+    shuffle(resp).await
 }
 
-// /api/char/draw
-pub async fn draw_card(
+
+#[utoipa::path(
+    put,
+    path = "/api/character/init_hand/{secret}",
+    responses((
+        status = 200, 
+        description = "Initialized the hand of a player for the game", 
+        body = CharDetialedResponse,
+    ),
+    (
+        status = 500, 
+        description = "Internal error occured", 
+        body = CharDetialedResponse 
+    )),
+    request_body = CharacterResponse,
+    params(
+        (
+            "secret" = String, 
+            Path, 
+            description = "String set by the user to get their data"
+        ),
+    )
+)]
+pub async fn init_hand(
     Extension(mongo): Extension<Database>,
-    Json((secret, pass)): Json<(String, String)>,
+    Path(secret): Path<String>,
+    Json(character): Json<CharacterResponse>,
 ) -> Json<DetailedResponse<CharacterResponse>> {
-    let mut char_response = DetailedResponse::new(Character::new());
+    let mut char_response = DetailedResponse::new(character);
+    let mut game_response = DetailedResponse::new(Game::new());
+    let mut chatacterresp = DetailedResponse::new(Character::new());
+
+    let mut game_repo = Repository::<Game>::new(&mongo, "games");
+    let mut char_repo = Repository::<Character>::new(&mongo, "characters");
 
     char_response
         .run(|a| {
@@ -249,15 +270,302 @@ pub async fn draw_card(
         })
         .await;
 
-    let resp = DetailedResponse::new(char_response.data.as_response());
-    Json(resp)
+    chatacterresp.data = game_response.data
+                          .game_chars
+                          .iter()
+                          .find(|x| 
+                                x.secret == secret
+                                ).unwrap().clone();
+
+    chatacterresp.absorb(&mut char_response.clone());
+    chatacterresp.data.char_deck = char_response.clone().data.char_deck;
+    chatacterresp.data.char_hand = char_response.clone().data.char_hand;
+
+    chatacterresp
+        .run(|a| {
+            char_repo.update_one(
+                doc! { "char_name": a.data.clone().char_name },
+                doc! { "$set": {
+                    "char_hand": serde_json::to_string(
+                        &a.data.clone().char_hand
+                    ).unwrap(),
+                    "char_deck": serde_json::to_string(
+                        &a.data.clone().char_deck
+                    ).unwrap(),
+
+                }},
+                a
+            )
+        })
+        .await;
+
+    game_response
+        .data
+        .clone()
+        .game_chars
+        .iter()
+        .map(|x| {
+            if x.char_name == chatacterresp.data.clone().char_name {
+                &(chatacterresp.data)
+            } else { x }
+        }).collect::<Vec<_>>();
+
+
+    game_response
+        .absorb(&mut chatacterresp)
+        .run(|a| {
+            game_repo.update_one(
+                doc! { "generated_pass"
+                    : a.clone().data.generated_pass },
+                doc! { "$set": {
+                    "game_chars": serde_json::to_string(
+                        &a.clone().data.game_chars
+                    ).unwrap()
+                }},
+                a
+            )
+        })
+        .await;
+
+    char_response.absorb(&mut game_response);
+    Json(char_response)
+}
+
+
+#[utoipa::path(
+    put,
+    path = "/api/character/draw/{secret}/{number}",
+    responses((
+        status = 200, 
+        description = "Draw an Ability for the player put in", 
+        body = CharDetialedResponse,
+    ),
+    (
+        status = 500, 
+        description = "Internal error occured", 
+        body = CharDetialedResponse 
+    )),
+    request_body = CharacterResponse,
+    params(
+        (
+            "secret" = String, 
+            Path, 
+            description = "String set by the user to get their data"
+        ),
+    )
+)]
+pub async fn draw_card(
+    Extension(mongo): Extension<Database>,
+    Path((secret, number)): Path<(String, u8)>,
+    Json(character): Json<CharacterResponse>,
+) -> Json<DetailedResponse<CharacterResponse>> {
+    let mut char_response = DetailedResponse::new(character.clone());
+    let mut game_response = DetailedResponse::new(Game::new());
+    let mut chatacterresp = DetailedResponse::new(Character::new());
+
+    let mut game_repo = Repository::<Game>::new(&mongo, "games");
+    let mut char_repo = Repository::<Character>::new(&mongo, "characters");
+
+    for _ in 0..number-1 {
+        if char_response.clone().data.char_deck.is_empty() {
+            char_response
+                .run(|a| {
+                    reload(a) 
+                }).await
+                .run(|a| {
+                    draw(a)
+                }).await;
+        } else {
+            char_response
+                .run(|a| {
+                    draw(a)
+                }).await;
+        }
+    }
+
+
+    chatacterresp.data = game_response.data
+                          .game_chars
+                          .iter()
+                          .find(|x| 
+                                x.secret == secret
+                                ).unwrap().clone();
+
+    chatacterresp.absorb(&mut char_response.clone());
+    chatacterresp.data.char_deck = char_response.clone().data.char_deck;
+    chatacterresp.data.char_hand = char_response.clone().data.char_hand;
+
+    chatacterresp
+        .run(|a| {
+            char_repo.update_one(
+                doc! { "char_name": a.data.clone().char_name },
+                doc! { "$set": {
+                    "char_hand": serde_json::to_string(
+                        &a.data.char_hand
+                    ).unwrap(),
+                    "char_deck": serde_json::to_string(
+                        &a.data.char_deck
+                    ).unwrap(),
+
+                }},
+                a
+            )
+        })
+        .await;
+
+    game_response.data.game_chars = game_response
+        .data
+        .clone()
+        .game_chars
+        .iter()
+        .map(|x| {
+            if x.char_name == chatacterresp.data.clone().char_name {
+                chatacterresp.clone().data
+            } else { x.clone() }
+        }).collect::<Vec<_>>();
+
+
+    game_response
+        .absorb(&mut chatacterresp)
+        .run(|a| {
+            game_repo.update_one(
+                doc! { "generated_pass"
+                    : a.clone().data.generated_pass },
+                doc! { "$set": {
+                    "game_chars": serde_json::to_string(
+                        &a.data.game_chars
+                    ).unwrap()
+                }},
+                a
+            )
+        })
+        .await;
+
+    char_response.absorb(&mut game_response);
+    Json(char_response)
+}
+
+#[utoipa::path(
+    put,
+    path = "/api/character/discard/{secret}/{pass}",
+    responses((
+        status = 200, 
+        description = "Discard an Ability for the player put in", 
+        body = CharDetialedResponse,
+    ),
+    (
+        status = 500, 
+        description = "Internal error occured", 
+        body = CharDetialedResponse 
+    )),
+    request_body = Ability,
+    params(
+        (
+            "secret" = String, 
+            Path, 
+            description = "String set by the user to get their data"
+        ),
+        (
+            "pass" = String, 
+            Path, 
+            description = "String set by the user to get their data"
+        ),
+    )
+)]
+pub async fn discard_card(
+    Extension(mongo): Extension<Database>,
+    Path((secret, pass)): Path<(String, String)>,
+    Json(ability): Json<Ability>,
+) -> Json<DetailedResponse<CharacterResponse>> {
+    let mut game_response = DetailedResponse::new(Game::new());
+    let mut chatacterresp = DetailedResponse::new(Character::new());
+    let mut char_response = DetailedResponse::new(chatacterresp.clone().data.as_response());
+
+    let mut game_repo = Repository::<Game>::new(&mongo, "games");
+    let mut char_repo = Repository::<Character>::new(&mongo, "characters");
+
+    game_response.run(|a| {
+        game_repo.get_by_document(
+            a,
+            doc! { "generated_pass": pass },
+        )
+    })
+    .await;
+
+    chatacterresp.data = game_response.data
+                          .game_chars
+                          .iter()
+                          .find(|x| 
+                                x.secret == secret
+                                ).unwrap().clone();
+
+    chatacterresp.absorb(&mut char_response.clone());
+    let inex: usize = chatacterresp
+                        .clone()
+                        .data
+                        .char_hand
+                        .iter()
+                        .position(|x| *x.ability_name == ability.ability_name )
+                        .unwrap();
+    
+    chatacterresp.data.char_hand.remove(inex);
+
+    chatacterresp.data.char_discard.push(ability);
+    chatacterresp
+        .run(|a| {
+            char_repo.update_one(
+                doc! { "char_name": a.data.clone().char_name },
+                doc! { "$set": {
+                    "char_hand": serde_json::to_string(
+                        &a.data.char_hand
+                    ).unwrap(),
+                    "char_discard": serde_json::to_string(
+                        &a.data.char_discard
+                    ).unwrap(),
+
+                }},
+                a
+            )
+        })
+        .await;
+
+    game_response.data.game_chars = game_response
+        .data
+        .clone()
+        .game_chars
+        .iter()
+        .map(|x| {
+            if x.char_name == chatacterresp.data.clone().char_name {
+                chatacterresp.clone().data
+            } else { x.clone() }
+        }).collect::<Vec<_>>();
+
+
+    game_response
+        .absorb(&mut chatacterresp)
+        .run(|a| {
+            game_repo.update_one(
+                doc! { "generated_pass"
+                    : a.clone().data.generated_pass },
+                doc! { "$set": {
+                    "game_chars": serde_json::to_string(
+                        &a.data.game_chars
+                    ).unwrap()
+                }},
+                a
+            )
+        })
+        .await;
+
+    char_response.data = chatacterresp.data.as_response();
+    char_response.absorb(&mut game_response);
+    Json(char_response)
 }
 
 pub mod character_routes {
     pub use super::get_character_for_game;
     pub use super::get_characters;
+    pub use super::init_hand;
+    pub use super::draw_card;
+    pub use super::discard_card;
 }
-
-
-
-

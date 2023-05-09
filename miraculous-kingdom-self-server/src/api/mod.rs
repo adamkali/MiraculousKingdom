@@ -6,7 +6,7 @@ pub mod ability_api;
 
 pub mod routes {
     use ::axum::{
-        routing::{get, post},
+        routing::{get, post, put},
         Router,
     };
 
@@ -35,6 +35,18 @@ pub mod routes {
             .route(
                 "/:secret/:pass",
                 get(character_routes::get_character_for_game),
+            )
+            .route(
+                "/init_hand/:secret",
+                put(character_routes::init_hand),
+            )
+            .route(
+                "/draw/:secret/:pass",
+                put(character_routes::draw_card),
+            )
+            .route(
+                "/discard/:secret/:pass",
+                put(character_routes::discard_card),
             );
         let season_route = Router::new()
             .route("/", get(season_routes::get_seasons))

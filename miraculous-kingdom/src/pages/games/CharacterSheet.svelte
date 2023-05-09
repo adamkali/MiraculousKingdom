@@ -1,14 +1,18 @@
 <script lang="ts">
+    import { onMount } from 'svelte'
     import * as Components from '../../components'
     import {
         MightEnum,
         type CharacterResponse,
         type GameInfo,
+        type Ability,
     } from '../../models'
     import { currentGame, gameCharacter } from '../../store'
 
     export let game: GameInfo
     export let character: CharacterResponse
+
+    const onDiscard = (ability: Ability) => {}
 </script>
 
 <div
@@ -61,6 +65,19 @@
         <div class="row-span-4 w-full justify-center">
             <Components.MightTable might={character.char_might} />
         </div>
+        <div class="grid w-full grid-cols-9 overflow-x-scroll">
+            {#each character.char_deck as ability}
+                <div class="mx-16 h-96 w-96 p-8">
+                    <div
+                        class="right-2 top-2 z-10 rounded-full bg-slate-400 text-red-600"
+                        on:click={() => onDiscard(ability)}
+                    >
+                        x
+                    </div>
+                    <Components.Ability {ability} />
+                </div>
+            {/each}
+        </div>
         <Components.Button
             onClick={() => {
                 currentGame.set(null)
@@ -70,12 +87,5 @@
         >
             Exit
         </Components.Button>
-        <div class="grid grid-cols-9 w-full overflow-x-scroll">
-            {#each character.char_deck as ability }
-                <div class="mx-16 w-full h-full p-8">
-                    <Components.Ability ability={ability} />
-                </div>
-            {/each} 
-        </div>
     </div>
 </div>
