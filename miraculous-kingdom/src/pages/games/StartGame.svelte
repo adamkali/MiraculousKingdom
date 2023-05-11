@@ -18,7 +18,9 @@
                 if (resp.success !== 'Succeeding') {
                     console.log({ err: resp.success.Failing.message })
                 }
-                window.location.href = `/games/create_character/${resp.data}`
+                currentGame.set(resp.data)
+                window.location.href
+                    = `/games/create_character/${resp.data.game_pass}`
             })
             .catch((err) => console.log(err))
     }

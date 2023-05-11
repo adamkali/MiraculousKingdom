@@ -74,7 +74,7 @@
         }
       }
     },
-    "/api/character/draw/{secret}/{number}": {
+    "/api/character/draw/{number}/{secret}/{pass}": {
       "put": {
         "tags": [
           "api::character_api"
@@ -91,6 +91,14 @@
             }
           },
           {
+            "name": "pass",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "number",
             "in": "path",
             "required": true,
@@ -101,16 +109,6 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CharacterResponse"
-              }
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
             "description": "Draw an Ability for the player put in",
@@ -135,7 +133,7 @@
         }
       }
     },
-    "/api/character/init_hand/{secret}": {
+    "/api/character/init_hand/{secret}/{pass}": {
       "put": {
         "tags": [
           "api::character_api"
@@ -146,6 +144,14 @@
             "name": "secret",
             "in": "path",
             "description": "String set by the user to get their data",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pass",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "string"
@@ -410,7 +416,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PassDetailedResponse"
+                  "$ref": "#/components/schemas/GameInfoDetailedResponse"
                 }
               }
             }
@@ -420,7 +426,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PassDetailedResponse"
+                  "$ref": "#/components/schemas/GameInfoDetailedResponse"
                 }
               }
             }
@@ -430,7 +436,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PassDetailedResponse"
+                  "$ref": "#/components/schemas/GameInfoDetailedResponse"
                 }
               }
             }

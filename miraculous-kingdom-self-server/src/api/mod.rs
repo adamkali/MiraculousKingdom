@@ -37,16 +37,16 @@ pub mod routes {
                 get(character_routes::get_character_for_game),
             )
             .route(
-                "/init_hand/:secret",
-                put(character_routes::init_hand),
+                "/init_hand/:secret/:pass",
+                get(character_routes::init_hand),
             )
             .route(
-                "/draw/:secret/:pass",
-                put(character_routes::draw_card),
+                "/draw/:number/:secret/:pass",
+                get(character_routes::draw_card),
             )
             .route(
                 "/discard/:secret/:pass",
-                put(character_routes::discard_card),
+                get(character_routes::discard_card),
             );
         let season_route = Router::new()
             .route("/", get(season_routes::get_seasons))

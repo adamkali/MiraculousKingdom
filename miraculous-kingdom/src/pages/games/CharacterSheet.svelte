@@ -6,13 +6,23 @@
         type CharacterResponse,
         type GameInfo,
         type Ability,
+        ApiCharacterApiService,
     } from '../../models'
     import { currentGame, gameCharacter } from '../../store'
 
     export let game: GameInfo
     export let character: CharacterResponse
 
-    const onDiscard = (ability: Ability) => {}
+    const onDiscard = (ability: Ability) => {
+
+    }
+    const onInit = () => {
+        ApiCharacterApiService.initHand()
+    }
+    const onDraw = (ability: Ability) => {
+
+    }
+
 </script>
 
 <div

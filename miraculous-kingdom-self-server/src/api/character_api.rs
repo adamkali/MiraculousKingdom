@@ -195,8 +195,6 @@ async fn shuffle(
     
     resp
 }
-
-
 async fn draw_new_hand(
     input: DetailedResponse<CharacterResponse>
 ) -> DetailedResponse<CharacterResponse> {
@@ -228,7 +226,7 @@ async fn reload(
 
 #[utoipa::path(
     put,
-    path = "/api/character/init_hand/{secret}",
+    path = "/api/character/init_hand/{secret}/{pass}",
     responses((
         status = 200, 
         description = "Initialized the hand of a player for the game", 
@@ -250,12 +248,11 @@ async fn reload(
 )]
 pub async fn init_hand(
     Extension(mongo): Extension<Database>,
-    Path(secret): Path<String>,
-    Json(character): Json<CharacterResponse>,
+    Path((secret, pass)): Path<(String, String)>,
 ) -> Json<DetailedResponse<CharacterResponse>> {
-    let mut char_response = DetailedResponse::new(character);
     let mut game_response = DetailedResponse::new(Game::new());
     let mut chatacterresp = DetailedResponse::new(Character::new());
+    let mut char_response = DetailedResponse::new(chatacterresp.clone().data.as_response());
 
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
     let mut char_repo = Repository::<Character>::new(&mongo, "characters");
@@ -270,6 +267,16 @@ pub async fn init_hand(
         })
         .await;
 
+    game_response
+        .absorb(&mut char_response)
+        .run(|a| {
+            game_repo.get_by_document(
+                a,
+                doc! { "generated_pass": pass }
+                )
+        })
+        .await;
+
     chatacterresp.data = game_response.data
                           .game_chars
                           .iter()
@@ -277,7 +284,7 @@ pub async fn init_hand(
                                 x.secret == secret
                                 ).unwrap().clone();
 
-    chatacterresp.absorb(&mut char_response.clone());
+    chatacterresp.absorb(&mut game_response.clone());
     chatacterresp.data.char_deck = char_response.clone().data.char_deck;
     chatacterresp.data.char_hand = char_response.clone().data.char_hand;
 
@@ -334,7 +341,7 @@ pub async fn init_hand(
 
 #[utoipa::path(
     put,
-    path = "/api/character/draw/{secret}/{number}",
+    path = "/api/character/draw/{number}/{secret}/{pass}",
     responses((
         status = 200, 
         description = "Draw an Ability for the player put in", 
@@ -345,7 +352,6 @@ pub async fn init_hand(
         description = "Internal error occured", 
         body = CharDetialedResponse 
     )),
-    request_body = CharacterResponse,
     params(
         (
             "secret" = String, 
@@ -356,12 +362,13 @@ pub async fn init_hand(
 )]
 pub async fn draw_card(
     Extension(mongo): Extension<Database>,
-    Path((secret, number)): Path<(String, u8)>,
-    Json(character): Json<CharacterResponse>,
+    Path((secret, pass, number)): Path<(String, String, u8)>,
 ) -> Json<DetailedResponse<CharacterResponse>> {
-    let mut char_response = DetailedResponse::new(character.clone());
     let mut game_response = DetailedResponse::new(Game::new());
     let mut chatacterresp = DetailedResponse::new(Character::new());
+    let mut char_response = DetailedResponse::new(
+        chatacterresp.clone().data.as_response()
+    );
 
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
     let mut char_repo = Repository::<Character>::new(&mongo, "characters");
@@ -383,6 +390,15 @@ pub async fn draw_card(
         }
     }
 
+    game_response
+        .absorb(&mut char_response)
+        .run(|a| {
+            game_repo.get_by_document(
+                a,
+                doc! { "generated_pass": pass }
+                )
+        })
+        .await;
 
     chatacterresp.data = game_response.data
                           .game_chars

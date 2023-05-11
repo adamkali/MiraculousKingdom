@@ -35,7 +35,9 @@ pub async fn get_games(
 
     let mut repository = Repository::new(&mongo, "games");
     game_response.run(|a| repository.get_all(a)).await;
-    games_to_info(game_response.data, &mut response.data).await;
+    games_to_info(game_response.clone().data, &mut response.data).await;
+
+    println!("{:?}", game_response.clone().data);
 
     return Json(response);
 }
@@ -87,24 +89,25 @@ pub async fn get_game(
     responses((
         status = 200,
         description = "Found class from database",
-        body = PassDetailedResponse
+        body = GameInfoDetailedResponse 
     ),
     (
         status = 304,
         description = "Could not find class from database",
-        body = PassDetailedResponse
+        body = GameInfoDetailedResponse 
     ),
     (
         status = 500,
         description = " Internal error occured",
-        body = PassDetailedResponse
+        body = GameInfoDetailedResponse 
     ))
 )]
 pub async fn start_game(
     Extension(mongo): Extension<Database>,
     Json(request): Json<GameCreation>,
-) -> Json<DetailedResponse<String>> {
+) -> Json<DetailedResponse<GameInfo>> {
     let mut game_response = DetailedResponse::new(Game::new());
+    let mut response: DetailedResponse<GameInfo> = DetailedResponse::new(GameInfo::default());
 
     let body: Game = Game::start(request).await;
     let mut repository = Repository::new(&mongo, "games");
@@ -112,7 +115,9 @@ pub async fn start_game(
     game_response
         .run(|a| repository.insert_one(body.clone(), a))
         .await;
-    let response = DetailedResponse::new(game_response.data.generated_pass);
+    if let Err(e) = game_to_info(game_response.data.clone(), &mut response.data).await {
+        response = response.set_code(Some(e)).clone();
+    }
 
     Json(response)
 }
