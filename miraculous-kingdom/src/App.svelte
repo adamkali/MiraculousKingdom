@@ -18,6 +18,7 @@
     import { Abilities, Characters, Classes, Rules } from './pages/rules'
     import { Special } from './components'
     import { currentGame, gameCharacter } from './store'
+    import { type CharacterResponse, type GameInfo } from './models'
 
     const backToHome = () => {
         window.location.href = '/'
@@ -59,7 +60,7 @@
                         <div>Join</div>
                     </Link>
                 </div>
-                {#if game.game_pass && char.secret}
+                {#if !(!$currentGame.game_pass && !$gameCharacter.secret)  }
                     <div
                         class="mr-16 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
                     >

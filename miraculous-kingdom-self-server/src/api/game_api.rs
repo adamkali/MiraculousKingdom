@@ -31,15 +31,17 @@ pub async fn get_games(
 ) -> Json<DetailedResponse<Vec<GameInfo>>> {
     let mut response: DetailedResponse<Vec<GameInfo>> =
         DetailedResponse::new(Vec::<GameInfo>::new());
-    let mut game_response: DetailedResponse<Vec<Game>> = DetailedResponse::new(Vec::<Game>::new());
+    let mut game_response: DetailedResponse<Vec<Game>> 
+        = DetailedResponse::new(Vec::<Game>::new());
 
     let mut repository = Repository::new(&mongo, "games");
     game_response.run(|a| repository.get_all(a)).await;
-    games_to_info(game_response.clone().data, &mut response.data).await;
+    games_to_info(game_response.clone().data, &mut response.data).await.unwrap();
 
-    println!("{:?}", game_response.clone().data);
+    response.absorb(&mut game_response);
+    println!("{:?}", response.clone());
 
-    return Json(response);
+    Json(response)
 }
 
 #[utoipa::path(
