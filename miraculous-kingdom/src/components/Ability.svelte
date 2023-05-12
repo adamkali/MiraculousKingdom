@@ -13,10 +13,10 @@
 
 <div class="group relative h-full w-full">
     <div
-        class="lg absolute h-96 w-96 rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur transition duration-150 ease-in-out group-hover:from-fuchsia-500 group-hover:to-blue-500 group-hover:opacity-90 group-hover:blur-lg"
+        class="lg absolute h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur transition duration-150 ease-in-out group-hover:from-fuchsia-500 group-hover:to-blue-500 group-hover:opacity-100 group-hover:blur-xl"
     />
     <div
-        class="mx-2 flex h-full w-full flex-col justify-center overflow-y-auto rounded-lg bg-black px-4 py-2 text-justify text-lg backdrop-blur"
+        class="mx-2 flex h-full w-full flex-col justify-evenly rounded-lg bg-black px-4 py-2 text-justify text-lg backdrop-blur"
     >
         <div class="mb-2 text-2xl text-fuchsia-600">
             {ability.ability_name}
@@ -41,7 +41,7 @@
                     ability.ability_clock.clock_duration}
             </div>
         {/if}
-        <div class="justify-end">
+        <div class="place-items-end">
             <div class="items flex flex-row text-lg">
                 {#if ability.ability_unlock.might == MightEnum.MILITARY}
                     <span class="h-10 text-red-600"><GiWinchesterRifle /></span>
@@ -61,36 +61,38 @@
                 {ability.ability_unlock.unlock}
             </div>
             {#if ability.ability_unlock.roll_tier === RollTier.FAIL}
-                <div class="place-items-end rounded-xl bg-white text-black">
+                <div 
+                    class="place-items-end rounded-xl text-center bg-white px-2 py-1 text-black"
+                >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.BAD}
                 <div
-                    class="place-items-end rounded-xl bg-green-500 px-2 py-1 text-black"
+                    class="place-items-end rounded-xl text-center bg-green-500 px-2 py-1 text-black"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.NEUTRAL}
                 <div
-                    class="w-full place-items-end rounded-xl bg-blue-500 px-2 py-1 text-black"
+                    class="w-full place-items-end text-center rounded-xl bg-blue-500 px-2 py-1 text-black"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.GOOD}
                 <div
-                    class="w-full place-items-end rounded-xl bg-purple-700 px-2 py-1 text-white"
+                    class="w-full place-items-end text-center rounded-xl bg-purple-700 px-2 py-1 text-white"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.GREAT}
                 <div
-                    class="w-full place-items-end rounded-xl bg-orange-600 px-2 py-1 text-yellow-200"
+                    class="w-full place-items-end rounded-xl text-center bg-orange-600 px-2 py-1 text-yellow-200"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.FANTASTIC}
                 <div
-                    class="w-96 place-items-end rounded-xl bg-red-600 px-2 py-1 text-blue-300"
+                    class="w-96 place-items-end rounded-xl text-center bg-red-600 px-2 py-1 text-blue-300"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>

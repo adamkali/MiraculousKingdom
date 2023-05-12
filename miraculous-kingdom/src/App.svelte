@@ -60,7 +60,7 @@
                         <div>Join</div>
                     </Link>
                 </div>
-                {#if !(!$currentGame.game_pass && !$gameCharacter.secret)  }
+                {#if !(!$currentGame.game_pass && !$gameCharacter.secret)}
                     <div
                         class="mr-16 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
                     >

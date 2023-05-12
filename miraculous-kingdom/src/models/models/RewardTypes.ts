@@ -2,10 +2,13 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Ability } from './Ability';
+import type { Ability } from './Ability'
 
-export type RewardTypes = ('None' | {
-Ability: Ability;
-} | {
-Experience: number;
-});
+export type RewardTypes =
+    | 'None'
+    | {
+          Ability: Ability
+      }
+    | {
+          Experience: number
+      }
