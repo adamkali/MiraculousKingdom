@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="338.13223"
+   height="313.89059"
+   viewBox="0 0 89.464149 83.050222"
+   version="1.1"
+   id="svg5"
+   inkscape:export-filename="mk.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     showborder="false" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="fill:#aa00d4"
+     transform="translate(-18.097321,-17.786239)">
+    <path
+       style="fill:#eeaaff;stroke-width:0.264583"
+       d="m 18.09732,100.19985 c 0.408979,-0.408977 38.642581,4.81022 31.695873,-8.997535 C 42.846485,77.394559 40.823113,72.910681 37.012597,50.202172 33.202082,27.493663 51.784994,69.628673 63.2895,69.628673 c 11.504506,0 31.468903,-42.557868 27.708325,-19.630992 -3.760578,22.926876 -9.211471,34.362687 -13.700795,42.329327 -4.489325,7.966642 30.26444,7.872842 30.26444,7.872842 C 104.39483,72.811124 102.29124,45.258866 99.790876,17.790585 64.561893,17.540681 69.696838,28.083222 63.493989,45.396666 56.882161,27.708325 63.425989,17.586095 27.094858,17.790585 26.357573,17.794685 18.09732,100.19985 18.09732,100.19985 Z"
+       id="path10346"
+       sodipodi:nodetypes="czzzzzcccsc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="top"
+     transform="translate(-18.097321,-17.786239)">
+    <path
+       style="fill:#000080;stroke-width:0.246119"
+       d="m 19.886606,98.375001 c 5.994287,0.01867 32.916499,1.142227 27.129057,-6.7182 C 41.228222,83.796374 32.637426,59.897077 34.133636,44.349561 35.629846,28.802044 61.15543,66.23491 63.623514,66.23491 c 2.468084,0 28.781061,-37.658838 30.062514,-20.765328 1.281453,16.89351 -7.50268,37.400996 -12.872486,45.462166 -5.369806,8.06117 23.360878,7.341008 23.360878,7.341008 C 101.80895,71.976697 99.852241,45.639384 97.742204,19.320425 62.118844,20.104351 72.807201,40.185398 63.604437,52.004876 53.519622,39.623133 63.715204,19.31728 29.578454,19.320395 c -0.927042,8.5e-5 -9.691848,79.054606 -9.691848,79.054606 z"
+       id="path10346-2"
+       sodipodi:nodetypes="czzzzzcccsc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="text"
+     style="display:none"
+     transform="translate(-18.097321,-17.786239)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.62484px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff00cc;stroke-width:0.269526"
+       x="25.568678"
+       y="53.549816"
+       id="text11092"
+       transform="scale(0.84018253,1.1902176)"><tspan
+         id="tspan11094"
+         sodipodi:role="line"
+         x="25.568678"
+         y="53.549816"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.62484px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.269526">Miraculous Kingdom</tspan></text>
+  </g>
+</svg>

@@ -750,5 +750,6 @@ pub enum RewardTypes {
     #[default]
     None,
     Ability(Ability),
-    Experience(u8),
+    Experience(MightStat),
+    Clock(Clock),
 }

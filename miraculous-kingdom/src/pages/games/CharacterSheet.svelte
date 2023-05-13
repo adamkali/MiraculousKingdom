@@ -74,7 +74,7 @@
     >
         Miraculous Kingdom
     </div>
-    <div class="grid grid-rows-5 gap-y-4">
+    <div class="grid grid-rows-5 w-full gap-y-4">
         <div class="flex h-24 flex-row justify-center items-center">
             <div class="mx-4">
                 <Components.Input
