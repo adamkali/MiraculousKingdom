@@ -12,7 +12,7 @@ use axum::{
 use axum_server::tls_rustls::RustlsConfig;
 use std::{net::SocketAddr, path::PathBuf, time::Duration};
 use tower_http::{
-    cors::{AllowHeaders, Any, CorsLayer},
+    cors::{AllowHeaders, AllowMethods, Any, CorsLayer},
     trace::TraceLayer,
 };
 use tracing::{info_span, Span, Value};
@@ -107,7 +107,7 @@ async fn main() {
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
-                .allow_methods(Any)
+                .allow_methods(AllowMethods::any())
                 .allow_headers(AllowHeaders::any()),
         )
         .layer(

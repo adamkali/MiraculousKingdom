@@ -25,8 +25,14 @@
             <tr
                 class="relative h-full w-full bg-black text-3xl text-fuchsia-600"
             >
-                <th class="h-36 border border-amber-50/0 flex flex-col justify-center text-blue-700">
-                    <img class="h-36 p-4" src="../public/mk.svg" alt="Miraculous Kingdom" />
+                <th
+                    class="flex h-36 flex-col justify-center border border-amber-50/0 text-blue-700"
+                >
+                    <img
+                        class="h-36 p-4"
+                        src="../public/mk.svg"
+                        alt="Miraculous Kingdom"
+                    />
                 </th>
                 <th class="h-24 border border-amber-50/0"> MIGHT </th>
                 <th class="h-24 border border-amber-50/0"> ADD EXP </th>

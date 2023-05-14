@@ -3,6 +3,8 @@
 /* eslint-disable */
 
 import type { Ability } from './Ability'
+import type { Clock } from './Clock'
+import type { MightStat } from './MightStat'
 
 export type RewardTypes =
     | 'None'
@@ -10,5 +12,8 @@ export type RewardTypes =
           Ability: Ability
       }
     | {
-          Experience: number
+          Experience: MightStat
+      }
+    | {
+          Clock: Clock
       }

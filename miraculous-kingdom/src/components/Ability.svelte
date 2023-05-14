@@ -61,38 +61,38 @@
                 {ability.ability_unlock.unlock}
             </div>
             {#if ability.ability_unlock.roll_tier === RollTier.FAIL}
-                <div 
-                    class="place-items-end rounded-xl text-center bg-white px-2 py-1 text-black"
+                <div
+                    class="place-items-end rounded-xl bg-white px-2 py-1 text-center text-black"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.BAD}
                 <div
-                    class="place-items-end rounded-xl text-center bg-green-500 px-2 py-1 text-black"
+                    class="place-items-end rounded-xl bg-green-500 px-2 py-1 text-center text-black"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.NEUTRAL}
                 <div
-                    class="w-full place-items-end text-center rounded-xl bg-blue-500 px-2 py-1 text-black"
+                    class="w-full place-items-end rounded-xl bg-blue-500 px-2 py-1 text-center text-black"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.GOOD}
                 <div
-                    class="w-full place-items-end text-center rounded-xl bg-purple-700 px-2 py-1 text-white"
+                    class="w-full place-items-end rounded-xl bg-purple-700 px-2 py-1 text-center text-white"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.GREAT}
                 <div
-                    class="w-full place-items-end rounded-xl text-center bg-orange-600 px-2 py-1 text-yellow-200"
+                    class="w-full place-items-end rounded-xl bg-orange-600 px-2 py-1 text-center text-yellow-200"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>
             {:else if ability.ability_unlock.roll_tier === RollTier.FANTASTIC}
                 <div
-                    class="w-96 place-items-end rounded-xl text-center bg-red-600 px-2 py-1 text-blue-300"
+                    class="w-96 place-items-end rounded-xl bg-red-600 px-2 py-1 text-center text-blue-300"
                 >
                     {ability.ability_unlock.roll_tier}
                 </div>

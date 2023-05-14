@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Ability } from '../models/Ability'
-import type { CharacterResponse } from '../models/CharacterResponse'
 import type { CharDetialedResponse } from '../models/CharDetialedResponse'
 import type { VecCharDetailedResponse } from '../models/VecCharDetailedResponse'
 
@@ -24,7 +23,7 @@ export class ApiCharacterApiService {
         requestBody: Ability,
     ): CancelablePromise<CharDetialedResponse> {
         return __request(OpenAPI, {
-            method: 'PUT',
+            method: 'GET',
             url: '/api/character/discard/{secret}/{pass}',
             path: {
                 secret: secret,
@@ -51,7 +50,7 @@ export class ApiCharacterApiService {
         number: number,
     ): CancelablePromise<CharDetialedResponse> {
         return __request(OpenAPI, {
-            method: 'PUT',
+            method: 'GET',
             url: '/api/character/draw/{number}/{secret}/{pass}',
             path: {
                 secret: secret,
@@ -67,24 +66,20 @@ export class ApiCharacterApiService {
     /**
      * @param secret String set by the user to get their data
      * @param pass
-     * @param requestBody
      * @returns CharDetialedResponse Initialized the hand of a player for the game
      * @throws ApiError
      */
     public static initHand(
         secret: string,
         pass: string,
-        requestBody: CharacterResponse,
     ): CancelablePromise<CharDetialedResponse> {
         return __request(OpenAPI, {
-            method: 'PUT',
+            method: 'GET',
             url: '/api/character/init_hand/{secret}/{pass}',
             path: {
                 secret: secret,
                 pass: pass,
             },
-            body: requestBody,
-            mediaType: 'application/json',
             errors: {
                 500: `Internal error occured`,
             },

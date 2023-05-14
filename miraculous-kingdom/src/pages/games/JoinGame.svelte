@@ -34,9 +34,11 @@
                         'error message': res.success.Failing.message,
                     })
                 } else {
-                    gameCharacter.set(res.data)
-                    currentGame.set(g)
-                    window.location.href = `/games/sheet`
+                    if (res.data.char_name !=="No Character") {
+                        gameCharacter.set(res.data)
+                        currentGame.set(g)
+                        window.location.href = `/games/sheet`
+                    }
                 }
             })
             .catch((err) => {

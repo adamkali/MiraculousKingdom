@@ -123,7 +123,7 @@
         </Route>
         <Route path="/games/*">
             <Route path="sheet">
-                <CharacterSheet {game} character={char} />
+                <CharacterSheet />
             </Route>
             <Route path="start">
                 <StartGame />

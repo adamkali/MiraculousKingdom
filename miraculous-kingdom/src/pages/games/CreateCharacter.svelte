@@ -36,8 +36,8 @@
                 if (res.success != 'Succeeding') {
                     console.log({ error: res.success.Failing.message })
                 }
+                console.log(res.data)
                 gameCharacter.set(res.data)
-                console.log($gameCharacter)
             })
             .then(() => {
                 window.location.href = '/games/sheet'

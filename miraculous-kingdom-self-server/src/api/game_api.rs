@@ -165,13 +165,10 @@ pub async fn add_character(
     let mut class_repo = Repository::<Class>::new(&mongo, "classes");
     let mut char_repo = Repository::<Character>::new(&mongo, "characters");
 
-    println!("{:?}", request.char_class.clone());
-
-    let doc = doc! { "class_enum": request.char_class.to_string() };
-    println!("{:?}", doc);
-
     class_response
-        .run(|a| class_repo.get_by_document(a, doc))
+        .run(|a| class_repo.get_by_document(a, doc! { 
+            "class_enum": request.char_class.to_string()
+        }))
         .await;
 
     if let Progress::Failing(f) = class_response.success {
@@ -182,8 +179,6 @@ pub async fn add_character(
     game_response
         .run(|a| game_repo.get_by_document(a, doc! { "generated_pass": pass.clone() }))
         .await;
-
-    println!("{:?}", class_response.data.clone());
 
     let ch = Character::new_game(
         game_response.data.game_id,
@@ -237,6 +232,7 @@ pub async fn add_character(
 
     let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
     resp.absorb(&mut char_response);
+    println!("{:#?}", resp);
     Json(resp)
 }
 
