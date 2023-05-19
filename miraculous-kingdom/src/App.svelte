@@ -24,9 +24,6 @@
         window.location.href = '/'
     }
 
-    let game = currentGame.get()
-    let char = gameCharacter.get()
-
     console.log($currentGame, $gameCharacter)
 </script>
 

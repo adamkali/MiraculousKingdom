@@ -11,12 +11,12 @@
     export let ability: Ability
 </script>
 
-<div class="group relative h-full w-full">
+<div class="group relative h-[20rem] w-[24rem]">
     <div
         class="lg absolute h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur transition duration-150 ease-in-out group-hover:from-fuchsia-500 group-hover:to-blue-500 group-hover:opacity-100 group-hover:blur-xl"
     />
     <div
-        class="mx-2 flex h-full w-full flex-col justify-evenly rounded-lg bg-black px-4 py-2 text-justify text-lg backdrop-blur"
+        class="mx-2 flex h-full w-full flex-col justify-evenly rounded-lg bg-black px-4 py-2 text-justify text-sm backdrop-blur"
     >
         <div class="mb-2 text-2xl text-fuchsia-600">
             {ability.ability_name}

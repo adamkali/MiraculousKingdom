@@ -138,15 +138,9 @@ pub async fn get_character_for_game(
         .run(|a| game_repo.get_by_document(a, doc! { "generated_pass": pass.clone() }))
         .await;
 
-    char_response
-        .absorb(&mut game_response)
-        .run(|a| {
-            find_char_in_game(a, &mut game_response, secret)
-        })
-        .await;
-    
+    char_response = find_char_in_game(char_response, &mut game_response, secret).await;
+
     let resp = DetailedResponse::new(char_response.data.as_response());
-    println!("{:#?}", resp);
     Json(resp)
 }
 
@@ -190,6 +184,7 @@ async fn draw_new_hand(
     (0_u8..4_u8).for_each(|_| 
         resp.data.char_hand.push(resp.data.char_deck.pop().unwrap())
     );
+    println!("{:?}", resp.data.char_hand);
     resp
 }
 
@@ -281,27 +276,17 @@ pub async fn init_hand(
             game_repo.get_by_document(
                 a,
                 doc! { "generated_pass": pass }
-                )
+            )
         })
         .await;
 
+    chatacterresp = find_char_in_game(chatacterresp, &mut game_response, secret).await;
     chatacterresp
-        .absorb(&mut game_response)
-        .run(|a| {
-            find_char_in_game(a, &mut game_response, secret)
-        })
-        .await
         .run(|a| {
             shuffle(a)
         })  
-        .await
-        .run(|a| {
-            draw_new_hand(a)
-        })
         .await;
-
-    chatacterresp.data.char_deck = char_response.clone().data.char_deck;
-    chatacterresp.data.char_hand = char_response.clone().data.char_hand;
+    chatacterresp = draw_new_hand(chatacterresp).await;
 
     chatacterresp
         .run(|a| {
@@ -323,7 +308,6 @@ pub async fn init_hand(
                 let _ = &(chatacterresp.data);
             } 
         });
-
 
     game_response
         .absorb(&mut chatacterresp)
@@ -401,12 +385,7 @@ pub async fn draw_card(
         })
         .await;
 
-    chatacterresp.data = game_response.data
-                          .game_chars
-                          .iter()
-                          .find(|x| 
-                                x.secret == secret
-                                ).unwrap().clone();
+    chatacterresp = find_char_in_game(chatacterresp, &mut game_response, secret).await;
 
     for _ in 0..number-1 {
         if chatacterresp.clone().data.char_deck.is_empty() {
@@ -424,29 +403,6 @@ pub async fn draw_card(
                 }).await;
         }
     }
-
-
-    chatacterresp.absorb(&mut char_response.clone());
-    chatacterresp.data.char_deck = char_response.clone().data.char_deck;
-    chatacterresp.data.char_hand = char_response.clone().data.char_hand;
-
-    chatacterresp
-        .run(|a| {
-            char_repo.update_one(
-                doc! { "char_name": a.data.clone().char_name },
-                doc! { "$set": {
-                    "char_hand": serde_json::to_string(
-                        &a.data.char_hand
-                    ).unwrap(),
-                    "char_deck": serde_json::to_string(
-                        &a.data.char_deck
-                    ).unwrap(),
-
-                }},
-                a
-            )
-        })
-        .await;
 
     game_response.data.game_chars = game_response
         .data
@@ -467,7 +423,7 @@ pub async fn draw_card(
                 doc! { "generated_pass"
                     : a.clone().data.generated_pass },
                 doc! { "$set": {
-                    "game_chars": serde_json::to_string(
+                    "game_chars": bson::to_bson(
                         &a.data.game_chars
                     ).unwrap()
                 }},
@@ -529,12 +485,7 @@ pub async fn discard_card(
     })
     .await;
 
-    chatacterresp.data = game_response.data
-                          .game_chars
-                          .iter()
-                          .find(|x| 
-                                x.secret == secret
-                                ).unwrap().clone();
+    chatacterresp = find_char_in_game(chatacterresp, &mut game_response, secret).await;
 
     chatacterresp.absorb(&mut char_response.clone());
     let inex: usize = chatacterresp
@@ -553,10 +504,10 @@ pub async fn discard_card(
             char_repo.update_one(
                 doc! { "char_name": a.data.clone().char_name },
                 doc! { "$set": {
-                    "char_hand": serde_json::to_string(
+                    "char_hand": bson::to_bson(
                         &a.data.char_hand
                     ).unwrap(),
-                    "char_discard": serde_json::to_string(
+                    "char_discard": bson::to_bson(
                         &a.data.char_discard
                     ).unwrap(),
 

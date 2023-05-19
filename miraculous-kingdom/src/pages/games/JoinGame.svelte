@@ -34,7 +34,7 @@
                         'error message': res.success.Failing.message,
                     })
                 } else {
-                    if (res.data.char_name !=="No Character") {
+                    if (res.data.char_name !== 'No Character') {
                         gameCharacter.set(res.data)
                         currentGame.set(g)
                         window.location.href = `/games/sheet`
@@ -67,7 +67,7 @@
         <div>...waiting</div>
     {:then games}
         {#each games as game}
-            <div class="flex h-48 flex-row items-center align-middle">
+            <div class="mb-8 flex h-36 flex-row items-center justify-center">
                 <div class="h-full w-full p-4">
                     <Components.Input
                         label={game.game_name}
@@ -78,7 +78,7 @@
                         placeholder=""
                     />
                 </div>
-                <div class="h-full w-full p-4 align-middle">
+                <div class="h-full w-full p-4 items-center translate-y-8">
                     <Components.Button onClick={() => handleJoinNew(game)}>
                         Join With New Character
                     </Components.Button>

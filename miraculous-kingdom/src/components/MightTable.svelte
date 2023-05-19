@@ -21,7 +21,9 @@
         <div
             class="absolute -inset-0.5 h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur"
         />
-        <thead class="w-full border border-amber-50/0 bg-black px-4 pt-2">
+        <thead
+            class="w-full rounded border border-amber-50/0 bg-black px-4 pt-2"
+        >
             <tr
                 class="relative h-full w-full bg-black text-3xl text-fuchsia-600"
             >
@@ -43,7 +45,9 @@
             </tr>
         </thead>
         <tbody class="w-full border border-amber-50/0 bg-black px-4 pt-2">
-            <tr class="relative h-full w-full bg-black text-2xl">
+            <tr
+                class="relative h-full w-full border-x border-white/0 bg-black text-2xl"
+            >
                 <td class="border-x border-white/0">
                     <button class="h-24 bg-black text-red-600">
                         <GiWinchesterRifle />
@@ -71,7 +75,9 @@
                     <button>-</button>
                 </td>
             </tr>
-            <tr class="relative h-full w-full bg-black text-2xl">
+            <tr
+                class="relative h-full w-full border-x border-white/0 bg-black text-2xl"
+            >
                 <td class="border-x border-white/0">
                     <button class="h-24 bg-black text-pink-600">
                         <GiFleurDeLys />
@@ -99,7 +105,9 @@
                     <button>-</button>
                 </td>
             </tr>
-            <tr class="relative h-full w-full bg-black text-2xl">
+            <tr
+                class="relative h-full w-full border-x border-white/0 bg-black text-2xl"
+            >
                 <td class="border-x border-white/0">
                     <button class="h-24 bg-black text-blue-600">
                         <GiMaterialsScience />
@@ -127,7 +135,10 @@
                     <button>-</button>
                 </td>
             </tr>
-            <tr class="relative h-full w-full bg-black text-2xl">
+
+            <tr
+                class="relative h-full w-full border border-white/0 bg-black text-2xl"
+            >
                 <td class="border-x border-white/0">
                     <button class="h-24 bg-black text-cyan-400">
                         <GiCrossShield />
