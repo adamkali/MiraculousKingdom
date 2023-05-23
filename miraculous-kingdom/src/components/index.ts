@@ -15,5 +15,5 @@ export {
     MightTable,
     InputButton,
     Wrapper,
-    Hand
+    Hand,
 }

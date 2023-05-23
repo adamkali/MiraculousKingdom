@@ -52,11 +52,15 @@ pub mod routes {
             .route("/", get(season_routes::get_seasons))
             .route("/:id", get(season_routes::get_season))
             .route("/roll", get(season_routes::roll));
+        let queue_route = Router::new()
+            .route("/:path", get(game_routes::get_game_queue)
+                            .post(game_routes::take_turn));
 
         Router::new()
             .nest("/class", class_route)
             .nest("/game", game_route)
             .nest("/character", character_route)
             .nest("/season", season_route)
+            .nest("/queue", queue_route)
     }
 }

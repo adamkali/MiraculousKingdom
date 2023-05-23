@@ -5,24 +5,34 @@
     import FaCaretRight from 'svelte-icons/fa/FaCaretRight.svelte'
     import GiCardDraw from 'svelte-icons/gi/GiCardDraw.svelte'
     import {
-        MightEnum,
         type CharacterResponse,
         type GameInfo,
         type Ability,
         ApiCharacterApiService,
-        type MightRequirement,
-        RollTier,
         ClassEnum,
+        ApiGameApiService,
+        type TurnRequest,
     } from '../../models'
     import { currentGame, gameCharacter } from '../../store'
     import GiCardPlay from 'svelte-icons/gi/GiCardPlay.svelte'
-    import Wrapper from '../../components/Wrapper.svelte'
 
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
     let hand: Ability[] = [] as Ability[]
 
-    const asyncDiscard = (ability: Ability) => {}
+    const asyncDiscard = async (ability: Ability) => {
+        const res = await ApiCharacterApiService.discardCard(
+            character.secret,
+            game.game_pass,
+            ability,
+        )
+        if (res.success === 'Succeeding') {
+            gameCharacter.set(res.data)
+            character = gameCharacter.get()
+        } else {
+            throw new Error(res.success.Failing.message)
+        }
+    }
 
     const asyncInit = async () => {
         if (!character.char_hand.length) {
@@ -36,16 +46,16 @@
             } else {
                 throw new Error(res.success.Failing.message)
             }
-        } 
+        }
         hand = character.char_hand
     }
 
     const asyncDraw = async () => {
         const drawAmount = character.char_class === ClassEnum.SCIENTIST ? 2 : 1
         const res = await ApiCharacterApiService.drawCard(
+            drawAmount,
             character.secret,
             game.game_pass,
-            drawAmount,
         )
         if (res.success === 'Succeeding') {
             gameCharacter.set(res.data)
@@ -55,6 +65,18 @@
         }
     }
 
+    // send to server
+    const asyncPlayCard = async (card: Ability) => {
+        const res = await ApiGameApiService.takeTurn(game.game_pass, {
+            ability: card,
+            character: character,
+            initiatve: 20,
+        } as TurnRequest)
+        if (res.success === 'Succeeding') {
+        } else {
+            throw new Error(res.success.Failing.message)
+        }
+    }
 </script>
 
 <div
@@ -121,10 +143,9 @@
             <div class="h-4/5 w-full justify-center">
                 <Components.MightTable might={character.char_might} />
             </div>
-            <div class="h-1/5 w-full flex flex-row">
-            </div>
-            <div class="h-4/5 w-full justify-center items-center">
-                <Components.Hand hand={hand} />
+            <div class="flex h-1/5 w-full flex-row" />
+            <div class="h-4/5 w-full items-center justify-center">
+                <Components.Hand {hand} />
             </div>
         </div>
     {:catch err}

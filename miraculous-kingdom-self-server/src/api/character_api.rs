@@ -530,7 +530,6 @@ pub async fn discard_card(
 
 
     game_response
-        .absorb(&mut chatacterresp)
         .run(|a| {
             game_repo.update_one(
                 doc! { "generated_pass"
