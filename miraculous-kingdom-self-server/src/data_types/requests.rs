@@ -8,3 +8,10 @@ pub struct TurnRequest {
     pub character: CharacterResponse,
     pub initiatve: u8,
 }
+
+pub enum QueueWebsoketMessageEnum {
+    GetQueue,
+    SubmitTurnRequest(TurnRequest),
+    GetSeason,
+    RollSeason(u16),
+}

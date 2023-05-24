@@ -337,8 +337,8 @@ pub async fn take_turn(
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
 
     let mut item = QueueItem { 
-        queue_ability: turn.ability,
-        queue_char: turn.character,
+        queue_ability: turn.clone().ability,
+        queue_char: turn.clone().character,
         queue_initiative: turn.initiatve as i8
     };
 
@@ -371,23 +371,44 @@ pub async fn take_turn(
                 doc! { "game" : a.clone().data.game },
                 doc! { "$set": {
                     "queue": mongodb::bson::to_bson(
-                        &a.clone().data.queue
+                        &a.data.queue
                     ).unwrap()
                 }},
                 a
             )
     }).await;
 
+    turn.character.char_hand.iter().for_each(|a| {
+        if a.ability_name == turn.ability.ability_name {
+            turn.clone().character.char_hand.retain(|b| {
+                b.ability_name != turn.ability.ability_name
+            });
 
-    // need to update the repository for the game with 
-    // the updated character repository
+            turn.character.clone().char_discard.push(
+                turn.ability.clone()
+            );
+        }
+    });
+
+    // use the run method to get the game from the Database
+    // and update the game with the new character
+    game_response.run(|a| {
+        game_repo.update_one(
+            doc! { "pass": pass.clone() },
+            doc! { "$set": {
+                "game_chars": mongodb::bson::to_bson(
+                    &a.data.game_chars
+                ).unwrap()
+            }},
+            a
+        )
+    }).await;
 
     // return the queue response
     resp.data = queue.data.as_response();
     resp.success = queue.success;
     // return the queue response
     Json(resp)
-
 }
 
 pub mod game_routes {

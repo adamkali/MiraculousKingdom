@@ -143,7 +143,8 @@
             <div class="h-4/5 w-full justify-center">
                 <Components.MightTable might={character.char_might} />
             </div>
-            <div class="flex h-1/5 w-full flex-row" />
+            <div class="flex h-1/5 w-full flex-row">
+
             <div class="h-4/5 w-full items-center justify-center">
                 <Components.Hand {hand} />
             </div>
