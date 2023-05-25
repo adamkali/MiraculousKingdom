@@ -24,6 +24,8 @@ use data_types::clock::*;
 use data_types::common::*;
 use data_types::engine::*;
 use data_types::might::*;
+use data_types::websockets::*;
+
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -63,7 +65,8 @@ async fn main() {
                 Ability, Might, MightStat, Clock, GameInfo,
                 GameCreation, MightRequirement, Progress, MightEnum,
                 SeasonResponse, RewardTypes, RollTier, ClassEnum, CharacterState,
-                APIError, SeasonEnum,
+                APIError, SeasonEnum, Queue, QueueItem, WebsocketMessage,
+                Status, 
             ),
         ),
         tags(
