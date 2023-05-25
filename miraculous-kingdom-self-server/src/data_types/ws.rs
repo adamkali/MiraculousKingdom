@@ -48,7 +48,8 @@ pub enum WebsocketMessage {
     ClearQueue,
     GetSeason,
     RollSeason,
-    SendQueueItem(QueueItem)
+    SendQueueItem(QueueItem),
+    End
 }
 
 impl MkResponse for Queue { }
