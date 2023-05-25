@@ -22,30 +22,11 @@
     let character: CharacterResponse = gameCharacter.get()
     let hand: Ability[] = [] as Ability[]
 
-    const asyncDiscard = (ability: Ability) => {}
-
-    const asyncInit = async () => {
-        if (!character.char_hand.length) {
-            const res = await ApiCharacterApiService.initHand(
-                character.secret,
-                game.game_pass,
-            )
-            if (res.success === 'Succeeding') {
-                gameCharacter.set(res.data)
-                character = gameCharacter.get()
-            } else {
-                throw new Error(res.success.Failing.message)
-            }
-        } 
-        hand = character.char_hand
-    }
-
-    const asyncDraw = async () => {
-        const drawAmount = character.char_class === ClassEnum.SCIENTIST ? 2 : 1
-        const res = await ApiCharacterApiService.drawCard(
+    const asyncDiscard = async (ability: Ability) => {
+        const res = await ApiCharacterApiService.discardCard(
             character.secret,
             game.game_pass,
-            drawAmount,
+            ability,
         )
         if (res.success === 'Succeeding') {
             gameCharacter.set(res.data)
@@ -55,6 +36,50 @@
         }
     }
 
+    const asyncInit = async () => {
+        if (!character.char_hand.length) {
+            let res = await ApiCharacterApiService.getCharacterForGame(
+                character.secret,
+                game.game_pass,
+            )
+            if (
+                res.success === 'Succeeding' &&
+                res.data.char_hand.length === 0
+            ) {
+                res = await ApiCharacterApiService.initHand(
+                    character.secret,
+                    game.game_pass,
+                )
+                if (res.success === 'Succeeding') {
+                    gameCharacter.set(res.data)
+                    character = gameCharacter.get()
+                } else {
+                    throw new Error(res.success.Failing.message)
+                }
+            } else if (res.success === 'Succeeding') {
+                gameCharacter.set(res.data)
+                character = gameCharacter.get()
+            } else {
+                throw new Error(res.success.Failing.message)
+            }
+        }
+        hand = character.char_hand
+    }
+
+    const asyncDraw = async () => {
+        const drawAmount = character.char_class === ClassEnum.SCIENTIST ? 2 : 1
+        const res = await ApiCharacterApiService.drawCard(
+            drawAmount,
+            character.secret,
+            game.game_pass,
+        )
+        if (res.success === 'Succeeding') {
+            gameCharacter.set(res.data)
+            character = gameCharacter.get()
+        } else {
+            throw new Error(res.success.Failing.message)
+        }
+    }
 </script>
 
 <div
@@ -77,6 +102,7 @@
                         value={character.char_name}
                         onChange={(_value) => {}}
                         inputType="text"
+                        disabled={true}
                     />
                 </div>
                 <div class="mx-4">
@@ -86,6 +112,7 @@
                         value={character.char_class}
                         onChange={(_value) => {}}
                         inputType="text"
+                        disabled={true}
                     />
                 </div>
                 <div class="mx-4">
@@ -95,6 +122,7 @@
                         value={game.game_name}
                         onChange={(_value) => {}}
                         inputType="text"
+                        disabled={true}
                     />
                 </div>
                 <div class="mx-4">
@@ -104,6 +132,7 @@
                         value={game.game_ruler}
                         onChange={(_value) => {}}
                         inputType="text"
+                        disabled={true}
                     />
                 </div>
                 <div class="mx-4 h-full">
@@ -121,10 +150,28 @@
             <div class="h-4/5 w-full justify-center">
                 <Components.MightTable might={character.char_might} />
             </div>
-            <div class="h-1/5 w-full flex flex-row">
-            </div>
-            <div class="h-4/5 w-full justify-center items-center">
-                <Components.Hand hand={hand} />
+            <div class="flex h-1/5 w-full flex-row">
+                <div class="h-4/5 w-full items-center justify-center">
+                    <Components.Hand
+                        {hand}
+                        discard={asyncDiscard}
+                        send={async () => {}}
+                    />
+                </div>
+                <div
+                    class="my-auto ml-16 h-[20rem] w-[24rem] items-center align-middle text-red-600"
+                >
+                    <Components.Button
+                        onClick={async () => {
+                            await asyncDraw()
+                        }}
+                    >
+                        <div class="h-24">
+                            <GiCardDraw />
+                        </div>
+                        <span>Draw</span>
+                    </Components.Button>
+                </div>
             </div>
         </div>
     {:catch err}

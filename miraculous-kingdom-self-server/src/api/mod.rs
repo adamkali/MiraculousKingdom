@@ -38,15 +38,15 @@ pub mod routes {
             )
             .route(
                 "/init_hand/:secret/:pass",
-                get(character_routes::init_hand),
+                put(character_routes::init_hand),
             )
             .route(
                 "/draw/:number/:secret/:pass",
-                get(character_routes::draw_card),
+                put(character_routes::draw_card),
             )
             .route(
                 "/discard/:secret/:pass",
-                get(character_routes::discard_card),
+                put(character_routes::discard_card),
             );
         let season_route = Router::new()
             .route("/", get(season_routes::get_seasons))

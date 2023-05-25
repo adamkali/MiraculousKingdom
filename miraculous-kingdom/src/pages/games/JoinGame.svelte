@@ -78,7 +78,7 @@
                         placeholder=""
                     />
                 </div>
-                <div class="h-full w-full p-4 items-center translate-y-8">
+                <div class="h-full w-full translate-y-8 items-center p-4">
                     <Components.Button onClick={() => handleJoinNew(game)}>
                         Join With New Character
                     </Components.Button>

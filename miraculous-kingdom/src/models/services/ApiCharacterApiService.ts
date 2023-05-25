@@ -23,7 +23,7 @@ export class ApiCharacterApiService {
         requestBody: Ability,
     ): CancelablePromise<CharDetialedResponse> {
         return __request(OpenAPI, {
-            method: 'GET',
+            method: 'PUT',
             url: '/api/character/discard/{secret}/{pass}',
             path: {
                 secret: secret,
@@ -38,24 +38,24 @@ export class ApiCharacterApiService {
     }
 
     /**
-     * @param secret String set by the user to get their data
-     * @param pass
-     * @param number
+     * @param number String set by the user to get their data from the game
+     * @param secret String set by the user to get their data from the game
+     * @param pass String set by the user to get the game
      * @returns CharDetialedResponse Draw an Ability for the player put in
      * @throws ApiError
      */
     public static drawCard(
+        number: number,
         secret: string,
         pass: string,
-        number: number,
     ): CancelablePromise<CharDetialedResponse> {
         return __request(OpenAPI, {
-            method: 'GET',
+            method: 'PUT',
             url: '/api/character/draw/{number}/{secret}/{pass}',
             path: {
+                number: number,
                 secret: secret,
                 pass: pass,
-                number: number,
             },
             errors: {
                 500: `Internal error occured`,
@@ -64,8 +64,8 @@ export class ApiCharacterApiService {
     }
 
     /**
-     * @param secret String set by the user to get their data
-     * @param pass
+     * @param secret String set by the user to get their data from the game
+     * @param pass String set by the user to get the game
      * @returns CharDetialedResponse Initialized the hand of a player for the game
      * @throws ApiError
      */
@@ -74,7 +74,7 @@ export class ApiCharacterApiService {
         pass: string,
     ): CancelablePromise<CharDetialedResponse> {
         return __request(OpenAPI, {
-            method: 'GET',
+            method: 'PUT',
             url: '/api/character/init_hand/{secret}/{pass}',
             path: {
                 secret: secret,
