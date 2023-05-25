@@ -2,11 +2,13 @@ mod data;
 mod detialed_response;
 mod repository;
 mod traits;
+mod requests;
 
 pub mod common {
     pub use super::data::Reward;
     pub use super::data::RewardTypes;
     pub use super::detialed_response::*;
+    pub use super::requests::*;
     pub use super::repository::verify_id;
     pub use super::repository::Repository;
     pub use super::traits::*;

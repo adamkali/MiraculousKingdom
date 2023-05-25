@@ -47,6 +47,8 @@ async fn main() {
             api::game_api::start_game,
             api::game_api::get_game,
             api::game_api::add_character,
+            api::game_api::get_game_queue,
+            api::game_api::take_turn,
             api::character_api::get_character_for_game,
             api::character_api::get_characters,
             api::character_api::init_hand,
@@ -66,7 +68,7 @@ async fn main() {
                 Ability, Might, MightStat, Clock, GameInfo,
                 GameCreation, MightRequirement, Progress, MightEnum,
                 SeasonResponse, RewardTypes, RollTier, ClassEnum, CharacterState,
-                APIError, SeasonEnum,
+                APIError, SeasonEnum, QueueResonse, TurnRequest, QueueItem,
             ),
         ),
         tags(

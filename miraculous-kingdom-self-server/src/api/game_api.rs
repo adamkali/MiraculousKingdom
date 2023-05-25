@@ -4,6 +4,7 @@ use crate::data_types::{
     common::MKModel,
     common::Progress,
     common::Repository,
+    common::TurnRequest,
     engine::*,
     game_to_info, games_to_info,
 };
@@ -113,6 +114,7 @@ pub async fn start_game(
 
     let body: Game = Game::start(request).await;
     let mut repository = Repository::new(&mongo, "games");
+    let mut queue_repository = Repository::new(&mongo, "game_queues");
 
     game_response
         .run(|a| repository.insert_one(body.clone(), a))
@@ -120,6 +122,19 @@ pub async fn start_game(
     if let Err(e) = game_to_info(game_response.data.clone(), &mut response.data).await {
         response = response.set_code(Some(e)).clone();
     }
+
+    // create a queue response and add the generate pass
+    // to the queue response 
+
+    let mut queue_response = DetailedResponse::new(Queue::new());
+
+    queue_response.data.game = response.clone().data.game_pass;
+
+    queue_response
+        .run(|a| queue_repository.insert_one(
+                a.clone().data,
+                a
+        )).await;
 
     Json(response)
 }
@@ -236,9 +251,150 @@ pub async fn add_character(
     Json(resp)
 }
 
+
+#[utoipa::path(
+    get,
+    path = "/api/queue/{pass}",
+    responses((
+        status = 200,
+        description = "Found Queue from database",
+        body = QueueDetailedResponse
+    ),
+    (
+        status = 404,
+        description = "Could not find queue from database",
+        body = QueueDetailedResponse
+    ),
+    (
+        status = 500,
+        description = " Internal error occured",
+        body = QueueDetailedResponse 
+    )),
+    params(
+        ("pass" = String, Path, description = "Password for entering the game.")
+    )
+)]
+pub async fn get_game_queue(
+    Extension(mongo): Extension<Database>,
+    Path(pass): Path<String>,
+) -> Json<DetailedResponse<QueueResonse>> {
+    let mut queue: DetailedResponse<Queue> = DetailedResponse::new(Queue::new());
+    // create a DetailedResponse for the QueueResponse
+    let mut resp: DetailedResponse<QueueResonse> = DetailedResponse::new(
+        queue.clone().data.as_response()
+    );
+
+    let mut repo = Repository::<Queue>::new(&mongo, "queues");
+
+    // get the queue from the database
+    queue.run(|a| {
+       repo.get_by_document(
+            a,
+            doc! { "game": pass },
+           ) 
+    }).await;
+
+    resp.data = queue.data.as_response();
+    resp.success = queue.success;
+    // return the queue response
+    Json(resp)
+}
+
+#[utoipa::path(
+    post,
+    path = "/api/queue/{pass}",
+    responses((
+        status = 200,
+        description = "Found Queue from database",
+        body = QueueDetailedResponse
+    ),
+    (
+        status = 404,
+        description = "Could not find queue from database",
+        body = QueueDetailedResponse
+    ),
+    (
+        status = 500,
+        description = " Internal error occured",
+        body = QueueDetailedResponse 
+    )),
+    params(
+        ("pass" = String, Path, description = "Password for entering the game.")
+    ),
+    request_body = TurnRequest,
+)]
+pub async fn take_turn(
+    Extension(mongo): Extension<Database>,
+    Path(pass): Path<String>,
+    Json(turn): Json<TurnRequest>
+) -> Json<DetailedResponse<QueueResonse>> {
+    let mut queue: DetailedResponse<Queue> = DetailedResponse::new(Queue::new());
+    // create a DetailedResponse for the QueueResponse
+    let mut resp: DetailedResponse<QueueResonse> = DetailedResponse::new(
+        queue.clone().data.as_response()
+    );
+    let mut game_response: DetailedResponse<Game> = DetailedResponse::new(Game::new());
+    let mut game_repo = Repository::<Game>::new(&mongo, "games");
+
+    let mut item = QueueItem { 
+        queue_ability: turn.ability,
+        queue_char: turn.character,
+        queue_initiative: turn.initiatve as i8
+    };
+
+    let mut repo = Repository::<Queue>::new(&mongo, "queues");
+
+    // get the queue from the database
+    queue.run(|a| {
+       repo.get_by_document(
+            a,
+            doc! { "game": pass.clone() } 
+           ) 
+    }).await;
+
+    // get the game from the database with the same pass
+        game_response.run(|a| {
+        game_repo.get_by_document(
+            a,
+            doc! { "pass": pass.clone() }
+        )
+    }).await;
+
+    // add the item to the queue
+    queue.data.push_queue_item(item);
+    queue.data.status = queue.data.queue.len() 
+                    == game_response.data.game_chars.len();
+
+    // update the queue in the database
+    queue.run(|a| {
+            repo.update_one(
+                doc! { "game" : a.clone().data.game },
+                doc! { "$set": {
+                    "queue": mongodb::bson::to_bson(
+                        &a.clone().data.queue
+                    ).unwrap()
+                }},
+                a
+            )
+    }).await;
+
+
+    // need to update the repository for the game with 
+    // the updated character repository
+
+    // return the queue response
+    resp.data = queue.data.as_response();
+    resp.success = queue.success;
+    // return the queue response
+    Json(resp)
+
+}
+
 pub mod game_routes {
     pub use super::add_character;
     pub use super::get_game;
     pub use super::get_games;
     pub use super::start_game;
+    pub use super::get_game_queue;
+    pub use super::take_turn;
 }

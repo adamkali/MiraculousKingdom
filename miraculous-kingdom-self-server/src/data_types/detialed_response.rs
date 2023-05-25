@@ -16,7 +16,7 @@ use std::{
 
 use super::common::{MKModel, MkResponse};
 use crate::data_types::characters::{CharacterResponse, ClassResponse};
-use crate::data_types::engine::{GameInfo, SeasonResponse};
+use crate::data_types::engine::{GameInfo, SeasonResponse, QueueResonse};
 
 #[derive(Serialize, Clone, utoipa::ToSchema)]
 pub enum Progress {
@@ -36,6 +36,7 @@ pub enum Progress {
     CharDetialedResponse = DetailedResponse<CharacterResponse>,
     SeasonDetailedResponse = DetailedResponse<SeasonResponse>,
     SeasonsDetailedResponse = DetailedResponse<Vec<SeasonResponse>>,
+    QueueDetailedResponse = DetailedResponse<QueueResonse>,
 )]
 pub struct DetailedResponse<T: Clone + Serialize> {
     pub data: T,
