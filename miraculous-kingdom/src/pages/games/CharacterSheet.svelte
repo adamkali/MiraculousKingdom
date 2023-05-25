@@ -17,6 +17,7 @@
     import { currentGame, gameCharacter } from '../../store'
     import GiCardPlay from 'svelte-icons/gi/GiCardPlay.svelte'
     import Wrapper from '../../components/Wrapper.svelte'
+    import Characters from '../rules/Characters.svelte';
 
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
@@ -34,6 +35,7 @@
         } else {
             throw new Error(res.success.Failing.message)
         }
+        window.location.reload();
     }
 
     const asyncInit = async () => {
@@ -63,7 +65,7 @@
                 throw new Error(res.success.Failing.message)
             }
         }
-        hand = character.char_hand
+        hand = gameCharacter.get().char_hand
     }
 
     const asyncDraw = async () => {
@@ -76,9 +78,11 @@
         if (res.success === 'Succeeding') {
             gameCharacter.set(res.data)
             character = gameCharacter.get()
+            window.location.reload();
         } else {
             throw new Error(res.success.Failing.message)
         }
+        window.location.reload();
     }
 </script>
 
@@ -148,7 +152,7 @@
                 </div>
             </div>
             <div class="h-4/5 w-full justify-center">
-                <Components.MightTable might={character.char_might} />
+                <Components.MightTable might={gameCharacter.get().char_might} />
             </div>
             <div class="flex h-1/5 w-full flex-row">
                 <div class="h-4/5 w-full items-center justify-center">
