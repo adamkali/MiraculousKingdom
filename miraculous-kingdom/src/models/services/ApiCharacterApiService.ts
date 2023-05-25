@@ -23,7 +23,7 @@ export class ApiCharacterApiService {
         requestBody: Ability,
     ): CancelablePromise<CharDetialedResponse> {
         return __request(OpenAPI, {
-            method: 'GET',
+            method: 'PUT',
             url: '/api/character/discard/{secret}/{pass}',
             path: {
                 secret: secret,
@@ -50,7 +50,7 @@ export class ApiCharacterApiService {
         pass: string,
     ): CancelablePromise<CharDetialedResponse> {
         return __request(OpenAPI, {
-            method: 'GET',
+            method: 'PUT',
             url: '/api/character/draw/{number}/{secret}/{pass}',
             path: {
                 number: number,
@@ -74,7 +74,7 @@ export class ApiCharacterApiService {
         pass: string,
     ): CancelablePromise<CharDetialedResponse> {
         return __request(OpenAPI, {
-            method: 'GET',
+            method: 'PUT',
             url: '/api/character/init_hand/{secret}/{pass}',
             path: {
                 secret: secret,

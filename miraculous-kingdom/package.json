@@ -10,7 +10,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "pretty": "prettier --config ./prettier.yaml ./src/**/*.* --write",
     "gen-doc": "openapi --input ./openapi.json --output ./src/models --client axios",
-    "gen-url": "openapi --input https://localhot:8050/api-docs/openapi.json --output ./src/models --client axios"
+    "gen-url": "openapi --input http://localhost:8050/api-docs/openapi.json --output ./src/models --client axios"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.3",
@@ -22,6 +22,7 @@
     "prettier-plugin-tailwindcss": "^0.2.8",
     "svelte": "^3.57.0",
     "svelte-check": "^2.10.3",
+    "tailwind-scrollbar": "^3.0.4",
     "tailwindcss": "^3.3.2",
     "tslib": "^2.5.0",
     "typescript": "^5.0.2",

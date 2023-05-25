@@ -5,16 +5,18 @@
     import FaCaretRight from 'svelte-icons/fa/FaCaretRight.svelte'
     import GiCardDraw from 'svelte-icons/gi/GiCardDraw.svelte'
     import {
+        MightEnum,
         type CharacterResponse,
         type GameInfo,
         type Ability,
         ApiCharacterApiService,
+        type MightRequirement,
+        RollTier,
         ClassEnum,
-        ApiGameApiService,
-        type TurnRequest,
     } from '../../models'
     import { currentGame, gameCharacter } from '../../store'
     import GiCardPlay from 'svelte-icons/gi/GiCardPlay.svelte'
+    import Wrapper from '../../components/Wrapper.svelte'
 
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
@@ -36,11 +38,25 @@
 
     const asyncInit = async () => {
         if (!character.char_hand.length) {
-            const res = await ApiCharacterApiService.initHand(
+            let res = await ApiCharacterApiService.getCharacterForGame(
                 character.secret,
                 game.game_pass,
             )
-            if (res.success === 'Succeeding') {
+            if (
+                res.success === 'Succeeding' &&
+                res.data.char_hand.length === 0
+            ) {
+                res = await ApiCharacterApiService.initHand(
+                    character.secret,
+                    game.game_pass,
+                )
+                if (res.success === 'Succeeding') {
+                    gameCharacter.set(res.data)
+                    character = gameCharacter.get()
+                } else {
+                    throw new Error(res.success.Failing.message)
+                }
+            } else if (res.success === 'Succeeding') {
                 gameCharacter.set(res.data)
                 character = gameCharacter.get()
             } else {
@@ -60,19 +76,6 @@
         if (res.success === 'Succeeding') {
             gameCharacter.set(res.data)
             character = gameCharacter.get()
-        } else {
-            throw new Error(res.success.Failing.message)
-        }
-    }
-
-    // send to server
-    const asyncPlayCard = async (card: Ability) => {
-        const res = await ApiGameApiService.takeTurn(game.game_pass, {
-            ability: card,
-            character: character,
-            initiatve: 20,
-        } as TurnRequest)
-        if (res.success === 'Succeeding') {
         } else {
             throw new Error(res.success.Failing.message)
         }
@@ -99,6 +102,7 @@
                         value={character.char_name}
                         onChange={(_value) => {}}
                         inputType="text"
+                        disabled={true}
                     />
                 </div>
                 <div class="mx-4">
@@ -108,6 +112,7 @@
                         value={character.char_class}
                         onChange={(_value) => {}}
                         inputType="text"
+                        disabled={true}
                     />
                 </div>
                 <div class="mx-4">
@@ -117,6 +122,7 @@
                         value={game.game_name}
                         onChange={(_value) => {}}
                         inputType="text"
+                        disabled={true}
                     />
                 </div>
                 <div class="mx-4">
@@ -126,6 +132,7 @@
                         value={game.game_ruler}
                         onChange={(_value) => {}}
                         inputType="text"
+                        disabled={true}
                     />
                 </div>
                 <div class="mx-4 h-full">
@@ -144,9 +151,27 @@
                 <Components.MightTable might={character.char_might} />
             </div>
             <div class="flex h-1/5 w-full flex-row">
-
-            <div class="h-4/5 w-full items-center justify-center">
-                <Components.Hand {hand} />
+                <div class="h-4/5 w-full items-center justify-center">
+                    <Components.Hand
+                        {hand}
+                        discard={asyncDiscard}
+                        send={async () => {}}
+                    />
+                </div>
+                <div
+                    class="my-auto ml-16 h-[20rem] w-[24rem] items-center align-middle text-red-600"
+                >
+                    <Components.Button
+                        onClick={async () => {
+                            await asyncDraw()
+                        }}
+                    >
+                        <div class="h-24">
+                            <GiCardDraw />
+                        </div>
+                        <span>Draw</span>
+                    </Components.Button>
+                </div>
             </div>
         </div>
     {:catch err}

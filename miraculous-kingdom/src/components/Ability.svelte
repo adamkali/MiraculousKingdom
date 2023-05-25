@@ -9,6 +9,7 @@
     import FaVolumeMute from 'svelte-icons/fa/FaVolumeMute.svelte'
 
     export let ability: Ability
+    export let send: (a: Ability) => Promise<void>
 </script>
 
 <div class="group relative h-[20rem] w-[24rem]">
@@ -17,6 +18,7 @@
     />
     <div
         class="mx-2 flex h-full w-full flex-col justify-evenly rounded-lg bg-black px-4 py-2 text-justify text-sm backdrop-blur"
+        on:click={async () => await send(ability)}
     >
         <div class="mb-2 text-2xl text-fuchsia-600">
             {ability.ability_name}

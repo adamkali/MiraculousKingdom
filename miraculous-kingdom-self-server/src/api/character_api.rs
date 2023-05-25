@@ -193,6 +193,7 @@ async fn draw(
 ) -> DetailedResponse<Character> {
     let mut resp = input;
     resp.data.char_hand.push(resp.data.char_deck.pop().unwrap());
+    println!("hand {}", serde_json::to_string_pretty(&resp.data.char_hand).unwrap());
     resp
 }
 
@@ -233,9 +234,36 @@ async fn find_char_in_game(
     a
 }
 
+async fn move_ability_from_hand_to_discard(
+    game_response: DetailedResponse<Character>,
+    abisity: Ability
+) -> DetailedResponse<Character> {
+    // find the char_hand ability 
+          let mut a: DetailedResponse<Character> 
+        = game_response.clone();
+    match a.data
+        .char_hand
+        .iter()
+        .position(|x| 
+              x.ability_name == abisity.ability_name
+        ) {
+        Some(e) => {
+            a.data.char_discard.push(a.data.char_hand.remove(e));
+        },
+        None => {
+            a.set_code(Some(APIError::new( StatusCode::NOT_FOUND,
+                format!(
+                    "Ability with name {:?} not Found",
+                    abisity.ability_name
+                ))));
+        }
+    }
+    a
+}
+
 
 #[utoipa::path(
-    get,
+    put,
     path = "/api/character/init_hand/{secret}/{pass}",
     responses((
         status = 200, 
@@ -325,14 +353,13 @@ pub async fn init_hand(
         })
         .await;
 
-    char_response.absorb(&mut game_response);
     char_response.data = chatacterresp.data.as_response();
     Json(char_response)
 }
 
 
 #[utoipa::path(
-    get,
+    put,
     path = "/api/character/draw/{number}/{secret}/{pass}",
     responses((
         status = 200, 
@@ -373,10 +400,8 @@ pub async fn draw_card(
     );
 
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
-    let mut char_repo = Repository::<Character>::new(&mongo, "characters");
 
     game_response
-        .absorb(&mut char_response)
         .run(|a| {
             game_repo.get_by_document(
                 a,
@@ -384,10 +409,12 @@ pub async fn draw_card(
                 )
         })
         .await;
-
+    
     chatacterresp = find_char_in_game(chatacterresp, &mut game_response, secret).await;
 
-    for _ in 0..number-1 {
+    print!("Character {}", serde_json::to_string_pretty(&game_response).unwrap());
+
+    for _ in 0..number {
         if chatacterresp.clone().data.char_deck.is_empty() {
            chatacterresp 
                 .run(|a| {
@@ -439,7 +466,7 @@ pub async fn draw_card(
 }
 
 #[utoipa::path(
-    get,
+    put,
     path = "/api/character/discard/{secret}/{pass}",
     responses((
         status = 200, 
@@ -487,19 +514,12 @@ pub async fn discard_card(
 
     chatacterresp = find_char_in_game(chatacterresp, &mut game_response, secret).await;
 
-    chatacterresp.absorb(&mut char_response.clone());
-    let inex: usize = chatacterresp
-                        .clone()
-                        .data
-                        .char_hand
-                        .iter()
-                        .position(|x| *x.ability_name == ability.ability_name )
-                        .unwrap();
-    
-    chatacterresp.data.char_hand.remove(inex);
-
-    chatacterresp.data.char_discard.push(ability);
+    chatacterresp.success = game_response.clone().success;
+    chatacterresp = 
     chatacterresp
+        .run(|a| {
+            move_ability_from_hand_to_discard(a, ability)
+        }).await
         .run(|a| {
             char_repo.update_one(
                 doc! { "char_name": a.data.clone().char_name },
@@ -535,7 +555,7 @@ pub async fn discard_card(
                 doc! { "generated_pass"
                     : a.clone().data.generated_pass },
                 doc! { "$set": {
-                    "game_chars": serde_json::to_string(
+                    "game_chars": bson::to_bson(
                         &a.data.game_chars
                     ).unwrap()
                 }},
@@ -545,7 +565,6 @@ pub async fn discard_card(
         .await;
 
     char_response.data = chatacterresp.data.as_response();
-    char_response.absorb(&mut game_response);
     Json(char_response)
 }
 
