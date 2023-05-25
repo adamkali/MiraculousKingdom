@@ -2,10 +2,11 @@ pub mod character_api;
 pub mod class_api;
 pub mod game_api;
 pub mod season_api;
+pub mod ability_api;
 
 pub mod routes {
     use ::axum::{
-        routing::{get, post},
+        routing::{get, post, put},
         Router,
     };
 
@@ -34,16 +35,32 @@ pub mod routes {
             .route(
                 "/:secret/:pass",
                 get(character_routes::get_character_for_game),
+            )
+            .route(
+                "/init_hand/:secret/:pass",
+                put(character_routes::init_hand),
+            )
+            .route(
+                "/draw/:number/:secret/:pass",
+                put(character_routes::draw_card),
+            )
+            .route(
+                "/discard/:secret/:pass",
+                put(character_routes::discard_card),
             );
         let season_route = Router::new()
             .route("/", get(season_routes::get_seasons))
             .route("/:id", get(season_routes::get_season))
             .route("/roll", get(season_routes::roll));
+        let queue_route = Router::new()
+            .route("/:path", get(game_routes::get_game_queue)
+                            .post(game_routes::take_turn));
 
         Router::new()
             .nest("/class", class_route)
             .nest("/game", game_route)
             .nest("/character", character_route)
             .nest("/season", season_route)
+            .nest("/queue", queue_route)
     }
 }

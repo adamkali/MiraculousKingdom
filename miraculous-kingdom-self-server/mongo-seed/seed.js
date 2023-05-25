@@ -366,10 +366,16 @@ db.classes.insertMany([
 db.seasons.insertMany([
     {
         "event_name": "Bread and Circuses",
-        "event_desc": "The kingdom is celebrating a festival, accumulate any Token (can be accuried this season). The character who accumilated the most gets 3 exp.",
+        "event_desc": "The kingdom is celebrating a festival, accumulate any Token (can be accuried this season). The character who accumilated the most gets 3 exp to Diplomacy",
         "event_length": 2,
         "event_reward": {
-            "Experience": 3,
+            "Experience": {
+                "stat_enum": "Diplomacy",
+                "stat_name": "Diplomacy",
+                "stat_value": "",
+                "stat_exp": 3,
+                "stat_token": 0,
+            }
         },
     },
     {
@@ -390,10 +396,16 @@ db.seasons.insertMany([
     },
     {
         "event_name": "Drug Epidemic",
-        "event_desc": "During this time, any rolls from abilities have -3 to their bonus. The Character with the Highest Roll at the end of the season gains 2 xp",
+        "event_desc": "During this time, any rolls from abilities have -3 to their bonus. The Character with the Highest Roll at the end of the season gains 2 exp to Science",
         "event_length": 2,
         "event_reward": {
-            "Experience": 2
+            "Experience": {
+                "stat_enum": "Science",
+                "stat_name": "Science",
+                "stat_value": "",
+                "stat_exp": 2,
+                "stat_token": 0,
+            }
         }
     },
     {
@@ -418,5 +430,19 @@ db.seasons.insertMany([
                 }
             }
         }
+    },
+    {
+        "event_name": "Uneasy Alliance",
+        "event_desc": "If there are more than 2 characters in the game, Compete with Diplomatic Rolls. The two characters with the most highest amount of success, become allies for 6 rounds. They cannot target sabotages against each other.",
+        "event_length": 2,
+        "event_reward": {
+            "Clock": {
+                "clock_duration": 6,
+                "clock_remaining": 6,
+                "clock_name": "Uneasy Alliance",
+                "clock_desc": "The Characters who won the Uneasy Alliance Season: now cannot target each other for negative Abilities or Sabotages. They have to also include eachother in any confidential clocks that they start.",
+                "clock_conf": false, 
+            }
+        },
     },
 ])

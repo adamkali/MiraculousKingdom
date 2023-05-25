@@ -4,8 +4,15 @@ export default {
   theme: {
     extend: {
         fontFamily: 
-        { "victo-mono": ['Victor Mono']}
+        { "victo-mono": ['Victor Mono']},
+        screens: {
+        '3xl': '1910px',
+        '4xl': '2560px',
+      },
     }
   },
-  plugins: []
-};
+  plugins: [
+    // ...
+    require('tailwind-scrollbar'),
+  ]
+}

@@ -5,6 +5,7 @@
     import GiHourglass from 'svelte-icons/gi/GiHourglass.svelte'
     import GiOpenBook from 'svelte-icons/gi/GiOpenBook.svelte'
     import GiDiceTwentyFacesTwenty from 'svelte-icons/gi/GiDiceTwentyFacesTwenty.svelte'
+    import GiCardPlay from 'svelte-icons/gi/GiCardPlay.svelte'
     import { Router, Link, Route } from 'svelte-navigator'
 
     import Home from './pages/Home.svelte'
@@ -14,16 +15,14 @@
         CreateCharacter,
         CharacterSheet,
     } from './pages/games'
-    import { Abilities, Characters, Classes } from './pages/rules'
+    import { Abilities, Characters, Classes, Rules } from './pages/rules'
     import { Special } from './components'
     import { currentGame, gameCharacter } from './store'
+    import { type CharacterResponse, type GameInfo } from './models'
 
     const backToHome = () => {
         window.location.href = '/'
     }
-
-    let game = currentGame.get()
-    let char = gameCharacter.get()
 
     console.log($currentGame, $gameCharacter)
 </script>
@@ -58,6 +57,16 @@
                         <div>Join</div>
                     </Link>
                 </div>
+                {#if !(!$currentGame.game_pass && !$gameCharacter.secret)}
+                    <div
+                        class="mr-16 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                    >
+                        <Link to="/games/sheet">
+                            <GiCardPlay />
+                            <div>Sheet</div>
+                        </Link>
+                    </div>
+                {/if}
                 <div
                     class="mr-18 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
                 >
@@ -105,10 +114,13 @@
             <Route path="characters">
                 <Characters />
             </Route>
+            <Route path="/">
+                <Rules />
+            </Route>
         </Route>
         <Route path="/games/*">
             <Route path="sheet">
-                <CharacterSheet {game} character={char} />
+                <CharacterSheet />
             </Route>
             <Route path="start">
                 <StartGame />

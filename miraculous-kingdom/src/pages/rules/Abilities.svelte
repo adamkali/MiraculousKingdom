@@ -42,7 +42,7 @@
         kingdom. And they will look something like this:
     </p>
     <div class="flex w-96 flex-col justify-center">
-        <Ability ability={abilityConst} />
+        <Ability ability={abilityConst} send={async () => {}} />
     </div>
     There are 10 main parts.
     <ul class="my-8 list-none">

@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Ability } from '../models/Ability'
 import type { CharDetialedResponse } from '../models/CharDetialedResponse'
 import type { VecCharDetailedResponse } from '../models/VecCharDetailedResponse'
 
@@ -9,6 +10,82 @@ import { OpenAPI } from '../core/OpenAPI'
 import { request as __request } from '../core/request'
 
 export class ApiCharacterApiService {
+    /**
+     * @param secret String set by the user to get their data
+     * @param pass String set by the user to get their data
+     * @param requestBody
+     * @returns CharDetialedResponse Discard an Ability for the player put in
+     * @throws ApiError
+     */
+    public static discardCard(
+        secret: string,
+        pass: string,
+        requestBody: Ability,
+    ): CancelablePromise<CharDetialedResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/character/discard/{secret}/{pass}',
+            path: {
+                secret: secret,
+                pass: pass,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                500: `Internal error occured`,
+            },
+        })
+    }
+
+    /**
+     * @param number String set by the user to get their data from the game
+     * @param secret String set by the user to get their data from the game
+     * @param pass String set by the user to get the game
+     * @returns CharDetialedResponse Draw an Ability for the player put in
+     * @throws ApiError
+     */
+    public static drawCard(
+        number: number,
+        secret: string,
+        pass: string,
+    ): CancelablePromise<CharDetialedResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/character/draw/{number}/{secret}/{pass}',
+            path: {
+                number: number,
+                secret: secret,
+                pass: pass,
+            },
+            errors: {
+                500: `Internal error occured`,
+            },
+        })
+    }
+
+    /**
+     * @param secret String set by the user to get their data from the game
+     * @param pass String set by the user to get the game
+     * @returns CharDetialedResponse Initialized the hand of a player for the game
+     * @throws ApiError
+     */
+    public static initHand(
+        secret: string,
+        pass: string,
+    ): CancelablePromise<CharDetialedResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/character/init_hand/{secret}/{pass}',
+            path: {
+                secret: secret,
+                pass: pass,
+            },
+            errors: {
+                500: `Internal error occured`,
+            },
+        })
+    }
+
     /**
      * Endpoint to find all characters that the players is participating in for their specific secret.
      * Endpoint to find all characters that the players is participating in for their specific secret.

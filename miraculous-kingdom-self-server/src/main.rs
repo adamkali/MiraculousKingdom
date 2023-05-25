@@ -12,7 +12,7 @@ use axum::{
 use axum_server::tls_rustls::RustlsConfig;
 use std::{net::SocketAddr, path::PathBuf, time::Duration};
 use tower_http::{
-    cors::{AllowHeaders, Any, CorsLayer},
+    cors::{AllowHeaders, AllowMethods, Any, CorsLayer},
     trace::TraceLayer,
 };
 use tracing::{info_span, Span, Value};
@@ -47,8 +47,13 @@ async fn main() {
             api::game_api::start_game,
             api::game_api::get_game,
             api::game_api::add_character,
+            api::game_api::get_game_queue,
+            api::game_api::take_turn,
             api::character_api::get_character_for_game,
             api::character_api::get_characters,
+            api::character_api::init_hand,
+            api::character_api::draw_card,
+            api::character_api::discard_card,
             api::season_api::get_seasons,
             api::season_api::get_season,
             api::season_api::roll
@@ -63,7 +68,7 @@ async fn main() {
                 Ability, Might, MightStat, Clock, GameInfo,
                 GameCreation, MightRequirement, Progress, MightEnum,
                 SeasonResponse, RewardTypes, RollTier, ClassEnum, CharacterState,
-                APIError, SeasonEnum,
+                APIError, SeasonEnum, QueueResonse, TurnRequest, QueueItem,
             ),
         ),
         tags(
@@ -104,7 +109,7 @@ async fn main() {
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
-                .allow_methods(Any)
+                .allow_methods(AllowMethods::any())
                 .allow_headers(AllowHeaders::any()),
         )
         .layer(

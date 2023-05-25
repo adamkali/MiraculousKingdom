@@ -75,7 +75,7 @@ pub async fn get_season(
         event_name: String::new(),
         event_desc: String::new(),
         event_length: 1,
-        event_reward: RewardTypes::Experience(1),
+        event_reward: RewardTypes::None,
     });
 
     let mut repository = Repository::<Season>::new(&mongo, "seasons");
@@ -121,7 +121,7 @@ pub async fn roll(Extension(mongo): Extension<Database>) -> Json<DetailedRespons
         event_name: String::new(),
         event_desc: String::new(),
         event_length: 1,
-        event_reward: RewardTypes::Experience(1),
+        event_reward: RewardTypes::None,
     });
 
     let mut repository = Repository::<Season>::new(&mongo, "seasons");

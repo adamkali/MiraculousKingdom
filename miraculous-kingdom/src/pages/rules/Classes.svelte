@@ -47,7 +47,7 @@
                 class="mx-4 my-8 grid w-fit grid-cols-4 grid-rows-2 justify-center gap-x-8 gap-y-12 align-middle"
             >
                 {#each aClass.class_abilities as ability}
-                    <Ability {ability} />
+                    <Ability {ability} send={async () => {}} />
                 {/each}
             </div>
         {/each}

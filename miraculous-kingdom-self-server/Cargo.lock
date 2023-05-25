@@ -951,6 +951,7 @@ dependencies = [
 name = "miraculous-kingdom-self-server"
 version = "0.2.0"
 dependencies = [
+ "async-trait",
  "axum",
  "axum-server",
  "futures",

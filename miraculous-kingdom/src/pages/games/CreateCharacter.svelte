@@ -36,8 +36,8 @@
                 if (res.success != 'Succeeding') {
                     console.log({ error: res.success.Failing.message })
                 }
+                console.log(res.data)
                 gameCharacter.set(res.data)
-                console.log($gameCharacter)
             })
             .then(() => {
                 window.location.href = '/games/sheet'
@@ -92,7 +92,7 @@
             />
             <div>
                 <div class="flex w-full flex-row">
-                    <div class="mr-4">
+                    <div class="m-4 h-24 w-1/3">
                         <Input
                             inputType={'number'}
                             label={MightEnum.MILITARY}
@@ -103,7 +103,7 @@
                             }}
                         />
                     </div>
-                    <div class="mr-4">
+                    <div class="m-4 h-24 w-1/3">
                         <Input
                             inputType={'number'}
                             label={MightEnum.CULTURE}
@@ -114,7 +114,7 @@
                             }}
                         />
                     </div>
-                    <div>
+                    <div class="m-4 h-24 w-1/3">
                         <Input
                             inputType={'number'}
                             label={MightEnum.SCIENCE}
@@ -126,8 +126,8 @@
                         />
                     </div>
                 </div>
-                <div class="flex flex-row">
-                    <div class="mr-4">
+                <div class="mb-8 flex w-full flex-row">
+                    <div class="m-4 h-24 w-1/3">
                         <Input
                             inputType={'number'}
                             label={MightEnum.RELIGION}
@@ -138,7 +138,7 @@
                             }}
                         />
                     </div>
-                    <div class="mr-4">
+                    <div class="m-4 h-24 w-1/3">
                         <Input
                             inputType={'number'}
                             label={MightEnum.DIPLOMACY}
@@ -149,7 +149,7 @@
                             }}
                         />
                     </div>
-                    <div class="mr-4">
+                    <div class="m-4 h-24 w-1/3">
                         <Input
                             inputType={'number'}
                             label={MightEnum.ESPIONAGE}
