@@ -10,7 +10,14 @@ use axum::{
     Extension,
 };
 use axum_server::tls_rustls::RustlsConfig;
-use std::{net::SocketAddr, path::PathBuf, time::Duration};
+use std::{
+    net::SocketAddr,
+    path::PathBuf,
+    sync::{
+        Arc,
+        Mutex
+    }
+};
 use tower_http::{
     cors::{AllowHeaders, Any, CorsLayer},
     trace::TraceLayer,
@@ -34,6 +41,18 @@ struct Ports {
     http: u16,
     https: u16,
 }
+
+
+// create the full router
+fn construct(mkdb: mongodb::Database) -> Router {
+    Router::new()
+        .route("/queue", get(ws::queue::queue_ws_handler))
+        .with_state(Arc::new(Mutex::new(QueueModel::new().as_response())))
+        .layer(Extension(mkdb.clone()))
+        .nest("/api", api::routes::construct_api_router())
+        .layer(Extension(mkdb))
+}
+
 
 #[tokio::main]
 async fn main() {
@@ -98,12 +117,7 @@ async fn main() {
 
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger").url("/api-docs/openapi.json", APIDoc::openapi()))
-        .route(
-            "/",
-            get(|| async { "And the serve did not go down, quoth the admin \"Nevermore\"" }),
-        )
-        .nest("/api", api::routes::construct_api_router())
-        .layer(Extension(mongo_client))
+        .nest("/", construct(mongo_client))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)

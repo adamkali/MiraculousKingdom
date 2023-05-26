@@ -3,4 +3,6 @@ pub trait MKModel {
     fn as_response(&self) -> Self::Response;
 }
 
-pub trait MkResponse {}
+pub trait MkResponse {
+
+}

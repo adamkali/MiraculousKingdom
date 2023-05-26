@@ -43,6 +43,21 @@ pub struct QueueModel {
     pub queue_items: Vec<QueueItem>
 }
 
+impl QueueModel {
+    // make a new function
+    pub fn new() -> Self {
+        Self {
+            id: ObjectId::new(),
+            status: Status::None,
+            season: SeasonResponse::default(),
+            sockets: Vec::new(),
+            game: String::new(),
+            queue_items: Vec::new()
+        }
+    }
+}
+
+
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub enum WebsocketMessage {
     Start(String),
