@@ -6,6 +6,7 @@ use super::{
     traits::{MKModel, MkResponse},
 };
 use mongodb::bson::oid::ObjectId;
+use std::net::SocketAddr;
 
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub enum Status {
@@ -28,7 +29,8 @@ pub struct Queue {
     pub status: Status,
     pub season: SeasonResponse,
     pub game: String,
-    pub queue_items: Vec<QueueItem>
+    pub queue_items: Vec<QueueItem>,
+    pub sockets: Vec<SocketAddr>,
 }
 
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
@@ -36,6 +38,7 @@ pub struct QueueModel {
     pub id:  ObjectId,
     pub status: Status,
     pub season: SeasonResponse,
+    pub sockets: Vec<SocketAddr>,
     pub game: String,
     pub queue_items: Vec<QueueItem>
 }
@@ -62,7 +65,8 @@ impl MKModel for QueueModel {
             status: self.status.clone(),
             season: self.season.clone(),
             game: self.game.clone(),
-            queue_items: self.queue_items.clone()
+            queue_items: self.queue_items.clone(),
+            sockets: self.sockets.clone(),
         }
     }
 }

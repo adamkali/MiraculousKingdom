@@ -7,10 +7,13 @@ pub mod queue {
                 WebSocket,
                 WebSocketUpgrade,
             },
-            State
+            State,
+            Extension,
         },
         response::IntoResponse,
     };
+
+    use std::sync::{Arc, Mutex};
 
     use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -26,17 +29,24 @@ pub mod queue {
 
     pub async fn queue_ws_handler(
         ws: WebSocketUpgrade,
-        State(queue): State<Queue>,
+        Extension(mongo): Extension<mongodb::Database>,
+        State(queue): State<Arc<Mutex<Queue>>>,
         ConnectInfo(addr): ConnectInfo<SocketAddr>, 
     ) -> impl IntoResponse {
-        ws.on_upgrade(move |socket| todo!())
+        ws.on_upgrade(move |socket| handle_queue_message(socket, addr, queue))
     }
 
     pub async fn handle_queue_message(
         mut socket: WebSocket,
         who: SocketAddr,
-        queue: Queue
+        queue: Arc<Mutex<Queue>>,
+        mongo: mongodb::Database,
     ) {
+        {
+            let mut state: Queue = queue.lock().unwrap().clone();
+            state.sockets.push(who);
+        }
+
         // ping the user 
         let (mut tx, mut rx) = socket.split();
         tx.send(Message::Text(format!("Hello, {}", who))).await;
@@ -60,7 +70,13 @@ pub mod queue {
                    },
                    Ok(mess) => { mess }
                 };
-
+                
+                match command {
+                    WebsocketMessage::Start(game) => {
+                        handle_start_message(who, game, queue, mongo).await
+                    },
+                    _ => {}
+                }
 
 
             } else {
@@ -71,5 +87,23 @@ pub mod queue {
 
     // Start Message 
     // need to load the Queue from the database
+    // using a QueueModel
+    // then ping the user that everything worked out
+    // by sending the socket "OK"
+    async fn handle_start_message(
+        who: SocketAddr,
+        game: String,
+        queue: Arc<Mutex<Queue>>,
+        mongo: mongodb::Database
+    ) {
+        let mut game_response = DetailedResponse::new(QueueModel::new());
+
+        let mut game_repo = Repository::<Queue>::new(&mongo, "queues");
+
+        game_response
+            .run(|a| game_repo.get_by_document(a, doc! { "generated_pass": pass.clone() }))
+            .await
+            .absorb(&mut char_response);
+    }
 
 }
