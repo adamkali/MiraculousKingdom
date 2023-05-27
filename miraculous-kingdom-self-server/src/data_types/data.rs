@@ -199,6 +199,7 @@ impl MKModel for Character {
 
 pub mod characters {
     pub use super::Ability;
+    pub use super::AbilityModel;
     pub use super::Character;
     pub use super::CharacterResponse;
     pub use super::CharacterState;
@@ -513,6 +514,7 @@ impl Might {
                 MightEnum::Science => might.might_science = (*f).clone(),
                 MightEnum::Diplomacy => might.might_diplomacy = (*f).clone(),
                 MightEnum::Espionage => might.might_espionage = (*f).clone(),
+                _ => { unreachable!("Invalid MightEnum: {:?}", f.stat_enum) }
             }
         }
 
@@ -582,6 +584,7 @@ pub struct MightStat {
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug, Eq, PartialEq, Hash)]
 pub enum MightEnum {
     #[default]
+    None,
     Military,
     Culture,
     Religion,
@@ -593,6 +596,7 @@ pub enum MightEnum {
 impl MightEnum {
     pub fn as_str(&self) -> &'static str {
         match self {
+            Self::None => "None",
             Self::Espionage => "Espionage",
             Self::Military => "Military",
             Self::Culture => "Culture",
@@ -649,6 +653,45 @@ pub struct Ability {
     pub ability_desc: String,
     pub ability_clock: Option<Clock>,
     pub ability_unlock: MightRequirement,
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct AbilityModel {
+    pub ability_name: String,
+    pub ability_desc: String,
+    pub ability_clock: Option<Clock>,
+    pub ability_unlock: MightRequirement,
+    #[serde(
+        serialize_with = "serialize_object_id_as_hex_string",
+        skip_deserializing
+    )]
+    pub id: ObjectId,
+}
+
+impl AbilityModel {
+    pub fn new() -> Self {
+        AbilityModel {
+            ability_name: "".to_string(),
+            ability_desc: "".to_string(),
+            ability_clock: None,
+            ability_unlock: MightRequirement::default(),
+            id: ObjectId::new(),
+        }
+    }
+}
+
+impl MkResponse for Ability {}
+
+impl MKModel for AbilityModel {
+    type Response = Ability;
+    fn as_response(&self) -> Self::Response {
+        Ability {
+            ability_name: self.ability_name.clone(),
+            ability_desc: self.ability_desc.clone(),
+            ability_clock: self.ability_clock.clone(),
+            ability_unlock: self.ability_unlock.clone(),
+        }
+    }
 }
 
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]

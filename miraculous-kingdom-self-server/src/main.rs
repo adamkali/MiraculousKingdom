@@ -1,6 +1,5 @@
 pub mod api;
 pub mod data_types;
-pub mod ws;
 
 use axum::{
     body::HttpBody,

@@ -1,5 +1,5 @@
 use crate::data_types::{
-    characters::{Character, CharacterResponse, Ability},
+    characters::{Character, CharacterResponse, Ability, AbilityModel},
     common::{
         CharDetialedResponse, DetailedResponse, MKModel, Repository,
         VecCharDetailedResponse, APIError 
@@ -295,9 +295,11 @@ pub async fn init_hand(
     let mut game_response = DetailedResponse::new(Game::new());
     let mut chatacterresp = DetailedResponse::new(Character::new());
     let mut char_response = DetailedResponse::new(chatacterresp.clone().data.as_response());
+    let mut ability_response = DetailedResponse::new(Vec::<AbilityModel>::new());
 
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
     let mut char_repo = Repository::<Character>::new(&mongo, "characters");
+    let mut ability_repo = Repository::<AbilityModel>::new(&mongo, "abilities");
 
     game_response
         .run(|a| {
@@ -308,6 +310,27 @@ pub async fn init_hand(
         })
         .await;
 
+    // get all abilities from the Database
+    ability_response
+        .run(|a| {
+            ability_repo.get_all(a)
+        })
+        .await;
+     // append all abilities to the chatacterresp.data.char_deck
+
+    chatacterresp
+        .run(|mut a| {
+            async {
+                // use for loop to append all abilities to the chatacterresp.data.char_deck
+                // after useing as_response() to convert the ability_response.data to a Vec<Ability>
+                ability_response.data.iter().for_each(|b| {
+                    a.data.char_deck.push(b.as_response());
+                });
+                a
+            }
+        })
+        .await;
+
     chatacterresp = find_char_in_game(chatacterresp, &mut game_response, secret).await;
     chatacterresp
         .run(|a| {
@@ -315,7 +338,6 @@ pub async fn init_hand(
         })  
         .await;
     chatacterresp = draw_new_hand(chatacterresp).await;
-
     chatacterresp
         .run(|a| {
             char_repo.update_one(
