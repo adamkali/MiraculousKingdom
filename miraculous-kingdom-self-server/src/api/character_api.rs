@@ -174,17 +174,18 @@ async fn shuffle(
         }
     });
     resp.data.char_deck = temp1;
-    
+
+    println!("Abilities:\n{}", serde_json::to_string_pretty(&resp.data.char_deck).unwrap());
+
     resp
 }
 async fn draw_new_hand(
     input: DetailedResponse<Character>
 ) -> DetailedResponse<Character> {
     let mut resp = input;
-    (0_u8..4_u8).for_each(|_| 
+    (0_u8..5_u8).for_each(|_| 
         resp.data.char_hand.push(resp.data.char_deck.pop().unwrap())
     );
-    println!("{:?}", resp.data.char_hand);
     resp
 }
 
@@ -295,11 +296,8 @@ pub async fn init_hand(
     let mut game_response = DetailedResponse::new(Game::new());
     let mut chatacterresp = DetailedResponse::new(Character::new());
     let mut char_response = DetailedResponse::new(chatacterresp.clone().data.as_response());
-    let mut ability_response = DetailedResponse::new(Vec::<AbilityModel>::new());
 
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
-    let mut char_repo = Repository::<Character>::new(&mongo, "characters");
-    let mut ability_repo = Repository::<AbilityModel>::new(&mongo, "abilities");
 
     game_response
         .run(|a| {
@@ -310,72 +308,51 @@ pub async fn init_hand(
         })
         .await;
 
-    // get all abilities from the Database
-    ability_response
+
+    chatacterresp
         .run(|a| {
-            ability_repo.get_all(a)
+            find_char_in_game(a, &mut game_response, secret)
         })
-        .await;
-     // append all abilities to the chatacterresp.data.char_deck
-
-    chatacterresp
-        .run(|mut a| {
-            async {
-                // use for loop to append all abilities to the chatacterresp.data.char_deck
-                // after useing as_response() to convert the ability_response.data to a Vec<Ability>
-                ability_response.data.iter().for_each(|b| {
-                    a.data.char_deck.push(b.as_response());
-                });
-                a
-            }
-        })
-        .await;
-
-    chatacterresp = find_char_in_game(chatacterresp, &mut game_response, secret).await;
-    chatacterresp
+        .await
         .run(|a| {
             shuffle(a)
         })  
-        .await;
-    chatacterresp = draw_new_hand(chatacterresp).await;
-    chatacterresp
-        .run(|a| {
-            char_repo.update_one(
-                doc! { "secret": a.data.clone().secret },
-                doc! { "$set": mongodb::bson::to_bson(&a.data).unwrap() },
-                a
-            )
+        .await
+       .run(|a| {
+            draw_new_hand(a)
         })
         .await;
 
-    game_response
-        .data
-        .clone()
-        .game_chars
-        .iter()
-        .for_each(|x| {
-            if x.char_name == chatacterresp.data.clone().char_name {
-                let _ = &(chatacterresp.data);
-            } 
-        });
+    game_response.run(|a| {
+        let mut new_game = a;
+        async {
+            new_game.data.game_chars.iter_mut().for_each(|b| {
+                if b.secret == chatacterresp.data.secret {
+                    *b = chatacterresp.data.clone();
+                }
+            });
+            new_game
+        }
+    })
+    .await
+    .run(|a| {
+        game_repo.update_one(
+            doc! { "generated_pass"
+                : a.clone().data.generated_pass },
+            doc! { "$set": {
+                "game_chars": bson::to_bson(
+                    &a.data.game_chars
+                ).unwrap()
+            }},
+            a
+        )
+    })
+    .await;
 
-    game_response
-        .absorb(&mut chatacterresp)
-        .run(|a| {
-            game_repo.update_one(
-                doc! { "generated_pass"
-                    : a.clone().data.generated_pass },
-                doc! { "$set": {
-                    "game_chars": bson::to_bson(
-                        &a.data.game_chars
-                    ).unwrap()
-                }},
-                a
-            )
-        })
-        .await;
+    char_response.data = chatacterresp.clone().data.as_response();
+    char_response.success = chatacterresp.success;
 
-    char_response.data = chatacterresp.data.as_response();
+
     Json(char_response)
 }
 
@@ -434,8 +411,6 @@ pub async fn draw_card(
     
     chatacterresp = find_char_in_game(chatacterresp, &mut game_response, secret).await;
 
-    print!("Character {}", serde_json::to_string_pretty(&game_response).unwrap());
-
     for _ in 0..number {
         if chatacterresp.clone().data.char_deck.is_empty() {
            chatacterresp 
@@ -453,33 +428,32 @@ pub async fn draw_card(
         }
     }
 
-    game_response.data.game_chars = game_response
-        .data
-        .clone()
-        .game_chars
-        .iter()
-        .map(|x| {
-            if x.char_name == chatacterresp.data.clone().char_name {
-                chatacterresp.clone().data
-            } else { x.clone() }
-        }).collect::<Vec<_>>();
 
-
-    game_response
-        .absorb(&mut chatacterresp)
-        .run(|a| {
-            game_repo.update_one(
-                doc! { "generated_pass"
-                    : a.clone().data.generated_pass },
-                doc! { "$set": {
-                    "game_chars": bson::to_bson(
-                        &a.data.game_chars
-                    ).unwrap()
-                }},
-                a
-            )
-        })
-        .await;
+    game_response.run(|a| {
+        let mut new_game = a;
+        async {
+            new_game.data.game_chars.iter_mut().for_each(|b| {
+                if b.secret == chatacterresp.data.secret {
+                    *b = chatacterresp.data.clone();
+                }
+            });
+            new_game
+        }
+    })
+    .await
+    .run(|a| {
+        game_repo.update_one(
+            doc! { "generated_pass"
+                : a.clone().data.generated_pass },
+            doc! { "$set": {
+                "game_chars": bson::to_bson(
+                    &a.data.game_chars
+                ).unwrap()
+            }},
+            a
+        )
+    })
+    .await;
 
 
     char_response.absorb(&mut game_response);
@@ -524,7 +498,6 @@ pub async fn discard_card(
     let mut char_response = DetailedResponse::new(chatacterresp.clone().data.as_response());
 
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
-    let mut char_repo = Repository::<Character>::new(&mongo, "characters");
 
     game_response.run(|a| {
         game_repo.get_by_document(
@@ -541,50 +514,35 @@ pub async fn discard_card(
     chatacterresp
         .run(|a| {
             move_ability_from_hand_to_discard(a, ability)
-        }).await
-        .run(|a| {
-            char_repo.update_one(
-                doc! { "char_name": a.data.clone().char_name },
-                doc! { "$set": {
-                    "char_hand": bson::to_bson(
-                        &a.data.char_hand
-                    ).unwrap(),
-                    "char_discard": bson::to_bson(
-                        &a.data.char_discard
-                    ).unwrap(),
-
-                }},
-                a
-            )
         })
         .await;
 
-    game_response.data.game_chars = game_response
-        .data
-        .clone()
-        .game_chars
-        .iter()
-        .map(|x| {
-            if x.char_name == chatacterresp.data.clone().char_name {
-                chatacterresp.clone().data
-            } else { x.clone() }
-        }).collect::<Vec<_>>();
+    game_response.run(|a| {
+        let mut new_game = a;
+        async {
+            new_game.data.game_chars.iter_mut().for_each(|b| {
+                if b.secret == chatacterresp.data.secret {
+                    *b = chatacterresp.data.clone();
+                }
+            });
+            new_game
+        }
+    })
+    .await
+    .run(|a| {
+        game_repo.update_one(
+            doc! { "generated_pass"
+                : a.clone().data.generated_pass },
+            doc! { "$set": {
+                "game_chars": bson::to_bson(
+                    &a.data.game_chars
+                ).unwrap()
+            }},
+            a
+        )
+    })
+    .await;
 
-
-    game_response
-        .run(|a| {
-            game_repo.update_one(
-                doc! { "generated_pass"
-                    : a.clone().data.generated_pass },
-                doc! { "$set": {
-                    "game_chars": bson::to_bson(
-                        &a.data.game_chars
-                    ).unwrap()
-                }},
-                a
-            )
-        })
-        .await;
 
     char_response.data = chatacterresp.data.as_response();
     Json(char_response)

@@ -21,7 +21,7 @@
 
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
-    let hand: Ability[] = [] as Ability[]
+    $: hand = character.char_hand
 
     const asyncDiscard = async (ability: Ability) => {
         const res = await ApiCharacterApiService.discardCard(
@@ -35,7 +35,6 @@
         } else {
             throw new Error(res.success.Failing.message)
         }
-        window.location.reload();
     }
 
     const asyncInit = async () => {
@@ -78,11 +77,9 @@
         if (res.success === 'Succeeding') {
             gameCharacter.set(res.data)
             character = gameCharacter.get()
-            window.location.reload();
         } else {
             throw new Error(res.success.Failing.message)
         }
-        window.location.reload();
     }
 </script>
 
