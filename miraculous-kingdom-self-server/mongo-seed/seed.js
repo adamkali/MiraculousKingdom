@@ -446,3 +446,97 @@ db.seasons.insertMany([
         },
     },
 ])
+
+
+db.abilities.insertMany([
+    {
+        "ability_name": "Conflict",
+        "ability_desc": "You can start a conflict with another character. You both roll either Military, Scientific, or Espionage Might. The one with the higher roll, wins the conflict. The winner chooses one of the Mights to take 2 Experience in.",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    },
+    {
+        "ability_name": "Conflict",
+        "ability_desc": "You can start a conflict with another character. You both roll either Military, Scientific, or Espionage Might. The one with the higher roll, wins the conflict. The winner chooses one of the Mights to take 2 Experience in.",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    },
+    {
+        "ability_name": "Plot",
+        "ability_desc": "Plot for the turn to gain 1 Experience.",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    },
+    {
+        "ability_name": "Plot",
+        "ability_desc": "Plot for the turn to gain 1 Experience.",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    },
+    {
+        "ability_name": "Backstab",
+        "ability_desc": "You can backstab another character. You both roll either Military, Scientific, or Espionage Might. The one with the higher roll, wins the backstab. The loser loses 1 Experience and the winner gains 1 Experience.",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    },
+    {
+        "ability_name": "Backstab",
+        "ability_desc": "You can backstab another character. You both roll either Military, Scientific, or Espionage Might. The one with the higher roll, wins the backstab. The loser loses 1 Experience and the winner gains 1 Experience in an agreed upon Might",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    },
+    {
+        "ability_name": "Vandalize",
+        "ability_desc": "You can vandalize another character. You both roll either Military, Scientific, or Espionage Might. The one with the higher roll, wins the vandalize. The loser loses 2 tokens in an agreed upon Might and the winner gains 2 tokens in the same Might",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    },
+    {
+        "ability_name": "Vandalize",
+        "ability_desc": "You can vandalize another character. You both roll either Military, Scientific, or Espionage Might. The one with the higher roll, wins the vandalize. The loser loses 2 tokens in an agreed upon Might and the winner gains 2 tokens in the same Might",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    },
+    {
+        "ability_name": "Accumulate Assets",
+        "ability_desc": "Gain 2 tokens in a Might",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    },
+    {
+        "ability_name": "Accumulate Assets",
+        "ability_desc": "Gain 2 tokens in a Might",
+        "ability_unlock": {
+            "might" : "None",
+            "roll_tier": "None", 
+            "unlock": 0
+        }
+    }
+])

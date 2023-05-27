@@ -1,5 +1,5 @@
 use crate::data_types::{
-    characters::{Character, CharacterResponse, Class, NewCharacter},
+    characters::{Character, CharacterResponse, Class, NewCharacter, AbilityModel},
     common::DetailedResponse,
     common::MKModel,
     common::Progress,
@@ -39,8 +39,7 @@ pub async fn get_games(
     game_response.run(|a| repository.get_all(a)).await;
     games_to_info(game_response.clone().data, &mut response.data).await.unwrap();
 
-    response.absorb(&mut game_response);
-    println!("{:?}", response.clone());
+    response.success = game_response.clone().success;
 
     Json(response)
 }
@@ -175,10 +174,18 @@ pub async fn add_character(
     let mut char_response: DetailedResponse<Character> = DetailedResponse::new(Character::new());
     let mut class_response: DetailedResponse<Class> = DetailedResponse::new(Class::new());
     let mut game_response: DetailedResponse<Game> = DetailedResponse::new(Game::new());
+    let mut ability_response = DetailedResponse::new(Vec::<AbilityModel>::new());
 
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
     let mut class_repo = Repository::<Class>::new(&mongo, "classes");
-    let mut char_repo = Repository::<Character>::new(&mongo, "characters");
+    let mut ability_repo = Repository::<AbilityModel>::new(&mongo, "abilities");
+
+    ability_response
+        .run(|a| {
+            ability_repo.get_all(a)
+        })
+        .await;
+
 
     class_response
         .run(|a| class_repo.get_by_document(a, doc! { 
@@ -209,10 +216,15 @@ pub async fn add_character(
         let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
         return Json(resp.set_code(Some(e)).clone());
     }
-
     char_response
-        .clone()
-        .run(|a| char_repo.insert_one(a.clone().data, a))
+        .run(|mut a| {
+            async {
+                ability_response.data.iter().for_each(|b| {
+                    a.data.char_deck.push(b.as_response());
+                });
+                a
+            }
+        })
         .await;
 
     // Remove to appease warnings
