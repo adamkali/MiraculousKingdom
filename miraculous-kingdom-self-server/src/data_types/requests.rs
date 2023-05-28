@@ -6,7 +6,7 @@ pub use utoipa::ToSchema;
 pub struct TurnRequest {
     pub ability: Ability,
     pub character: CharacterResponse,
-    pub initiatve: u8,
+    pub initiatve: i8,
 }
 
 pub enum QueueWebsoketMessageEnum {

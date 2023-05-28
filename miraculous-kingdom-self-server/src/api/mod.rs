@@ -3,6 +3,8 @@ pub mod class_api;
 pub mod game_api;
 pub mod season_api;
 pub mod ability_api;
+pub mod queue_api;
+
 
 pub mod routes {
     use ::axum::{
@@ -14,6 +16,7 @@ pub mod routes {
     pub use super::class_api::class_routes;
     pub use super::game_api::game_routes;
     pub use super::season_api::season_routes;
+    pub use super::queue_api::queue_routes;
 
     pub fn construct_api_router() -> Router {
         let class_route = Router::new()
