@@ -1,17 +1,18 @@
 
 use crate::data_types::{
-    characters::{Character, CharacterResponse, Class, NewCharacter, AbilityModel},
-    common::DetailedResponse,
-    common::MKModel,
-    common::Progress,
-    common::Repository,
-    common::TurnRequest,
+    common::*,
     engine::*,
-    game_to_info, games_to_info,
-    queue::{Queue, QueueResonse, QueueItem}, 
+    queue::{Queue, QueueResonse, QueueItem},
 };
-use axum::{extract::Path, http::StatusCode, Extension, Json};
+use axum::{extract::Path, Extension, Json};
 use mongodb::{bson::doc, Database};
+
+pub mod queue_routes {
+    pub use super::get_queue;
+    pub use super::take_turn;
+    pub use super::set_season;
+}
+
 
 #[utoipa::path(
     get,
@@ -35,35 +36,31 @@ use mongodb::{bson::doc, Database};
         ("pass" = String, Path, description = "Password for entering the game.")
     )
 )]
-pub async fn get_game_queue(
+pub async fn get_queue(
     Extension(mongo): Extension<Database>,
     Path(pass): Path<String>,
-) -> Json<DetailedResponse<QueueResonse>> {
-    let mut queue: DetailedResponse<Queue> = DetailedResponse::new(Queue::new());
-    // create a DetailedResponse for the QueueResponse
-    let mut resp: DetailedResponse<QueueResonse> = DetailedResponse::new(
-        queue.clone().data.as_response()
-    );
-
+) -> Json<QueueDetailedResponse> {
+    let mut queue_model: DetailedResponse<Queue> = DetailedResponse::new(Queue::new());
+    let mut queue: DetailedResponse<QueueResonse> = DetailedResponse::new(Queue::new().as_response());
     let mut repo = Repository::<Queue>::new(&mongo, "queues");
-
     // get the queue from the database
-    queue.run(|a| {
+    queue_model.run(|a| {
        repo.get_by_document(
             a,
             doc! { "game": pass },
            ) 
     }).await;
 
-    resp.data = queue.data.as_response();
-    resp.success = queue.success;
-    // return the queue response
-    Json(resp)
+    // set the queue 
+    queue.data = queue_model.clone().data.as_response();
+    queue.success = queue_model.success;
+
+    Json(queue)
 }
 
 #[utoipa::path(
     post,
-    path = "/api/queue/{pass}",
+    path = "/api/queue/turn/{pass}",
     responses((
         status = 200,
         description = "Found Queue from database",
@@ -79,10 +76,10 @@ pub async fn get_game_queue(
         description = " Internal error occured",
         body = QueueDetailedResponse 
     )),
+    request_body = TurnRequest,
     params(
         ("pass" = String, Path, description = "Password for entering the game.")
-    ),
-    request_body = TurnRequest,
+    )
 )]
 pub async fn take_turn(
     Extension(mongo): Extension<Database>,
@@ -114,17 +111,15 @@ pub async fn take_turn(
     }).await;
 
     // get the game from the database with the same pass
-        game_response.run(|a| {
-        game_repo.get_by_document(
-            a,
-            doc! { "pass": pass.clone() }
-        )
+    game_response.run(|a| {
+    game_repo.get_by_document(
+        a,
+        doc! { "pass": pass.clone() }
+    )
     }).await;
 
     // add the item to the queue
     queue.data.push_queue_item(item);
-    queue.data.status = queue.data.queue.len() 
-                    == game_response.data.game_chars.len();
 
     // update the queue in the database
     queue.run(|a| {
@@ -168,59 +163,64 @@ pub async fn take_turn(
     // return the queue response
     resp.data = queue.data.as_response();
     resp.success = queue.success;
+
     // return the queue response
     Json(resp)
 }
 
 #[utoipa::path(
-    get,
-    path = "/api/queue/roll",
+    post,
+    path = "/api/queue/season/{pass}",
     responses((
         status = 200, 
         description = "Listed classes from database", 
-        body = SeasonDetailedResponse 
+        body = QueueDetailedResponse 
     ),
     (
         status = 400, 
         description = "Bad Request: id", 
-        body = SeasonDetailedResponse
+        body = QueueDetailedResponse
     ),
     (
         status = 500, 
         description = "Internal error occured", 
-        body = SeasonDetailedResponse 
-    ))
+        body = QueueDetailedResponse 
+    )),
+    request_body = SeasonResponse,
+    params(
+        ("pass" = String, Path, description = "Password for entering the game.")
+    )
 )]
-pub async fn roll(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<SeasonResponse>> {
-    let mut seasons_response: DetailedResponse<Vec<Season>> =
-        DetailedResponse::new(Vec::<Season>::new());
-    let mut response: DetailedResponse<Season> = DetailedResponse::new(Season {
-        event_id: ObjectId::new(),
-        event_name: String::new(),
-        event_desc: String::new(),
-        event_length: 1,
-        event_reward: RewardTypes::None,
-    });
+pub async fn set_season(
+    Extension(mongo): Extension<Database>,
+    Path(pass): Path<String>,
+    Json(season): Json<SeasonResponse>
+) -> Json<DetailedResponse<QueueResonse>> {
+    let mut queue: DetailedResponse<Queue> = DetailedResponse::new(Queue::new());
+    // create a DetailedResponse for the QueueResponse
+    let mut resp: DetailedResponse<QueueResonse> = DetailedResponse::new(
+        queue.clone().data.as_response()
+    );
+    
+    let mut repo = Repository::<Queue>::new(&mongo, "queues");
 
-    let mut repository = Repository::<Season>::new(&mongo, "seasons");
+    // set the Season 
+    queue.data.season = season.clone();
 
-    seasons_response
-        .run(|a| repository.get_all(a))
-        .await
-        .absorb(&mut response);
-    match seasons_response.data.choose(&mut rand::thread_rng()) {
-        Some(a) => {
-            response.data = a.clone();
-        }
-        None => {
-            response.set_code(Some(APIError::new(
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Counld not get a random event".to_string(),
-            )));
-        }
-    }
-    let mut res: DetailedResponse<SeasonResponse> =
-        DetailedResponse::new(response.data.as_response());
-    res.absorb(&mut response);
-    Json(res)
+    // update the queue
+    queue.run(|a| {
+        repo.update_one(
+            doc! { "game": pass.clone() },
+            doc! { "$set": { "season": mongodb::bson::to_bson(&a.data.season).unwrap() } },
+            a
+        ) 
+    })
+    .await;
+
+    // return the queue response
+    resp.data = queue.data.as_response();
+    resp.success = queue.success;
+
+    // return the queue response
+    Json(resp)
 }

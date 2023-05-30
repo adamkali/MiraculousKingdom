@@ -1,5 +1,9 @@
 import { writable } from 'svelte/store'
-import type { CharacterResponse, GameInfo } from './models'
+import {
+    type QueueResonse,
+    type CharacterResponse,
+    type GameInfo,
+} from './models'
 
 const createLocalStorage = <T>(key: string, value: T) => {
     const { subscribe, set } = writable(value)
@@ -27,4 +31,9 @@ export const gameCharacter = createLocalStorage<CharacterResponse>(
 export const currentGame = createLocalStorage<GameInfo>(
     'currentGame',
     {} as GameInfo,
+)
+
+export const queue = createLocalStorage<QueueResonse>(
+    'queue',
+    {} as QueueResonse,
 )

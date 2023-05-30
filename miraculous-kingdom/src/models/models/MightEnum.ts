@@ -3,6 +3,7 @@
 /* eslint-disable */
 
 export enum MightEnum {
+    NONE = 'None',
     MILITARY = 'Military',
     CULTURE = 'Culture',
     RELIGION = 'Religion',

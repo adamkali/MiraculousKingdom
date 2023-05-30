@@ -116,23 +116,25 @@ pub async fn get_season(
 pub async fn roll(Extension(mongo): Extension<Database>) -> Json<DetailedResponse<SeasonResponse>> {
     let mut seasons_response: DetailedResponse<Vec<Season>> =
         DetailedResponse::new(Vec::<Season>::new());
-    let mut response: DetailedResponse<Season> = DetailedResponse::new(Season {
+    let mut response: DetailedResponse<SeasonResponse> = DetailedResponse::new(Season {
         event_id: ObjectId::new(),
         event_name: String::new(),
         event_desc: String::new(),
         event_length: 1,
         event_reward: RewardTypes::None,
-    });
+    }.as_response());
 
     let mut repository = Repository::<Season>::new(&mongo, "seasons");
 
     seasons_response
         .run(|a| repository.get_all(a))
-        .await
-        .absorb(&mut response);
+        .await;
+
+    println!("{}", serde_json::to_string_pretty(&seasons_response).unwrap());
+
     match seasons_response.data.choose(&mut rand::thread_rng()) {
         Some(a) => {
-            response.data = a.clone();
+            response.data = a.clone().as_response();
         }
         None => {
             response.set_code(Some(APIError::new(
@@ -141,10 +143,9 @@ pub async fn roll(Extension(mongo): Extension<Database>) -> Json<DetailedRespons
             )));
         }
     }
-    let mut res: DetailedResponse<SeasonResponse> =
-        DetailedResponse::new(response.data.as_response());
-    res.absorb(&mut response);
-    Json(res)
+
+    response.success = seasons_response.success;
+    Json(response)
 }
 
 pub mod season_routes {

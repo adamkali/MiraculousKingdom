@@ -37,6 +37,8 @@ pub mod queue {
     #[derive(Serialize, Deserialize, Default, ToSchema, Debug, Clone)]
     pub struct QueueResonse {
         pub game: String,
+        pub turn_state: SeasonEnum,
+        pub season: SeasonResponse,
         pub queue: Vec<QueueItem>,
     }
 
@@ -75,6 +77,8 @@ pub mod queue {
             queue_clone.sort_queue();
             QueueResonse {
                 game: queue_clone.game,
+                turn_state: queue_clone.turn_state,
+                season: queue_clone.season,
                 queue: queue_clone.queue,
             } 
         }

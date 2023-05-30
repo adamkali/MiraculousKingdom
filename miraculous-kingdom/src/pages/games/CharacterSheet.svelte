@@ -10,18 +10,25 @@
         type GameInfo,
         type Ability,
         ApiCharacterApiService,
-        type MightRequirement,
-        RollTier,
         ClassEnum,
+        type QueueResonse,
+        ApiSeasonApiService,
+        ApiQueueApiService,
+        type TurnRequest,
     } from '../../models'
-    import { currentGame, gameCharacter } from '../../store'
+    import { currentGame, gameCharacter, queue } from '../../store'
     import GiCardPlay from 'svelte-icons/gi/GiCardPlay.svelte'
     import Wrapper from '../../components/Wrapper.svelte'
-    import Characters from '../rules/Characters.svelte';
+    import SeasonRoll from './components/SeasonRoll.svelte'
+    import AbilityChoice from './components/AbilityChoice.svelte'
 
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
+    let queueres: QueueResonse = queue.get()
     $: hand = character.char_hand
+    $: might = character.char_might
+    //$: clocks = character.char_clock
+    $: season = queueres.season
 
     const asyncDiscard = async (ability: Ability) => {
         const res = await ApiCharacterApiService.discardCard(
@@ -38,6 +45,13 @@
     }
 
     const asyncInit = async () => {
+        let q_res = await ApiQueueApiService.getQueue(game.game_pass)
+        if (q_res.success === 'Succeeding') {
+            queue.set(q_res.data)
+            queueres = queue.get()
+        } else {
+            throw new Error(q_res.success.Failing.message)
+        }
         if (!character.char_hand.length) {
             let res = await ApiCharacterApiService.getCharacterForGame(
                 character.secret,
@@ -77,6 +91,42 @@
         if (res.success === 'Succeeding') {
             gameCharacter.set(res.data)
             character = gameCharacter.get()
+        } else {
+            throw new Error(res.success.Failing.message)
+        }
+    }
+
+    const asyncRollSeason = async () => {
+        const res = await ApiSeasonApiService.roll()
+        if (res.success === 'Succeeding') {
+            const res1 = await ApiQueueApiService.setSeason(game.game_pass, res.data)
+            if (res1.success === 'Succeeding') {
+                queue.set(res1.data)
+                queueres = queue.get()
+            } else {
+                throw new Error(res1.success.Failing.message)
+            }
+        } else {
+            throw new Error(res.success.Failing.message)
+        }
+    }
+
+    const take_turn = async (ability: Ability) => {
+        const res = await ApiQueueApiService.takeTurn(game.game_pass, {
+            character: character,
+            game: game.game_pass,
+            ability: ability,
+            initiatve: 0,
+        } as TurnRequest)
+        if (res.success === 'Succeeding') {
+            queue.set(res.data)
+            // find the character in the queue with the same secret as the character
+            queue.get().queue.forEach((a) => {
+                if (a.queue_char.secret === character.secret) {
+                    gameCharacter.set(a.queue_char) 
+                }
+            })
+            queueres = queue.get() 
         } else {
             throw new Error(res.success.Failing.message)
         }
@@ -148,32 +198,23 @@
                     </Components.Button>
                 </div>
             </div>
-            <div class="h-4/5 w-full justify-center">
-                <Components.MightTable might={gameCharacter.get().char_might} />
-            </div>
-            <div class="flex h-1/5 w-full flex-row">
-                <div class="h-4/5 w-full items-center justify-center">
-                    <Components.Hand
-                        {hand}
-                        discard={asyncDiscard}
-                        send={async () => {}}
-                    />
-                </div>
-                <div
-                    class="my-auto ml-16 h-[20rem] w-[24rem] items-center align-middle text-red-600"
-                >
-                    <Components.Button
-                        onClick={async () => {
-                            await asyncDraw()
-                        }}
-                    >
-                        <div class="h-24">
-                            <GiCardDraw />
-                        </div>
-                        <span>Draw</span>
-                    </Components.Button>
-                </div>
-            </div>
+            {#if season.event_name === ''}
+                <SeasonRoll
+                    {hand}
+                    {might}
+                    asyncDiscard={async () => {}}
+                    {asyncRollSeason}
+                />
+            {:else}
+                <AbilityChoice
+                    {hand}
+                    {season}
+                    {might}
+                    {asyncDiscard}
+                    asyncPlay={take_turn}
+                    {asyncDraw}
+                />
+            {/if}
         </div>
     {:catch err}
         {err}

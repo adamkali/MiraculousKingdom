@@ -213,17 +213,6 @@ pub mod characters {
 
 // Game Class ==============================
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
-pub enum State {
-    #[default]
-    None,
-    Start,
-    ClockResolution(ObjectId, ObjectId),
-    ArcRolling(ObjectId),
-    Episode(ObjectId, ObjectId),
-    ArcResolution(ObjectId, ObjectId),
-}
-
-#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct GameCreation {
     pub game_num_players: u16,
     pub game_name: String,
@@ -260,7 +249,6 @@ pub struct Game {
     pub game_id: ObjectId,
     pub game_chars: Vec<Character>,
     pub game_clocks: Vec<Clock>,
-    pub game_state: State,
     pub game_name: String,
     pub game_ruler: String,
     pub generated_pass: String,
@@ -272,7 +260,6 @@ pub struct Game {
 pub struct GameResponse {
     pub game_chars: Vec<CharacterResponse>,
     pub game_clocks: Vec<Clock>,
-    pub game_state: State,
     pub game_name: String,
     pub game_ruler: String,
     pub generated_pass: String,
@@ -291,7 +278,6 @@ impl MKModel for Game {
         Self::Response {
             game_chars,
             game_clocks: self.game_clocks.clone(),
-            game_state: self.game_state.clone(),
             game_name: self.game_name.clone(),
             game_ruler: self.game_ruler.clone(),
             generated_pass: self.generated_pass.clone(),
@@ -308,7 +294,6 @@ impl Game {
             game_id: ObjectId::new(),
             game_chars: characters,
             game_clocks: clocks,
-            game_state: State::None,
             game_name: "Not Started".to_string(),
             game_ruler: "Not Started".to_string(),
             generated_pass: "".to_string(),
@@ -347,7 +332,7 @@ pub mod engine {
     pub use super::Season;
     pub use super::SeasonResponse;
     pub use super::SeasonEnum;
-    pub use super::State;
+    pub use super::RewardTypes;
 }
 
 // =========================================

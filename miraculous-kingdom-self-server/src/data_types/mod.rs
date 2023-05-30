@@ -3,8 +3,8 @@ mod detialed_response;
 mod repository;
 mod traits;
 mod requests;
-mod responses;
 mod polling;
+
 
 pub mod common {
     pub use super::data::Reward;

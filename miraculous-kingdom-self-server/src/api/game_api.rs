@@ -4,9 +4,9 @@ use crate::data_types::{
     common::MKModel,
     common::Progress,
     common::Repository,
-    common::TurnRequest,
     engine::*,
     game_to_info, games_to_info,
+    queue::Queue
     
 };
 use axum::{extract::Path, http::StatusCode, Extension, Json};
@@ -114,7 +114,7 @@ pub async fn start_game(
 
     let body: Game = Game::start(request).await;
     let mut repository = Repository::new(&mongo, "games");
-    let mut queue_repository = Repository::new(&mongo, "game_queues");
+    let mut queue_repository = Repository::new(&mongo, "queues");
 
     game_response
         .run(|a| repository.insert_one(body.clone(), a))
@@ -270,6 +270,4 @@ pub mod game_routes {
     pub use super::get_game;
     pub use super::get_games;
     pub use super::start_game;
-    pub use super::get_game_queue;
-    pub use super::take_turn;
 }
