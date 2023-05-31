@@ -92,7 +92,7 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
     where
         S: Serialize + Send + Clone,
     {
-        to.success = self.success.clone();
+        self.success = to.success.clone();
         self.clone()
     }
 }

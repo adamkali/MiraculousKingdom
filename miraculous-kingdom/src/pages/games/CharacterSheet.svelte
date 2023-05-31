@@ -36,6 +36,9 @@
             game.game_pass,
             ability,
         )
+        // TODO: Eventually make this into trashing the card 
+        //      completely. and make it into a turn by using a constant
+        //      for the ability
         if (res.success === 'Succeeding') {
             gameCharacter.set(res.data)
             character = gameCharacter.get()
@@ -112,6 +115,9 @@
     }
 
     const take_turn = async (ability: Ability) => {
+        character.char_hand = character.char_hand.filter((e) => {
+            return ( e.ability_name != ability.ability_name)
+        })
         const res = await ApiQueueApiService.takeTurn(game.game_pass, {
             character: character,
             game: game.game_pass,

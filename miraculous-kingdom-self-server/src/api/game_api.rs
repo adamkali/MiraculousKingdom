@@ -181,13 +181,6 @@ pub async fn add_character(
     let mut class_repo = Repository::<Class>::new(&mongo, "classes");
     let mut ability_repo = Repository::<AbilityModel>::new(&mongo, "abilities");
 
-    ability_response
-        .run(|a| {
-            ability_repo.get_all(a)
-        })
-        .await;
-
-
     class_response
         .run(|a| class_repo.get_by_document(a, doc! { 
             "class_enum": request.char_class.to_string()
@@ -201,6 +194,12 @@ pub async fn add_character(
 
     game_response
         .run(|a| game_repo.get_by_document(a, doc! { "generated_pass": pass.clone() }))
+        .await;
+
+    ability_response
+        .run(|a| {
+            ability_repo.get_all(a)
+        })
         .await;
 
     let ch = Character::new_game(
@@ -229,29 +228,14 @@ pub async fn add_character(
         .await;
 
     // Remove to appease warnings
-    let mut char_to_append: mongodb::bson::Document = doc! {};
-    match mongodb::bson::ser::to_document(&char_response.data.clone()) {
-        Ok(d) => {
-            char_to_append = d;
-        }
-        Err(e) => {
-            let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
-            return Json(
-                resp.set_code(Some(crate::data_types::common::APIError::new(
-                    StatusCode::BAD_REQUEST,
-                    e.to_string(),
-                )))
-                .clone(),
-            );
-        }
-    }
-
     game_response
         .run(|a| {
             game_repo.update_one(
                 doc! { "generated_pass": pass.clone()},
                 doc! { "$push": {
-                    "game_chars": char_to_append
+                    "game_chars": mongodb::bson::to_bson(
+                        &char_response.data
+                    ).unwrap()
                 }},
                 a,
             )
@@ -259,8 +243,6 @@ pub async fn add_character(
         .await;
 
     let mut resp = DetailedResponse::new(char_response.clone().data.as_response());
-    resp.absorb(&mut char_response);
-    println!("{:#?}", resp);
     Json(resp)
 }
 

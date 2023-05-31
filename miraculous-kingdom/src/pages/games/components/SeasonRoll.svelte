@@ -10,7 +10,7 @@
     export let asyncRollSeason: () => Promise<void> = async () => {}
 </script>
 
-<div class="grid-row-3 grid gap-8">
+<div class="grid-row-3 grid gap-8 p-4">
     <div class="h-full w-full justify-center">
         <Components.MightTable {might} />
     </div>
