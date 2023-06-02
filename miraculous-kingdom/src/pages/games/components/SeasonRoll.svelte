@@ -2,11 +2,13 @@
     import GiCardDraw from 'svelte-icons/gi/GiCardDraw.svelte'
     import GiRollingDiceCup from 'svelte-icons/gi/GiRollingDiceCup.svelte'
     import * as Components from '../../../components'
-    import { type Ability, type Might } from '../../../models'
+    import { Clock, type Ability, type Might } from '../../../models'
 
     export let hand: Ability[] = []
+    export let clocks: Clock[] = [] as Clock[]
     export let might: Might = {} as Might
     export let asyncDiscard: (ability: Ability) => Promise<void>
+    export let secret: string = ""
     export let asyncRollSeason: () => Promise<void> = async () => {}
 </script>
 
@@ -34,5 +36,10 @@
                 send={async () => {}}
             />
         </div>
+    </div>
+    <div class="flex h-full w-full flex-row">
+        {#each clocks as clock }
+            <Components.Clock clock={clock} secret={secret}/>
+        {/each}
     </div>
 </div>

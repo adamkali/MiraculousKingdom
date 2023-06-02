@@ -14,6 +14,8 @@
     export let hand: Ability[] = []
     export let season: SeasonResponse = {} as SeasonResponse
     export let might: Might = {} as Might
+    export let clocks: Clock[] = [] as Clock[]
+    export let secret: string = ""
     export let asyncDiscard: (ability: Ability) => Promise<void>
     export let asyncDraw: () => Promise<void> = async () => {}
     export let asyncPlay: (ability: Ability) => Promise<void> = async () => {}
@@ -122,5 +124,10 @@
             </div>
             <span>Draw</span>
         </Components.Button>
+    </div>
+    <div class="flex h-full w-full flex-row">
+        {#each clocks as clock }
+            <Components.Clock clock={clock} secret={secret}/>
+        {/each}
     </div>
 </div>

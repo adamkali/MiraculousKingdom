@@ -1061,9 +1061,13 @@
           "clock_remaining",
           "clock_name",
           "clock_desc",
-          "clock_conf"
+          "clock_conf",
+          "clock_char_secret"
         ],
         "properties": {
+          "clock_char_secret": {
+            "type": "string"
+          },
           "clock_conf": {
             "type": "boolean"
           },
@@ -1374,9 +1378,16 @@
           "game",
           "turn_state",
           "season",
-          "queue"
+          "queue",
+          "clocks"
         ],
         "properties": {
+          "clocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Clock"
+            }
+          },
           "game": {
             "type": "string"
           },

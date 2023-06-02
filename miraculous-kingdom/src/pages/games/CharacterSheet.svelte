@@ -27,7 +27,7 @@
     let queueres: QueueResonse = queue.get()
     $: hand = character.char_hand
     $: might = character.char_might
-    //$: clocks = character.char_clock
+    $: clocks = queueres.clocks
     $: season = queueres.season
 
     const asyncDiscard = async (ability: Ability) => {
@@ -210,12 +210,16 @@
                     {might}
                     asyncDiscard={async () => {}}
                     {asyncRollSeason}
+                    {clocks}
+                    secret={character.secret}
                 />
             {:else}
                 <AbilityChoice
                     {hand}
                     {season}
                     {might}
+                    {clocks}
+                    secret={character.secret}
                     {asyncDiscard}
                     asyncPlay={take_turn}
                     {asyncDraw}

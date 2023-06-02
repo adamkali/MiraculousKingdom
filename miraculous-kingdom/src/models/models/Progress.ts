@@ -2,10 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { APIError } from './APIError'
+import type { APIError } from './APIError';
 
-export type Progress =
-    | 'Succeeding'
-    | {
-          Failing: APIError
-      }
+export type Progress = ('Succeeding' | {
+Failing: APIError;
+});

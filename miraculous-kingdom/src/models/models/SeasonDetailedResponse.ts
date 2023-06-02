@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Progress } from './Progress'
-import type { SeasonResponse } from './SeasonResponse'
+import type { Progress } from './Progress';
+import type { SeasonResponse } from './SeasonResponse';
 
 export type SeasonDetailedResponse = {
-    data: SeasonResponse
-    success: Progress
-}
+    data: SeasonResponse;
+    success: Progress;
+};
