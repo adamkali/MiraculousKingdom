@@ -372,7 +372,7 @@ db.seasons.insertMany([
             "Experience": {
                 "stat_enum": "Diplomacy",
                 "stat_name": "Diplomacy",
-                "stat_value": "",
+                "stat_value": 0,
                 "stat_exp": 3,
                 "stat_token": 0,
             }
@@ -402,7 +402,7 @@ db.seasons.insertMany([
             "Experience": {
                 "stat_enum": "Science",
                 "stat_name": "Science",
-                "stat_value": "",
+                "stat_value": 0,
                 "stat_exp": 2,
                 "stat_token": 0,
             }
