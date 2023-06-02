@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/mk.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Miraculous Kingdom</title>
+    <title>Vite + Svelte + TS</title>
     <link type="style" href="/src/app.css">
   </head>
-  <body class="w-min-screen h-min-screen bg-indigo-300 dark:bg-purple-600">
+  <body class="w-screen h-screen bg-indigo-300 dark:bg-indigo-600">
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

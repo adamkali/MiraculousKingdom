@@ -16,7 +16,8 @@ use std::{
 
 use super::common::{MKModel, MkResponse};
 use crate::data_types::characters::{CharacterResponse, ClassResponse};
-use crate::data_types::engine::{GameInfo, SeasonResponse, QueueResonse};
+use crate::data_types::engine::{GameInfo, SeasonResponse};
+use crate::data_types::queue::QueueResonse;
 
 #[derive(Serialize, Clone, utoipa::ToSchema)]
 pub enum Progress {
@@ -91,7 +92,7 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
     where
         S: Serialize + Send + Clone,
     {
-        to.success = self.success.clone();
+        self.success = to.success.clone();
         self.clone()
     }
 }

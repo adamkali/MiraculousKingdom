@@ -3,6 +3,8 @@ pub mod class_api;
 pub mod game_api;
 pub mod season_api;
 pub mod ability_api;
+pub mod queue_api;
+
 
 pub mod routes {
     use ::axum::{
@@ -14,6 +16,7 @@ pub mod routes {
     pub use super::class_api::class_routes;
     pub use super::game_api::game_routes;
     pub use super::season_api::season_routes;
+    pub use super::queue_api::queue_routes;
 
     pub fn construct_api_router() -> Router {
         let class_route = Router::new()
@@ -52,9 +55,12 @@ pub mod routes {
             .route("/", get(season_routes::get_seasons))
             .route("/:id", get(season_routes::get_season))
             .route("/roll", get(season_routes::roll));
+
         let queue_route = Router::new()
-            .route("/:path", get(game_routes::get_game_queue)
-                            .post(game_routes::take_turn));
+            .route("/:pass", get(queue_routes::get_queue))
+            .route("/turn/:pass", post(queue_routes::take_turn))
+            .route("/season/:pass", post(queue_routes::set_season));
+
 
         Router::new()
             .nest("/class", class_route)
@@ -62,5 +68,6 @@ pub mod routes {
             .nest("/character", character_route)
             .nest("/season", season_route)
             .nest("/queue", queue_route)
+            
     }
 }

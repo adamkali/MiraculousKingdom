@@ -43,4 +43,5 @@ export type { VecClassDetailedResponse } from './models/VecClassDetailedResponse
 export { ApiCharacterApiService } from './services/ApiCharacterApiService'
 export { ApiClassApiService } from './services/ApiClassApiService'
 export { ApiGameApiService } from './services/ApiGameApiService'
+export { ApiQueueApiService } from './services/ApiQueueApiService'
 export { ApiSeasonApiService } from './services/ApiSeasonApiService'

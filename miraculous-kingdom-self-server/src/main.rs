@@ -23,6 +23,7 @@ use data_types::clock::*;
 use data_types::common::*;
 use data_types::engine::*;
 use data_types::might::*;
+use data_types::queue::*;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -46,8 +47,6 @@ async fn main() {
             api::game_api::start_game,
             api::game_api::get_game,
             api::game_api::add_character,
-            api::game_api::get_game_queue,
-            api::game_api::take_turn,
             api::character_api::get_character_for_game,
             api::character_api::get_characters,
             api::character_api::init_hand,
@@ -55,7 +54,10 @@ async fn main() {
             api::character_api::discard_card,
             api::season_api::get_seasons,
             api::season_api::get_season,
-            api::season_api::roll
+            api::season_api::roll,
+            api::queue_api::get_queue,
+            api::queue_api::take_turn,
+            api::queue_api::set_season
         ),
         components(
             schemas(

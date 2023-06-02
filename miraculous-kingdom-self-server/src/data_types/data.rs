@@ -11,15 +11,13 @@ use utoipa::ToSchema;
 
 // Character ================================
 
-/// This enum represents the possible states of a character in a websocket game.
-/// - Waiting: the character is waiting for its turn to come. - Going: the character is currently taking its turn.
-/// - Gone: the character has already taken its turn and is no longer in play.
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub enum CharacterState {
     #[default]
     Waiting,
-    Going,
-    Gone,
+    RollingSeason,
+    PlayingTurn,
+    Resolve,
 }
 
 /// A struct representing a character in the game.
@@ -215,17 +213,6 @@ pub mod characters {
 
 // Game Class ==============================
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
-pub enum State {
-    #[default]
-    None,
-    Start,
-    ClockResolution(ObjectId, ObjectId),
-    ArcRolling(ObjectId),
-    Episode(ObjectId, ObjectId),
-    ArcResolution(ObjectId, ObjectId),
-}
-
-#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct GameCreation {
     pub game_num_players: u16,
     pub game_name: String,
@@ -262,79 +249,17 @@ pub struct Game {
     pub game_id: ObjectId,
     pub game_chars: Vec<Character>,
     pub game_clocks: Vec<Clock>,
-    pub game_state: State,
     pub game_name: String,
     pub game_ruler: String,
     pub generated_pass: String,
     pub game_season: SeasonEnum
 }
 
-// a struct that holds the Ability and the Character associated
-// with it aswell as an initative number
-#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
-pub struct QueueItem {
-    pub queue_ability: Ability,
-    pub queue_char: CharacterResponse,
-    pub queue_initiative: i8,
-}
-
-#[derive(Serialize, Deserialize, Default, ToSchema, Debug, Clone)]
-pub struct Queue {
-    pub id: ObjectId,
-    pub game: String,
-    pub queue: Vec<QueueItem>,
-    pub status: bool
-}
-
-#[derive(Serialize, Deserialize, Default, ToSchema, Debug, Clone)]
-pub struct QueueResonse {
-    pub game: String,
-    pub queue: Vec<QueueItem>,
-}
-
-impl Queue {
-    // function to the Queue.queue by Queue.queue.queue_initiative
-    pub fn sort_queue(&mut self)  {
-        self.queue.sort_by(|a, b| b.queue_initiative.cmp(&a.queue_initiative));
-    }
-
-    pub fn new() -> Self {
-        Queue {
-            id: ObjectId::new(),
-            game: String::new(),
-            queue: Vec::<QueueItem>::new(),
-            status: false,
-        }
-    }
-
-    pub fn default() -> Self {
-        Queue::new()
-    }
-
-    pub fn push_queue_item(&mut self, item: QueueItem) {
-        self.queue.push(item);
-    }
-}
-
-impl MkResponse for QueueResonse { }
-
-impl MKModel for Queue {
-    type Response = QueueResonse;
-    fn as_response(& self) -> Self::Response {
-        let mut queue_clone = self.clone();
-        queue_clone.sort_queue();
-        QueueResonse {
-            game: queue_clone.game,
-            queue: queue_clone.queue,
-        } 
-    }
-}
 
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct GameResponse {
     pub game_chars: Vec<CharacterResponse>,
     pub game_clocks: Vec<Clock>,
-    pub game_state: State,
     pub game_name: String,
     pub game_ruler: String,
     pub generated_pass: String,
@@ -353,7 +278,6 @@ impl MKModel for Game {
         Self::Response {
             game_chars,
             game_clocks: self.game_clocks.clone(),
-            game_state: self.game_state.clone(),
             game_name: self.game_name.clone(),
             game_ruler: self.game_ruler.clone(),
             generated_pass: self.generated_pass.clone(),
@@ -370,7 +294,6 @@ impl Game {
             game_id: ObjectId::new(),
             game_chars: characters,
             game_clocks: clocks,
-            game_state: State::None,
             game_name: "Not Started".to_string(),
             game_ruler: "Not Started".to_string(),
             generated_pass: "".to_string(),
@@ -406,13 +329,10 @@ pub mod engine {
     pub use super::GameCreation;
     pub use super::GameInfo;
     pub use super::GameResponse;
-    pub use super::Queue;
-    pub use super::QueueItem;
-    pub use super::QueueResonse;
     pub use super::Season;
     pub use super::SeasonResponse;
     pub use super::SeasonEnum;
-    pub use super::State;
+    pub use super::RewardTypes;
 }
 
 // =========================================

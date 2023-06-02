@@ -3,6 +3,8 @@ mod detialed_response;
 mod repository;
 mod traits;
 mod requests;
+mod polling;
+
 
 pub mod common {
     pub use super::data::Reward;
@@ -18,6 +20,8 @@ pub use data::characters;
 pub use data::clock;
 pub use data::engine;
 pub use data::might;
+pub use polling::queue;
+
 
 pub async fn game_to_info(
     game: engine::Game,

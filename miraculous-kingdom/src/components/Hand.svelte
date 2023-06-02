@@ -11,7 +11,7 @@
 </script>
 
 <div
-    class="flex w-[90rem] snap-x flex-row gap-4 overflow-y-auto scrollbar-track-black/80 scrollbar-thumb-black"
+    class="flex snap-x flex-row gap-4 overflow-y-auto scrollbar-track-black/80 scrollbar-thumb-black"
     bind:this={handDiv}
 >
     {#each hand as ability, i}

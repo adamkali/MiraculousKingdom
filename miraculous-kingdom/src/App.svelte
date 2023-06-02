@@ -28,7 +28,7 @@
 </script>
 
 <main
-    class="mb-4 flex flex-col items-center justify-center bg-gradient-to-tr from-red-700 to-blue-700 font-victo-mono"
+    class="p-8 flex flex-col items-center justify-center font-victo-mono bg-purple-400 dark:bg-purple-700"
 >
     <Router>
         <nav
@@ -36,21 +36,21 @@
         >
             <div
                 on:click={() => backToHome()}
-                class="left-0 text-4xl text-red-600"
+                class="left-0 text-4xl text-fuchsia-600 dark:text-fuchsia-300"
             >
                 Miraculous Kingdom
             </div>
             <div class="col-span-3 flex flex-row justify-center">
                 <div
-                    class="mr-16 h-8 flex-row items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                    class="mr-16 h-8 flex-row items-center text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
                 >
-                    <Special href="/games/start">
+                    <Link to="/games/start">
                         <GiDiceTwentyFacesTwenty />
                         <div>Start</div>
-                    </Special>
+                    </Link>
                 </div>
                 <div
-                    class="mr-16 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                    class="mr-16 h-8 flex-row items-center text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
                 >
                     <Link to="/games/join">
                         <GiHourglass />
@@ -59,7 +59,7 @@
                 </div>
                 {#if !(!$currentGame.game_pass && !$gameCharacter.secret)}
                     <div
-                        class="mr-16 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                        class="mr-16 h-8 flex-row items-center text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
                     >
                         <Link to="/games/sheet">
                             <GiCardPlay />
@@ -68,7 +68,7 @@
                     </div>
                 {/if}
                 <div
-                    class="mr-18 h-8 items-center text-blue-600 transition duration-150 hover:text-cyan-600"
+                    class="mr-16 h-8 flex-row items-center text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
                 >
                     <Link to="/rules">
                         <GiOpenBook />
@@ -78,14 +78,14 @@
             </div>
             <div class="right-0 col-span-1 flex flex-row">
                 <div
-                    class="mr-8 h-12 text-red-600 transition duration-150 hover:text-fuchsia-600"
+                    class="mr-8 h-12 text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
                 >
                     <Link to="https://github.com/adamkali/MiraculousKingdom">
                         <DiGithubAlt />
                     </Link>
                 </div>
                 <div
-                    class="h-12 text-red-600 transition duration-150 hover:text-fuchsia-600"
+                    class="mr-8 h-12 text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
                 >
                     <Link
                         to="https://hub.docker.com/repository/docker/adamkali/miraculous-kingdom/general"
