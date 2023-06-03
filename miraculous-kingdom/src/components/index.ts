@@ -17,5 +17,5 @@ export {
     InputButton,
     Wrapper,
     Hand,
-    Clock
+    Clock,
 }

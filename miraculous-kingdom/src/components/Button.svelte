@@ -10,7 +10,7 @@
     <button
         type={buttonType}
         on:click={onClick}
-        class="mx-2 flex h-full w-full flex-col justify-evenly rounded-lg bg-slate-300 dark:bg-black px-4 py-2 text-justify text-sm backdrop-blur"
+        class="mx-2 flex h-full w-full flex-col justify-evenly rounded-lg bg-slate-300 px-4 py-2 text-justify text-sm backdrop-blur dark:bg-black"
     >
         <slot />
     </button>

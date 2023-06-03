@@ -36,7 +36,7 @@
             game.game_pass,
             ability,
         )
-        // TODO: Eventually make this into trashing the card 
+        // TODO: Eventually make this into trashing the card
         //      completely. and make it into a turn by using a constant
         //      for the ability
         if (res.success === 'Succeeding') {
@@ -102,7 +102,10 @@
     const asyncRollSeason = async () => {
         const res = await ApiSeasonApiService.roll()
         if (res.success === 'Succeeding') {
-            const res1 = await ApiQueueApiService.setSeason(game.game_pass, res.data)
+            const res1 = await ApiQueueApiService.setSeason(
+                game.game_pass,
+                res.data,
+            )
             if (res1.success === 'Succeeding') {
                 queue.set(res1.data)
                 queueres = queue.get()
@@ -116,7 +119,7 @@
 
     const take_turn = async (ability: Ability) => {
         character.char_hand = character.char_hand.filter((e) => {
-            return ( e.ability_name != ability.ability_name)
+            return e.ability_name != ability.ability_name
         })
         const res = await ApiQueueApiService.takeTurn(game.game_pass, {
             character: character,
@@ -129,10 +132,10 @@
             // find the character in the queue with the same secret as the character
             queue.get().queue.forEach((a) => {
                 if (a.queue_char.secret === character.secret) {
-                    gameCharacter.set(a.queue_char) 
+                    gameCharacter.set(a.queue_char)
                 }
             })
-            queueres = queue.get() 
+            queueres = queue.get()
         } else {
             throw new Error(res.success.Failing.message)
         }

@@ -15,17 +15,16 @@
     export let season: SeasonResponse = {} as SeasonResponse
     export let might: Might = {} as Might
     export let clocks: Clock[] = [] as Clock[]
-    export let secret: string = ""
+    export let secret: string = ''
     export let asyncDiscard: (ability: Ability) => Promise<void>
     export let asyncDraw: () => Promise<void> = async () => {}
     export let asyncPlay: (ability: Ability) => Promise<void> = async () => {}
 
-
-    // type gaurd for season.event_reward 
+    // type gaurd for season.event_reward
     // should be either Ability, MightStat, Clock
     function isAbility(ability: any): ability is Ability {
         return ability.type === 'Ability'
-    } 
+    }
 
     function isMight(might: any): might is MightStat {
         return might.type === 'MightStat'
@@ -34,7 +33,6 @@
     function isClock(clock: any): clock is Clock {
         return clock.type === 'Clock'
     }
-
 </script>
 
 <div class="grid-row-4 grid gap-8 p-4">
@@ -49,20 +47,21 @@
             <div
                 class="mx-2 flex h-full w-full flex-row justify-evenly rounded-lg bg-black px-4 py-2 text-justify text-sm backdrop-blur"
             >
-                <div class="flex flex-col w-1/2 ml-4">
+                <div class="ml-4 flex w-1/2 flex-col">
                     <div class="text-2xl font-bold text-blue-400">
                         {season.event_name}
                     </div>
                     <p class="text-xl font-bold text-slate-400">
                         {season.event_desc}
                     </p>
-                    <div class="place-item-left text-xl font-bold text-slate-400">
+                    <div
+                        class="place-item-left text-xl font-bold text-slate-400"
+                    >
                         {season.event_length}
                     </div>
                 </div>
-                {#if season.event_reward !== "None"
-                && isAbility(season.event_reward)}
-                    <div class="flex flex-col w-1/2">
+                {#if season.event_reward !== 'None' && isAbility(season.event_reward)}
+                    <div class="flex w-1/2 flex-col">
                         <div class="text-2xl font-bold text-blue-400">
                             Reward: Ability
                         </div>
@@ -73,31 +72,30 @@
                             {season.event_reward.ability_desc}
                         </p>
                     </div>
-                {:else if season.event_reward !== "None"
-                && isMight(season.event_reward)}
-                    <div class="flex flex-col w-1/2">
+                {:else if season.event_reward !== 'None' && isMight(season.event_reward)}
+                    <div class="flex w-1/2 flex-col">
                         <div class="text-2xl font-bold text-blue-400">
                             Reward: Experience
                         </div>
                         <p class="text-xl font-bold text-slate-400">
-                            {season.event_reward.stat_name} + {season.event_reward.stat_exp}
+                            {season.event_reward.stat_name} + {season
+                                .event_reward.stat_exp}
                         </p>
                     </div>
-                {:else if season.event_reward !== "None"
-                && isClock(season.event_reward)}
-                    <div class="flex flex-col w-1/2">
+                {:else if season.event_reward !== 'None' && isClock(season.event_reward)}
+                    <div class="flex w-1/2 flex-col">
                         <div class="text-2xl font-bold text-blue-400">
-                            Reward: 
+                            Reward:
                         </div>
                         <p class="text-xl font-bold text-slate-400">
-                            {season.event_reward.clock_name} 
+                            {season.event_reward.clock_name}
                         </p>
                         <p class="text-xl font-bold text-slate-400">
-                            {season.event_reward.clock_desc} 
+                            {season.event_reward.clock_desc}
                         </p>
                     </div>
                 {:else}
-                    <div class="flex flex-col w-1/2">
+                    <div class="flex w-1/2 flex-col">
                         <div class="text-2xl font-bold text-blue-400">
                             No Reward
                         </div>
@@ -126,8 +124,8 @@
         </Components.Button>
     </div>
     <div class="flex h-full w-full flex-row">
-        {#each clocks as clock }
-            <Components.Clock clock={clock} secret={secret}/>
+        {#each clocks as clock}
+            <Components.Clock {clock} {secret} />
         {/each}
     </div>
 </div>
