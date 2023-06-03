@@ -3,11 +3,12 @@
     import * as Components from '../../components'
     import { RulesConst, type Rule } from './rules'
 
-    let rules: Rule[]
     let search: string
 
+    $: handledRules = [] as Rule[]
+
     onMount(() => {
-        rules = RulesConst
+        handledRules = RulesConst
     })
 
     const handleSearch = () => {
@@ -29,12 +30,12 @@
                 }
             })
             if (newRules.length === 0) {
-                rules = RulesConst
+                handledRules = RulesConst
                 return
             }
-            rules = newRules
+            handledRules = newRules
         } else {
-            rules = RulesConst
+           handledRules = RulesConst
         }
     }
 
@@ -53,14 +54,14 @@
         label="Search"
         inputType="text"
     />
-    {#each RulesConst as rule}
-        <div class="group relative h-full w-full">
+    {#each handledRules as rule}
+        <div class="group relative h-24 w-full my-8">
             <div
-                class="lg absolute h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur transition duration-150 ease-in-out group-hover:from-fuchsia-500 group-hover:to-blue-500 group-hover:opacity-90 group-hover:blur-lg"
+                class="absolute h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur transition duration-150 ease-in-out group-hover:from-fuchsia-500 group-hover:to-blue-500 group-hover:opacity-90 group-hover:blur-lg"
             />
             <div
                 on:click={() => handleClick(rule.link)}
-                class="relative grid h-full w-full grid-cols-5 items-center divide-red-600 rounded-lg bg-black px-8 py-4 leading-none"
+                class="relative grid h-full w-full grid-cols-5 items-center divide-red-600 rounded-lg bg-slate-300 px-8 py-4 leading-none dark:bg-black"
             >
                 <div class="text-red-600">{rule.title}</div>
                 <div class="col-span-4">{rule.description}</div>

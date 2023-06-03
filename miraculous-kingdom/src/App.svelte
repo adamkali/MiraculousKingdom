@@ -19,6 +19,7 @@
     import { Special } from './components'
     import { currentGame, gameCharacter } from './store'
     import { type CharacterResponse, type GameInfo } from './models'
+    import Clocks from './pages/rules/Clocks.svelte'
 
     const backToHome = () => {
         window.location.href = '/'
@@ -28,11 +29,11 @@
 </script>
 
 <main
-    class="p-8 flex flex-col items-center justify-center font-victo-mono bg-purple-400 dark:bg-purple-700"
+    class="flex flex-col min-h-screen items-center justify-center bg-purple-400 p-4 font-victo-mono dark:bg-purple-700"
 >
     <Router>
         <nav
-            class="m-8 grid h-24 w-11/12 grid-cols-5 rounded-xl bg-black/75 p-4 px-4 py-2 text-2xl backdrop-blur-lg"
+            class="m-8 grid h-24 w-11/12 grid-cols-5 rounded-xl bg-black/75 px-8 py-2 text-2xl backdrop-blur-lg"
         >
             <div
                 on:click={() => backToHome()}
@@ -42,7 +43,7 @@
             </div>
             <div class="col-span-3 flex flex-row justify-center">
                 <div
-                    class="mr-16 h-8 flex-row items-center text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
+                    class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
                     <Link to="/games/start">
                         <GiDiceTwentyFacesTwenty />
@@ -50,7 +51,7 @@
                     </Link>
                 </div>
                 <div
-                    class="mr-16 h-8 flex-row items-center text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
+                    class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
                     <Link to="/games/join">
                         <GiHourglass />
@@ -59,7 +60,7 @@
                 </div>
                 {#if !(!$currentGame.game_pass && !$gameCharacter.secret)}
                     <div
-                        class="mr-16 h-8 flex-row items-center text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
+                        class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                     >
                         <Link to="/games/sheet">
                             <GiCardPlay />
@@ -68,7 +69,7 @@
                     </div>
                 {/if}
                 <div
-                    class="mr-16 h-8 flex-row items-center text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
+                    class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
                     <Link to="/rules">
                         <GiOpenBook />
@@ -78,14 +79,14 @@
             </div>
             <div class="right-0 col-span-1 flex flex-row">
                 <div
-                    class="mr-8 h-12 text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
+                    class="mr-8 h-12 text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
                     <Link to="https://github.com/adamkali/MiraculousKingdom">
                         <DiGithubAlt />
                     </Link>
                 </div>
                 <div
-                    class="mr-8 h-12 text-fuchsia-600 dark:text-fuchsia-300 transition duration-150 hover:text-fuchsia-400"
+                    class="mr-8 h-12 text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
                     <Link
                         to="https://hub.docker.com/repository/docker/adamkali/miraculous-kingdom/general"
@@ -113,6 +114,9 @@
             </Route>
             <Route path="characters">
                 <Characters />
+            </Route>
+            <Route path="clocks">
+                <Clocks />
             </Route>
             <Route path="/">
                 <Rules />

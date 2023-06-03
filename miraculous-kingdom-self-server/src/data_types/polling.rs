@@ -7,11 +7,11 @@ pub mod queue {
         common::{
             MKModel, MkResponse,
         },
-        characters::{Ability, CharacterResponse},
+        characters::{Ability, CharacterResponse, Clock},
         engine::{
             SeasonResponse,
             SeasonEnum,
-        }
+        },
     };
     use crate::data_types::requests::TurnRequest;
 
@@ -31,7 +31,7 @@ pub mod queue {
         pub turn_state: SeasonEnum,
         pub season: SeasonResponse,
         pub queue: Vec<QueueItem>,
-        pub status: bool
+        pub clocks: Vec<Clock>,
     }
 
     #[derive(Serialize, Deserialize, Default, ToSchema, Debug, Clone)]
@@ -40,6 +40,7 @@ pub mod queue {
         pub turn_state: SeasonEnum,
         pub season: SeasonResponse,
         pub queue: Vec<QueueItem>,
+        pub clocks: Vec<Clock>,
     }
 
     impl Queue {
@@ -55,7 +56,7 @@ pub mod queue {
                 turn_state: SeasonEnum::None,
                 season: SeasonResponse::default(),
                 queue: Vec::<QueueItem>::new(),
-                status: false,
+                clocks: Vec::<Clock>::new()
             }
         }
 
@@ -80,6 +81,7 @@ pub mod queue {
                 turn_state: queue_clone.turn_state,
                 season: queue_clone.season,
                 queue: queue_clone.queue,
+                clocks: queue_clone.clocks
             } 
         }
     }

@@ -208,6 +208,7 @@ pub mod characters {
     pub use super::MightRequirement;
     pub use super::NewCharacter;
     pub use super::RollTier;
+    pub use super::Clock;
 }
 // =========================================
 
@@ -345,34 +346,9 @@ pub struct Clock {
     pub clock_name: String,
     pub clock_desc: String,
     pub clock_conf: bool,
+    pub clock_char_secret: String
 }
 
-#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
-pub struct ClockPost {
-    pub char_id: uuid::Uuid,
-    pub clock_duration: u8,
-    pub clock_remaining: u8,
-    pub clock_name: String,
-    pub clock_desc: String,
-    pub clock_conf: bool,
-}
-
-impl Clock {
-    pub fn create(post: ClockPost) -> Clock {
-        Clock {
-            clock_duration: post.clock_duration,
-            clock_conf: post.clock_conf,
-            clock_desc: post.clock_desc,
-            clock_name: post.clock_name,
-            clock_remaining: post.clock_remaining,
-        }
-    }
-}
-
-pub mod clock {
-    pub use super::Clock;
-    pub use super::ClockPost;
-}
 // =========================================
 
 // Might ===================================

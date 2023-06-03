@@ -17,7 +17,6 @@ pub mod common {
 }
 
 pub use data::characters;
-pub use data::clock;
 pub use data::engine;
 pub use data::might;
 pub use polling::queue;

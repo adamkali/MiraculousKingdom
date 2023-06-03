@@ -66,11 +66,17 @@ const RulesConst: Rule[] = [
         searchableName: ['Victory', 'Condition', 'Win', 'Loose'],
     },
     {
-        link: '/rules/Season',
-        title: 'Seacons',
+        link: '/rules/seasons',
+        title: 'Seasons',
         description: 'A season tells you modifiers are on.',
         searchableName: ['Characters', 'Character', 'Player'],
     },
+    {
+        link: '/rules/clocks',
+        title: 'Clock',
+        description: 'A clock will act as a passive changing how you play.',
+        searchableName: ['Clock', 'Clocks', 'Passive'],
+    }
 ]
 
 export { RulesConst }

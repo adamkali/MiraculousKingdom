@@ -6,6 +6,7 @@ import MightTable from './MightTable.svelte'
 import InputButton from './InputButton.svelte'
 import Wrapper from './Wrapper.svelte'
 import Hand from './Hand.svelte'
+import Clock from './Clock.svelte'
 
 export {
     Button,
@@ -16,4 +17,5 @@ export {
     InputButton,
     Wrapper,
     Hand,
+    Clock,
 }

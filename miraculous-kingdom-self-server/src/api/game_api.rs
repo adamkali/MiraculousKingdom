@@ -227,7 +227,6 @@ pub async fn add_character(
         })
         .await;
 
-    // Remove to appease warnings
     game_response
         .run(|a| {
             game_repo.update_one(
