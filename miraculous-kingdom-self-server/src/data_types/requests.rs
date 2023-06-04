@@ -1,4 +1,5 @@
 pub use super::characters::{Ability, CharacterResponse};
+pub use super::might::MightStat;
 pub use serde::{Serialize, Deserialize};
 pub use utoipa::ToSchema;
 
@@ -9,9 +10,15 @@ pub struct TurnRequest {
     pub initiatve: i8,
 }
 
-pub enum QueueWebsoketMessageEnum {
-    GetQueue,
-    SubmitTurnRequest(TurnRequest),
-    GetSeason,
-    RollSeason(u16),
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct RollRequest {
+    pub owner: String,
+    pub rolls: Vec<CharacterResponse>,
+}
+
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct RollResult {
+    pub roll_character: CharacterResponse,
+    pub roll_value: i8,
+    pub roll_success: bool,
 }

@@ -363,6 +363,19 @@ pub struct Might {
 }
 
 impl Might {
+    pub fn get_might(&self, might_enum: MightEnum) -> u8 {
+        match might_enum {
+            MightEnum::Military => self.might_military.stat_value as u8,
+            MightEnum::Culture => self.might_culture.stat_value as u8,
+            MightEnum::Religion => self.might_religion.stat_value as u8,
+            MightEnum::Science => self.might_science.stat_value as u8,
+            MightEnum::Diplomacy => self.might_diplomacy.stat_value as u8,
+            MightEnum::Espionage => self.might_espionage.stat_value as u8,
+            MightEnum::None => 0,
+        }
+    }
+
+
     pub async fn new(stats: HashMap<MightEnum, u8>) -> Result<Might, APIError> {
         let mut might: Might = Might::new_dumb();
         let option_error: Arc<Mutex<Option<APIError>>> = Arc::new(Mutex::new(None));
@@ -602,11 +615,61 @@ pub enum RollTier {
     Fantastic, // Roll 20 on the dice
 }
 
+impl RollTier {
+    pub fn from_roll(self, roll: i8) -> bool {
+        match self {
+            RollTier::None => true,
+            RollTier::Fail => {
+                if roll <= 1 {
+                    true
+                } else {
+                    false
+                }
+            },
+            RollTier::Bad => {
+                if roll > 2 {
+                    true  
+                } else {
+                    false
+                }
+            },
+            RollTier::Neutral => {
+                if roll > 6 {
+                    true
+                } else {
+                    false
+                }
+            }, 
+            RollTier::Good => {
+                if roll > 11 {
+                    true
+                } else {
+                    false
+                }
+            },
+            RollTier::Great => {
+                if roll > 16 {
+                    true
+                } else {
+                    false
+                }
+            },
+            RollTier::Fantastic => {
+                if roll >= 20 {
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+    }
+}
+
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct MightRequirement {
-    might: MightEnum,
-    roll_tier: RollTier,
-    unlock: u8,
+    pub might: MightEnum,
+    pub roll_tier: RollTier,
+    pub unlock: u8,
 }
 
 // =========================================

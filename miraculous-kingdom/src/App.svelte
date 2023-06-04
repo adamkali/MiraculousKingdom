@@ -29,7 +29,7 @@
 </script>
 
 <main
-    class="flex flex-col min-h-screen items-center justify-center bg-purple-400 p-4 font-victo-mono dark:bg-purple-700"
+    class="flex min-h-screen flex-col items-center justify-center bg-purple-400 p-4 font-victo-mono dark:bg-purple-700"
 >
     <Router>
         <nav

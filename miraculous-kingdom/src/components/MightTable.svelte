@@ -17,7 +17,7 @@
         class="absolute -inset-0.5 h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur"
     />
     <table
-        class="relative w-full table-auto border-spacing-8 items-center rounded-lg bg-slate-300 dark:bg-black px-8 py-4 text-xl leading-none text-slate-800 dark:text-slate-300"
+        class="relative w-full table-auto border-spacing-8 items-center rounded-lg bg-slate-300 px-8 py-4 text-xl leading-none text-slate-800 dark:bg-black dark:text-slate-300"
     >
         <div
             class="absolute -inset-0.5 h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur"

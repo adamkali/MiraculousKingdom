@@ -35,7 +35,7 @@
             }
             handledRules = newRules
         } else {
-           handledRules = RulesConst
+            handledRules = RulesConst
         }
     }
 
@@ -55,7 +55,7 @@
         inputType="text"
     />
     {#each handledRules as rule}
-        <div class="group relative h-24 w-full my-8">
+        <div class="group relative my-8 h-24 w-full">
             <div
                 class="absolute h-full w-full rounded bg-gradient-to-r from-fuchsia-600 to-blue-600 opacity-75 blur transition duration-150 ease-in-out group-hover:from-fuchsia-500 group-hover:to-blue-500 group-hover:opacity-90 group-hover:blur-lg"
             />

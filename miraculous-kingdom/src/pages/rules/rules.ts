@@ -76,7 +76,7 @@ const RulesConst: Rule[] = [
         title: 'Clock',
         description: 'A clock will act as a passive changing how you play.',
         searchableName: ['Clock', 'Clocks', 'Passive'],
-    }
+    },
 ]
 
 export { RulesConst }
