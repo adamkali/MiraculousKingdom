@@ -27,15 +27,15 @@ services:
     volumes:
       - ./miraculous-kingdom-self-server/certs:/working
   
-  app:
-    build:
-      context: ./miraculous-kingdom
-      dockerfile: Dockerfile
-    container_name: mk_app
-    ports:
-      - "80:80"
-    depends_on:
-      - api
+        #app:
+        #  build:
+        #    context: ./miraculous-kingdom
+        #    dockerfile: Dockerfile
+        #  container_name: mk_app
+        #  ports:
+        #    - "80:80"
+        #  depends_on:
+        #    - api
 
 volumes:
   mongodb_data:

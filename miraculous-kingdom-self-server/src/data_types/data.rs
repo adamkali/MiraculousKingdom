@@ -8,6 +8,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 use utoipa::ToSchema;
+use rand::{thread_rng, Rng, seq::SliceRandom};
 
 // Character ================================
 
@@ -486,8 +487,8 @@ pub struct MightStat {
     pub stat_enum: MightEnum,
     pub stat_name: String,
     pub stat_value: i16,
-    pub stat_exp: u8,
-    pub stat_token: u8,
+    pub stat_exp: i8,
+    pub stat_token: i8,
 }
 
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug, Eq, PartialEq, Hash)]
@@ -562,6 +563,7 @@ pub struct Ability {
     pub ability_desc: String,
     pub ability_clock: Option<Clock>,
     pub ability_unlock: MightRequirement,
+    pub ability_rewards: Vec<RewardTypes>,
 }
 
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
@@ -575,6 +577,7 @@ pub struct AbilityModel {
         skip_deserializing
     )]
     pub id: ObjectId,
+    pub ability_reward: Vec<RewardTypes>,
 }
 
 impl AbilityModel {
@@ -585,6 +588,7 @@ impl AbilityModel {
             ability_clock: None,
             ability_unlock: MightRequirement::default(),
             id: ObjectId::new(),
+            ability_reward: Vec::new(),
         }
     }
 }
@@ -599,6 +603,7 @@ impl MKModel for AbilityModel {
             ability_desc: self.ability_desc.clone(),
             ability_clock: self.ability_clock.clone(),
             ability_unlock: self.ability_unlock.clone(),
+            ability_rewards: self.ability_reward.clone(),
         }
     }
 }
@@ -816,6 +821,97 @@ pub enum RewardTypes {
     #[default]
     None,
     Ability(Ability),
-    Experience(MightStat),
+    Experience(Experience),
     Clock(Clock),
+    Token(Token),
+    DrawCard(DrawCard),
+    PayToken(PayToken),
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct Token {
+    pub token_type: MightEnum,
+    pub token_amount: i8,
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct PayToken {
+    pub token_type: MightEnum,
+    pub token_amount: i8,
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct Experience {
+    pub exp_type: MightEnum,
+    pub exp_amount: i8,
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct DrawCard {
+    pub amount: u8,
+}
+
+
+impl Reward for Token {
+    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+        match self.token_type {
+            MightEnum::Military => character.char_might.might_military.stat_token += self.token_amount,
+            MightEnum::Culture => character.char_might.might_culture.stat_token += self.token_amount,
+            MightEnum::Science => character.char_might.might_science.stat_token += self.token_amount,
+            MightEnum::Religion => character.char_might.might_religion.stat_token += self.token_amount,
+            MightEnum::Diplomacy => character.char_might.might_diplomacy.stat_token += self.token_amount,
+            MightEnum::Espionage => character.char_might.might_espionage.stat_token += self.token_amount,
+            MightEnum::None => {}
+        }
+        Ok(())
+    }
+}
+
+impl Reward for Clock {
+    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+        character.char_clocks.push(self.clone());
+        Ok(())
+    }
+}
+
+impl Reward for Experience {
+    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+        match self.exp_type {
+            MightEnum::Military =>   character.char_might.might_military.stat_exp += self.exp_amount,
+            MightEnum::Culture =>     character.char_might.might_culture.stat_exp += self.exp_amount,
+            MightEnum::Science =>     character.char_might.might_science.stat_exp += self.exp_amount,
+            MightEnum::Religion =>   character.char_might.might_religion.stat_exp += self.exp_amount,
+            MightEnum::Diplomacy => character.char_might.might_diplomacy.stat_exp += self.exp_amount,
+            MightEnum::Espionage => character.char_might.might_espionage.stat_exp += self.exp_amount,
+            MightEnum::None => {}
+        }
+        Ok(())
+    }
+}
+
+impl Reward for Ability {
+    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+        character.char_discard.push(self.clone());
+        Ok(())
+    }
+}
+
+impl Reward for DrawCard {
+    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+        if character.char_deck.is_empty() {
+            // Take the discard pile and shuffle it into the char_deck
+            character.char_deck = character.char_discard.clone();
+            character.char_discard.clear();
+            
+            // Shuffle the deck using the thread_rng and SliceRandom trait
+            let mut rng = thread_rng();
+            character.char_deck.shuffle(&mut rng);
+        }
+        for _ in 0..self.amount {
+            let card = character.char_deck.pop().unwrap();
+            character.char_hand.push(card);
+        }
+
+        Ok(())
+    }
 }

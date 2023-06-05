@@ -7,21 +7,37 @@ db.classes.insertMany([
         class_abilities: [
             {
                 "ability_name": "Cultural Preservation",
-                "ability_desc": "Before an episode, roll a Cultural Might Roll, with a Neutral roll you cannot get a result that would be less than a Neutral roll for the rest of the event.",
+                "ability_desc": "Roll a Cultural Might Roll, with a Neutral Roll Tier. If successful, The user gets two Cultural Might Experience.",
                 "ability_unlock": {
                     "might" : "Culture",
                     "roll_tier": "Neutral",
                     "unlock": 0
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "Experience" : {
+                            "exp_type": "Culture",
+                            "exp_amount": 2,
+                        } 
+                    }
+                ]
             },
             {
                 "ability_name": "Artistic Endeavors",
-                "ability_desc": "The Cultural Aficionado can organize and promote artistic endeavors, increasing the chances of success in the event. Use a Cultural Might roll to determine the outcome. A roll of 12 or higher yields 2 tokens for the Cultural Aficionado. If the Cultural Aficionado fails, they lose two favor.",
+                "ability_desc": "The Cultural Aficionado can organize and promote artistic endeavors, increasing the chances of success in the event. Use a Cultural Might roll to determine the outcome. A Good or higher yields 2 tokens for the Cultural Aficionado.",
                 "ability_unlock": {
                     "might" : "Culture",
-                    "roll_tier": "None",
+                    "roll_tier": "Good",
                     "unlock": 0
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "Token" : {
+                            "token_type": "Culture",
+                            "token_amount": 2,
+                        } 
+                    }
+                ]
             },
             {
                 "ability_name": "Cultural Diplomacy",
@@ -30,38 +46,55 @@ db.classes.insertMany([
                     "might" : "Culture",
                     "roll_tier": "Good",
                     "unlock": 0
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Noble Heritage",
-                "ability_desc": "The Cultural Aficionado can spend up to 8 Cultural tokens. With a Cultural Might under 5, add a number equal to half the Cultural Tokens spent rounded down to the roll. With a Cultural Might including 5 to 10 excluded, gain equal to the amount of Cultural Tokens spent. With a Cultural Might greater than 10, add double the Cultural Tokens spent to the roll.",
+                "ability_desc": "WIP",
                 "ability_unlock": {
                     "might" : "Culture",
                     "roll_tier": "None",
                     "unlock": 0
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Forgotten History",
-                "ability_desc": "When a player applies sabotage on you, pay 4 Cultural Tokens, and negate the sabotage.",
+                "ability_desc": "Pay 5 Cultural Tokens. Gain 5 Cultural Might Experience.",
                 "ability_unlock": {
                     "might" : "Culture",
                     "roll_tier": "None",
                     "unlock": 4
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "Experience" : {
+                            "exp_type": "Culture",
+                            "exp_amount": 5,
+                        } 
+                    },
+                    {
+                        "Token" : {
+                            "token_type": "Culture",
+                            "token_amount": -5,
+                        } 
+                    }
+                ]
             },
             {
                 "ability_name": "Back Alley Dealings",
-                "ability_desc": "This can only be done during the beginning of an episode. Spend 10 of any combination of tokens. When you do, choose another player. The two of you share a copy of all your rewards with each other.",
+                "ability_desc": "WIP",
                 "ability_unlock": {
                     "might" : "Culture",
                     "roll_tier": "None",
                     "unlock": 5
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Sic Scelestus Insidiae",
-                "ability_desc": "This can only be done during the beginning of an episode. Declare a Might secretly. A clock is set for 2 episodes. If a character fails a Might roll with the secretly declared roll with in the clock; gain 5 Cultural Tokens.",
+                "ability_desc": "Declare a Might secretly. A clock is set for 2 episodes. If a character fails a Might roll with the secretly declared roll with in the clock; gain 5 Cultural Tokens.",
                 "ability_clock": {
                     "clock_duration": 2,
                     "clock_remaining": 2,
@@ -72,24 +105,46 @@ db.classes.insertMany([
                 "ability_unlock": {
                     "might" : "Espionage",
                     "roll_tier": "None",
-                    "unlock": 4
-                }
+                    "unlock": 6
+                },
+                "ability_rewards": [
+                    {
+                        "Clock": {
+                            "clock_duration": 2,
+                            "clock_remaining": 2,
+                            "clock_name": "Sic Scelestus Insidiae",
+                            "clock_desc": "If a character fails a Might roll with the secretly declared roll with in the clock; gain 5 Cultural Tokens.",
+                            "clock_conf": false, 
+                        }
+                    }
+                ]
             },
             {
                 "ability_name": "Magnum Opus",
-                "ability_desc": "This can only be used once per game. The player can declare that they are starting their Magnum Opus, which is a work of art that will bring glory to the kingdom. They set a clock of 4 episodes and must contribute 15 Cultural Tokens to it before the clock runs out. If they succeed, they gain a permanent +2 to their Cultural Might.",
+                "ability_desc": "The player can declare that they are starting their Magnum Opus, which is a work of art that will bring glory to the kingdom.",
                 "ability_clock": {
                     "clock_duration": 4,
                     "clock_remaining": 4,
                     "clock_name": "Magnum Opus",
-                    "clock_desc": "They set a clock of 4 episodes and must contribute 15 Cultural Tokens to it before the clock runs out. If they succeed, they gain a permanent +2 to their Cultural Might.",
+                    "clock_desc": "The Player set a clock of 4 episodes and must contribute 15 Cultural Tokens to it before the clock runs out. If they succeed, they gain 20 Cultural Might Experience.",
                     "clock_conf": false, 
                 },
                 "ability_unlock": {
                     "might" : "Culture",
                     "roll_tier": "None",
                     "unlock": 6
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "Clock": {
+                            "clock_duration": 4,
+                            "clock_remaining": 4,
+                            "clock_name": "Magnum Opus",
+                            "clock_desc": "The Player set a clock of 4 episodes and must contribute 15 Cultural Tokens to it before the clock runs out. If they succeed, they gain 20 Cultural Might Experience.",
+                            "clock_conf": false, 
+                        }
+                    }
+                ]
             },
         ],
     },
@@ -101,12 +156,13 @@ db.classes.insertMany([
         class_abilities: [
             {
                 "ability_name": "Reinforcements",
-                "ability_desc": "The military advisor can gather intelligence by rolling Military Might or Espionage Might and gain insight into the enemy's weaknesses, increasing the chances of success in the event. A roll to be considered successful if the result is 15 or higher. On success, you gain 1 king's favor. If you are helping a Player gain 2 King's Favor. Any other type of roll will cause a sabotage and the event is failed.",
+                "ability_desc": "A roll to be considered successful if the result is Good or higher. On success, ",
                 "ability_unlock": {
                     "might" : "Military",
                     "roll_tier": "Good",
                     "unlock": 0
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Spoils of War",
@@ -115,7 +171,8 @@ db.classes.insertMany([
                     "might" : "Military",
                     "roll_tier": "None",
                     "unlock": 0
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Inspiration",
@@ -124,7 +181,8 @@ db.classes.insertMany([
                     "might" : "Military",
                     "roll_tier": "Good",
                     "unlock": 0
-                }    
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Sabotage!",
@@ -133,7 +191,8 @@ db.classes.insertMany([
                     "might" : "Military",
                     "roll_tier": "Good",
                     "unlock": 0
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Mercenary Legion",
@@ -142,34 +201,64 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "Neutral",
                     "unlock": 2
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Vine Vidi Vici",
-                "ability_desc": "Can only be used in combat. Add +4 to your Combat roll. If you win the combat, gain +3 Military Tokens; however, if you loose, lose -3 Military Tokens.",
+                "ability_desc": "Spend 3 Military Tokens and Combat a Character: Gain +6 Military Tokens if you win.",
                 "ability_unlock": {
                     "might" : "Military",
                     "roll_tier": "None",
                     "unlock": 4,
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "Token" : {
+                            "token_type": "Military",
+                            "token_amount": -3,
+                        } 
+                    },
+                    {
+                        "Token" : {
+                            "token_type": "Military",
+                            "token_amount": 6,
+                        } 
+                    }
+                ]
             },
             {
-                "ability_name": "Man of Action",
-                "ability_desc": "Can only be used before a roll. Declare that this roll will be Neutral or better. Neutral: gain +1 Military Tokens. Good: gain +2, Great: gain +3. Critical: gain +5",
+                "ability_name": "Regroup and Rebuild",
+                "ability_desc": "Spend 4 Military Tokens and 6 Military Experience",
                 "ability_unlock": {
                     "might" : "Military",
-                    "roll_tier": "Fail", 
+                    "roll_tier": "None", 
                     "unlock": 4
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "Token" : {
+                            "token_type": "Military",
+                            "token_amount": -4,
+                        } 
+                    },
+                    {
+                        "Experience" : {
+                            "exp_type": "Military",
+                            "exp_amount": 6,
+                        } 
+                    },
+                ]
             },
             {
                 "ability_name": "Total War",
-                "ability_desc": "Can only be used once per game. An episode roll of 90 is made. The kingdom goes to war. Based on the combat roll of each player during the episode the War General gains Military Tokens. Fail: +5, Bad: +3, Neutral: +1.",
+                "ability_desc": "An episode roll of 90 is maThe kingdom goes to war. Based on the combat roll of each player during the episode the War General gains Military Tokens. Fail: +5, Bad: +3, Neutral: +1.",
                 "ability_unlock": {
                     "might" : "Military",
                     "roll_tier": "Fail",
                     "unlock": 6
-                }
+                },
+                "ability_rewards": []
             }
         ]
     },
@@ -186,16 +275,44 @@ db.classes.insertMany([
                     "might" : "Science",
                     "roll_tier": "None",
                     "unlock": 0
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "DrawCard": {
+                            "amount": 2
+                        }
+                    }
+                ]
             },
             {
                 "ability_name": "Eureka",
-                "ability_desc": "Roll a Scientific Might roll, On a Fantastic Roll, Gain a new Ability from the pool.",
+                "ability_desc": "Roll a Scientific Might roll, On a Fantastic Roll, Gain the Reseach Papers Ability.",
                 "ability_unlock": {
                     "might" : "Science",
                     "roll_tier": "Fantastic",
                     "unlock": 3
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "Ability": {
+                            "ability_name": "Reseach Papers",
+                            "ability_desc": "Make a Diplomatic Might Roll. On a Great or better roll gain 3 Scientific Tokens.",
+                            "ability_unlock": {
+                                "might" : "Diplomacy",
+                                "roll_tier": "Great",
+                                "unlock": 5
+                            },
+                            "ability_rewards": [
+                                {
+                                    "Token" : {
+                                        "token_type": "Science",
+                                        "token_amount": 3,
+                                    } 
+                                }
+                            ]
+                        }
+                    }
+                ]
             },
             {
                 "ability_name": "Scientific Inquery",
@@ -208,21 +325,36 @@ db.classes.insertMany([
             },
             {
                 "ability_name": "Reseach Papers",
-                "ability_desc": "Make a Diplomatic Might Roll. On a Great or better roll, trade anability with another character.",
+                "ability_desc": "Make a Diplomatic Might Roll. On a Great or better roll, Gain 3 Scientific Tokens.",
                 "ability_unlock": {
                     "might" : "Diplomacy",
                     "roll_tier": "Great",
                     "unlock": 5
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "Token" : {
+                            "token_type": "Science",
+                            "token_amount": 3,
+                        } 
+                    }
+                ]
             },
             {
                 "ability_name": "Forsight",
-                "ability_desc": "Can only be played at the beginning of the season. No matter the results of the Season, you still get to pull an Ability during the Resolution Faze.",
+                "ability_desc": "Wip",
                 "ability_unlock": {
                     "might" : "Science",
                     "roll_tier": "None",
                     "unlock": 5
-                }
+                },
+                "ability_rewards": [
+                    {
+                        "Experience": {
+                            "exp_type": ""
+                        }
+                    }
+                ]
             },
             {
                 "ability_name": "The Scientific Method.",
