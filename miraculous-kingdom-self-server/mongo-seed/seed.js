@@ -321,7 +321,8 @@ db.classes.insertMany([
                     "might" : "Science",
                     "roll_tier": "Good",
                     "unlock": 3
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Reseach Papers",
@@ -351,7 +352,8 @@ db.classes.insertMany([
                 "ability_rewards": [
                     {
                         "Experience": {
-                            "exp_type": ""
+                            "exp_type": "Science",
+                            "exp_amount": 1
                         }
                     }
                 ]
@@ -370,7 +372,8 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "None",
                     "unlock": 5
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Sic Parvus Magnum",
@@ -386,7 +389,8 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "None",
                     "unlock": 5
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Scientific Revolution.",
@@ -395,7 +399,8 @@ db.classes.insertMany([
                     "might" : "Science",
                     "roll_tier": "Great",
                     "unlock": 7
-                }
+                },
+                "ability_rewards": []
             }
         ]
     },
@@ -412,7 +417,8 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "Neutral",
                     "unlock": 0
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Open for buisness",
@@ -421,16 +427,18 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "None",
                     "unlock": 2
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Know your Enemy",
-                "ability_desc": "You can only play this ability during a season witht the word 'Siege' in the name. Choose a target and Roll an Military roll. If the result is Great or better, the target will give you their Resources won during the Siege. If the result is Bad or worse they get yours.",
+                "ability_desc": "You can only play this ability during a season witht the word 'Siege' in the name. Choose a target and Roll an Military roll. If the result is Great or better, Steal 4 Military Tokens",
                 "ability_unlock": {
                     "might" : "Military",
                     "roll_tier": "Great",
                     "unlock": 2
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "'Would I Lie to You?'",
@@ -439,7 +447,8 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "Great",
                     "unlock": 4
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Spy Network",
@@ -448,7 +457,8 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "Good",
                     "unlock": 4
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "'All part of my master plan!'",
@@ -464,7 +474,8 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "None",
                     "unlock": 6
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Assasination",
@@ -480,7 +491,8 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "None",
                     "unlock": 6
-                }
+                },
+                "ability_rewards": []
             },
             {
                 "ability_name": "Grand Theft.",
@@ -489,7 +501,8 @@ db.classes.insertMany([
                     "might" : "Espionage",
                     "roll_tier": "None",
                     "unlock": 8
-                }
+                },
+                "ability_rewards": []
             },
         ],
     },
@@ -588,7 +601,8 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": []
     },
     {
         "ability_name": "Conflict",
@@ -597,7 +611,8 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": []
     },
     {
         "ability_name": "Plot",
@@ -606,7 +621,15 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": [
+            {
+                "Experience": {
+                    "exp_type": "Science",
+                    "exp_amount": 1
+                }
+            }
+        ]
     },
     {
         "ability_name": "Plot",
@@ -615,7 +638,15 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": [
+            {
+                "Experience": {
+                    "exp_type": "Science",
+                    "exp_amount": 1
+                }
+            }
+        ]
     },
     {
         "ability_name": "Backstab",
@@ -624,7 +655,8 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": []
     },
     {
         "ability_name": "Backstab",
@@ -633,7 +665,8 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": []
     },
     {
         "ability_name": "Vandalize",
@@ -642,7 +675,8 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": []
     },
     {
         "ability_name": "Vandalize",
@@ -651,7 +685,8 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": []
     },
     {
         "ability_name": "Accumulate Assets",
@@ -660,7 +695,8 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": []
     },
     {
         "ability_name": "Accumulate Assets",
@@ -669,6 +705,7 @@ db.abilities.insertMany([
             "might" : "None",
             "roll_tier": "None", 
             "unlock": 0
-        }
+        },
+        "ability_rewards": []
     }
 ])

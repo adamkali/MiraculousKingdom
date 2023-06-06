@@ -37,7 +37,7 @@ async fn main() {
     #[derive(OpenApi)]
     #[openapi(
         servers(
-            (url =  "http://127.0.0.1:8050")
+            (url =  "http://mk_api:8050")
         ),
         paths(
             api::class_api::get_classes,
@@ -84,7 +84,7 @@ async fn main() {
         )
     }
 
-    let uri = "mongodb://root:mk2023!@localhost:8100";
+    let uri = "mongodb://root:mk2023!@mk_mongo:27017";
     let client_opt = mongodb::options::ClientOptions::parse(uri).await.unwrap();
 
     let mongo_client = mongodb::Client::with_options(client_opt)
@@ -137,40 +137,15 @@ async fn main() {
                 }),
         );
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], ports.https));
+    let addr = SocketAddr::from(([0, 0, 0, 0], ports.https));
 
-    match RustlsConfig::from_pem_file(
-        // XXX: for local
-        PathBuf::from("./certs/cacert.pem").as_path(),
-        PathBuf::from("./certs/privkey.pem").as_path(), // XXX: for docker!
-                                                        //PathBuf::from("/working/certs/cacert.pem").as_path(),
-                                                        //PathBuf::from("/working/certs/privkey.pem").as_path()
-    )
-    .await
-    {
-        Ok(conf) => {
-            println!("Connection opened on https://{:?}", addr.to_string());
-            tracing::debug!("listening on {}", addr);
-            axum_server::bind(addr)
-                .serve(app.into_make_service())
-                .await
-                .unwrap();
+    println!("Connection opened on https://{:?}", addr.to_string());
+    axum_server::bind(addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
             //axum_server::bind_rustls(addr, conf)
             //    .serve(app.clone().into_make_service())
             //    .await
             //    .unwrap();
-        }
-        Err(e) => {
-            println!(
-                "{:?}\n cacert: {:#?}\n privkey: {:#?}\n",
-                e,
-                std::fs::File::open(PathBuf::from("/working/certs/cacert.pem").as_path()).is_ok(),
-                std::fs::File::open(PathBuf::from("/working/certs/privkey.pem").as_path()).is_ok()
-            );
-            axum_server::bind(addr)
-                .serve(app.into_make_service())
-                .await
-                .unwrap();
-        }
-    };
 }

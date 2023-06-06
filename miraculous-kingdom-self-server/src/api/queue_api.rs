@@ -4,8 +4,17 @@ use crate::data_types::{
     engine::*,
     queue::{Queue, QueueResonse, QueueItem},
 };
-use axum::{extract::Path, Extension, Json};
+use axum::{
+    extract::Path,
+    Extension,
+    Json,
+    extract::State
+};
 use mongodb::{bson::doc, Database};
+use std::sync::{Arc, Mutex};
+use std::thread::JoinHandle;
+use crate::data_types::common::Reward;
+
 
 pub mod queue_routes {
     pub use super::get_queue;
@@ -16,6 +25,27 @@ pub mod queue_routes {
 
 #[utoipa::path(
     get,
+    path = "/api/queue",
+    responses((
+        status = 200,
+        description = "Found Queue from database",
+        body = QueueDetailedResponse
+    ))
+)]
+pub async fn get_queue(
+    Extension(mongo): Extension<Database>,
+    State(queue): State<Arc<Mutex<Queue>>>,    
+) -> Json<QueueDetailedResponse> {
+    let queue: DetailedResponse<QueueResonse> 
+        = DetailedResponse::new(
+            queue.lock().unwrap().as_response()
+        );
+
+    Json(queue)
+}
+
+#[utoipa::path(
+    put,
     path = "/api/queue/{pass}",
     responses((
         status = 200,
@@ -31,36 +61,41 @@ pub mod queue_routes {
         status = 500,
         description = " Internal error occured",
         body = QueueDetailedResponse 
-    )),
-    params(
-        ("pass" = String, Path, description = "Password for entering the game.")
-    )
+    ))
 )]
-pub async fn get_queue(
+pub async fn set_queue(
     Extension(mongo): Extension<Database>,
-    Path(pass): Path<String>,
+    State(queue): State<Arc<Mutex<Queue>>>,    
+    Path(pass): Path<String>
 ) -> Json<QueueDetailedResponse> {
-    let mut queue_model: DetailedResponse<Queue> = DetailedResponse::new(Queue::new());
-    let mut queue: DetailedResponse<QueueResonse> = DetailedResponse::new(Queue::new().as_response());
+    let mut queue_dr: DetailedResponse<Queue> = DetailedResponse::new(
+        queue.lock().unwrap().clone()
+    );
+    let mut queue_res_dr: DetailedResponse<QueueResonse> 
+        = DetailedResponse::new(
+            queue_dr.data.as_response()
+        );
+
+    
     let mut repo = Repository::<Queue>::new(&mongo, "queues");
+
     // get the queue from the database
-    queue_model.run(|a| {
+    queue_dr.run(|a| {
        repo.get_by_document(
             a,
-            doc! { "game": pass },
+            doc! { "game": pass.clone() } 
            ) 
     }).await;
 
-    // set the queue 
-    queue.data = queue_model.clone().data.as_response();
-    queue.success = queue_model.success;
 
-    Json(queue)
+    queue_res_dr.data = queue_dr.data.as_response();
+    queue_res_dr.success = queue_dr.success;
+    Json(queue_res_dr)
 }
 
 #[utoipa::path(
     post,
-    path = "/api/queue/turn/{pass}",
+    path = "/api/queue/turn",
     responses((
         status = 200,
         description = "Found Queue from database",
@@ -77,63 +112,36 @@ pub async fn get_queue(
         body = QueueDetailedResponse 
     )),
     request_body = TurnRequest,
-    params(
-        ("pass" = String, Path, description = "Password for entering the game.")
-    )
 )]
 pub async fn take_turn(
     Extension(mongo): Extension<Database>,
-    Path(pass): Path<String>,
+    State(mut queue): State<Arc<Mutex<Queue>>>,
     Json(turn): Json<TurnRequest>
 ) -> Json<DetailedResponse<QueueResonse>> {
-    let mut queue: DetailedResponse<Queue> = DetailedResponse::new(Queue::new());
-    // create a DetailedResponse for the QueueResponse
+    let mut state = queue.lock().unwrap().clone();
     let mut resp: DetailedResponse<QueueResonse> = DetailedResponse::new(
-        queue.clone().data.as_response()
+        queue.lock().unwrap().as_response()
     );
     let mut game_response: DetailedResponse<Game> = DetailedResponse::new(Game::new());
     let mut game_repo = Repository::<Game>::new(&mongo, "games");
 
-    let mut item = QueueItem { 
+    let item = QueueItem { 
         queue_ability: turn.clone().ability,
         queue_char: turn.clone().character,
         queue_initiative: turn.initiatve as i8,
         queue_roll: None
     };
 
-    let mut repo = Repository::<Queue>::new(&mongo, "queues");
-
-    // get the queue from the database
-    queue.run(|a| {
-       repo.get_by_document(
-            a,
-            doc! { "game": pass.clone() } 
-           ) 
-    }).await;
-
     // get the game from the database with the same pass
     game_response.run(|a| {
     game_repo.get_by_document(
         a,
-        doc! { "pass": pass.clone() }
+        doc! { "pass": state.game.clone() }
     )
     }).await;
 
     // add the item to the queue
-    queue.data.push_queue_item(item);
-
-    // update the queue in the database
-    queue.run(|a| {
-            repo.update_one(
-                doc! { "game" : a.clone().data.game },
-                doc! { "$set": {
-                    "queue": mongodb::bson::to_bson(
-                        &a.data.queue
-                    ).unwrap()
-                }},
-                a
-            )
-    }).await;
+    state.push_queue_item(item);
 
     turn.character.char_hand.iter().for_each(|a| {
         if a.ability_name == turn.ability.ability_name {
@@ -147,23 +155,8 @@ pub async fn take_turn(
         }
     });
 
-    // use the run method to get the game from the Database
-    // and update the game with the new character
-    game_response.run(|a| {
-        game_repo.update_one(
-            doc! { "pass": pass.clone() },
-            doc! { "$set": {
-                "game_chars": mongodb::bson::to_bson(
-                    &a.data.game_chars
-                ).unwrap()
-            }},
-            a
-        )
-    }).await;
-
-    // return the queue response
-    resp.data = queue.data.as_response();
-    resp.success = queue.success;
+    queue = Arc::new(Mutex::new(state.clone()));
+    resp.data = state.as_response();
 
     // return the queue response
     Json(resp)
@@ -171,7 +164,7 @@ pub async fn take_turn(
 
 #[utoipa::path(
     post,
-    path = "/api/queue/season/{pass}",
+    path = "/api/queue/season",
     responses((
         status = 200, 
         description = "Listed classes from database", 
@@ -188,39 +181,25 @@ pub async fn take_turn(
         body = QueueDetailedResponse 
     )),
     request_body = SeasonResponse,
-    params(
-        ("pass" = String, Path, description = "Password for entering the game.")
-    )
 )]
 pub async fn set_season(
     Extension(mongo): Extension<Database>,
-    Path(pass): Path<String>,
+    State(mut queue): State<Arc<Mutex<Queue>>>,
     Json(season): Json<SeasonResponse>
 ) -> Json<DetailedResponse<QueueResonse>> {
-    let mut queue: DetailedResponse<Queue> = DetailedResponse::new(Queue::new());
+    let mut state = queue.lock().unwrap().clone();
+
     // create a DetailedResponse for the QueueResponse
     let mut resp: DetailedResponse<QueueResonse> = DetailedResponse::new(
-        queue.clone().data.as_response()
+        state.as_response()
     );
     
-    let mut repo = Repository::<Queue>::new(&mongo, "queues");
-
     // set the Season 
-    queue.data.season = season.clone();
-
-    // update the queue
-    queue.run(|a| {
-        repo.update_one(
-            doc! { "game": pass.clone() },
-            doc! { "$set": { "season": mongodb::bson::to_bson(&a.data.season).unwrap() } },
-            a
-        ) 
-    })
-    .await;
+    state.season = season.clone();
 
     // return the queue response
-    resp.data = queue.data.as_response();
-    resp.success = queue.success;
+    queue = Arc::new(Mutex::new(state.clone()));
+    resp.data = state.as_response();
 
     // return the queue response
     Json(resp)
@@ -229,51 +208,37 @@ pub async fn set_season(
 
 #[utoipa::path(
     post,
-    path = "/api/queue/roll/{pass}",
+    path = "/api/queue/roll",
     responses((
         status = 200, 
         description = "Roll Added the Queue",
-        body = QueueDetailedResponse 
+        body = RollDetailedResponse 
     ),
     (
         status = 400, 
         description = "Bad Request: Invalid Roll",
-        body = QueueDetailedResponse
+        body = RollDetailedResponse 
     ),
     (
         status = 500, 
         description = "Internal error occured", 
-        body = QueueDetailedResponse 
+        body = RollDetailedResponse
     )),
     request_body = RollRequest,
-    params(
-        ("pass" = String, Path, description = "Password for entering the game.")
-    )
 )]
 pub async fn roll(
     Extension(mongo): Extension<Database>,
-    Path(pass): Path<String>,
+    State(mut queue): State<Arc<Mutex<Queue>>>,
     Json(roll): Json<RollRequest>
-) -> Json<DetailedResponse<Vec<RollResult>>> {
-    let mut queue: DetailedResponse<Queue> = DetailedResponse::new(
-        Queue::default()
-    );
-    let mut resp: DetailedResponse<Vec<RollResult>> = DetailedResponse::new(
-        Vec::<RollResult>::new()
-    );
+) -> Json<RollDetailedResponse> {
+
+    let mut state = queue.lock().unwrap().clone();
+    let mut resp: DetailedResponse<RollResponse>
+        = DetailedResponse::new(RollResponse::default());
 
     let mut repo = Repository::<Queue>::new(&mongo, "queues");
 
-    // get the queue from the database
-    queue.run(|a| {
-       repo.get_by_document(
-            a,
-            doc! { "game": pass.clone() } 
-           ) 
-    }).await;
-
-    // get the queue item from queue.data with the character.secret that matches roll.owner
-    let queue_item = queue.data.queue.iter().find(|a| {
+    let queue_item = state.queue.iter().find(|a| {
         a.queue_char.secret == roll.owner.clone()
     });
     
@@ -283,20 +248,18 @@ pub async fn roll(
             item.queue_roll = Some(roll.clone());
             // update the queue with the new item
 
-            queue.data.queue.iter_mut().for_each(|a| {
+            state.queue.iter_mut().for_each(|a| {
                 if a.queue_char.secret == roll.owner {
                     *a = item.clone();
                 }
             });
             
-            resp.success = queue.clone().success;
-
             resp.run(|mut a| {
                 async {
                     let result = item.roll().await;
                     match result {
                         Ok(r) => {
-                            a.data = r;
+                            a.data.rolls = r;
                         },
                         Err(e) => {
                             a.success = Progress::Failing(e);
@@ -306,35 +269,29 @@ pub async fn roll(
                 }
             }).await;
 
-            // sort the array by the roll value
             resp.run(|mut a| {
                 async {
-                    a.data.sort_by(|a, b| {
+                    a.data.rolls.sort_by(|a, b| {
                         b.roll_value.partial_cmp(&a.roll_value).unwrap()
                     });
                     a
                 }
             }).await;
 
-            // if there is a tie, put the character who is the owner of the roll at the top
             resp.run(|mut a| {
                 async {
-                    let owner = a.data.iter().find(|a| a.roll_character.secret == roll.owner).unwrap().clone();
-                    a.data.retain(|a| a.roll_character.secret != roll.owner);
-                    a.data.insert(0, owner);
+                    let owner = a.data.rolls.iter().find(|a| a.roll_character.secret == roll.owner).unwrap().clone();
+                    a.data.rolls.retain(|a| a.roll_character.secret != roll.owner);
+                    a.data.rolls.insert(0, owner);
                     a
                 }
             }).await;
-
-            // give the character the reward
-            // TODO: make the reward giving function and call it here
-            // TODO: need to add to the ability a reward field and use that to give the reward
-            //       to the character. Then update_one the character in the database in the queue
-            //       and the game.
             
+            for reward in item.queue_ability.ability_rewards {
+                 reward.grant_reward(&mut item.queue_char).unwrap();
+            } 
 
-            // update the queue in the database and the characters in the hand
-            
+            resp.data.roll_winner = item.queue_char;
         },
         None => {
             resp.success = Progress::Failing(APIError::new(
@@ -343,6 +300,31 @@ pub async fn roll(
             ));
         }
     }
+
+    // remove the turn from the queue
+    // use queue_item and remove it from the queue.queue 
+    state.queue
+        .iter()
+        .position(|a| 
+            a.queue_char.secret == roll.owner
+        )
+        .map(|a| state.queue.remove(a));
+
+    // update the queue in the database
+    let mut state_dr = DetailedResponse::new(
+        state.clone()
+    );
+
+    state_dr.run(|a| {
+        repo.update_one(
+            doc! { "game": a.clone().data.game },
+            doc! { "$set": { "queue": mongodb::bson::to_bson(&a.data.queue).unwrap() } },
+            a
+            )
+    }).await;
+
+    // now set the queue to the new queue
+    queue = Arc::new(Mutex::new(state_dr.data));
 
     Json(resp)
 }

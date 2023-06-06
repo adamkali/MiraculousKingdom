@@ -813,7 +813,7 @@ impl MKModel for Season {
 }
 
 pub trait Reward {
-    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError>;
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError>;
 }
 
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
@@ -853,7 +853,7 @@ pub struct DrawCard {
 
 
 impl Reward for Token {
-    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
         match self.token_type {
             MightEnum::Military => character.char_might.might_military.stat_token += self.token_amount,
             MightEnum::Culture => character.char_might.might_culture.stat_token += self.token_amount,
@@ -868,14 +868,14 @@ impl Reward for Token {
 }
 
 impl Reward for Clock {
-    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
         character.char_clocks.push(self.clone());
         Ok(())
     }
 }
 
 impl Reward for Experience {
-    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
         match self.exp_type {
             MightEnum::Military =>   character.char_might.might_military.stat_exp += self.exp_amount,
             MightEnum::Culture =>     character.char_might.might_culture.stat_exp += self.exp_amount,
@@ -890,14 +890,14 @@ impl Reward for Experience {
 }
 
 impl Reward for Ability {
-    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
         character.char_discard.push(self.clone());
         Ok(())
     }
 }
 
 impl Reward for DrawCard {
-    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError> {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
         if character.char_deck.is_empty() {
             // Take the discard pile and shuffle it into the char_deck
             character.char_deck = character.char_discard.clone();
@@ -913,5 +913,43 @@ impl Reward for DrawCard {
         }
 
         Ok(())
+    }
+}
+
+impl Reward for PayToken {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
+        match self.token_type {
+            MightEnum::Military => 
+                character.char_might.might_military.stat_token -= self.token_amount,
+            MightEnum::Culture => 
+                character.char_might.might_culture.stat_token -= self.token_amount,
+            MightEnum::Science => 
+                character.char_might.might_science.stat_token -= self.token_amount,
+            MightEnum::Religion => 
+                character.char_might.might_religion.stat_token -= self.token_amount,
+            MightEnum::Diplomacy => 
+                character.char_might.might_diplomacy.stat_token -= self.token_amount,
+            MightEnum::Espionage => 
+                character.char_might.might_espionage.stat_token -= self.token_amount,
+            MightEnum::None => return Err(APIError::new(
+                    axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                    "Invalid MightEnum".to_string(),
+                    )),
+        }
+        Ok(())
+    }
+}
+
+impl Reward for RewardTypes {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
+        match self {
+            RewardTypes::Ability(ability) => ability.grant_reward(character),
+            RewardTypes::DrawCard(draw_card) => draw_card.grant_reward(character),
+            RewardTypes::Clock(clock) => clock.grant_reward(character),
+            RewardTypes::Token(team) => team.grant_reward(character),
+            RewardTypes::PayToken(token) => token.grant_reward(character),
+            RewardTypes::Experience(exp) => exp.grant_reward(character),
+            RewardTypes::None => Ok(()),
+        }
     }
 }

@@ -14,7 +14,7 @@ use std::{
     task::{Context, Poll},
 };
 
-use super::common::{MKModel, MkResponse};
+use super::common::{MKModel, MkResponse, RollResponse};
 use crate::data_types::characters::{CharacterResponse, ClassResponse};
 use crate::data_types::engine::{GameInfo, SeasonResponse};
 use crate::data_types::queue::QueueResonse;
@@ -38,6 +38,7 @@ pub enum Progress {
     SeasonDetailedResponse = DetailedResponse<SeasonResponse>,
     SeasonsDetailedResponse = DetailedResponse<Vec<SeasonResponse>>,
     QueueDetailedResponse = DetailedResponse<QueueResonse>,
+    RollDetailedResponse = DetailedResponse<RollResponse>,
 )]
 pub struct DetailedResponse<T: Clone + Serialize> {
     pub data: T,

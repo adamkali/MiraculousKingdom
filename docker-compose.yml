@@ -16,16 +16,16 @@ services:
 
   api:
     #image: adamkali/miraculous-kingdom-api:0.2.0
-    build: ./miraculous-kingdom-self-server
-    container_name: mk-api
+    build: 
+      context: ./miraculous-kingdom-self-server
+      dockerfile: dockerfile
+    container_name: mk_api
     ports:
       - "8050:8050"
     depends_on:
       - mongodb
     environment:
-      - RUST_LOG=info
-    volumes:
-      - ./miraculous-kingdom-self-server/certs:/working
+      - RUST_LOG=debug
   
         #app:
         #  build:

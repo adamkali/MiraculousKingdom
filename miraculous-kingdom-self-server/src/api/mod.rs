@@ -12,6 +12,9 @@ pub mod routes {
         Router,
     };
 
+    use std::sync::{Arc, Mutex};
+    use crate::data_types::queue::Queue;
+
     pub use super::character_api::character_routes;
     pub use super::class_api::class_routes;
     pub use super::game_api::game_routes;
@@ -59,8 +62,8 @@ pub mod routes {
         let queue_route = Router::new()
             .route("/:pass", get(queue_routes::get_queue))
             .route("/turn/:pass", post(queue_routes::take_turn))
-            .route("/season/:pass", post(queue_routes::set_season));
-
+            .route("/season/:pass", post(queue_routes::set_season))
+            .with_state(Arc::new(Mutex::new(Queue::new())));
 
         Router::new()
             .nest("/class", class_route)
