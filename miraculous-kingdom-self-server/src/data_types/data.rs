@@ -257,7 +257,6 @@ pub struct Game {
     pub game_season: SeasonEnum
 }
 
-
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct GameResponse {
     pub game_chars: Vec<CharacterResponse>,
@@ -347,7 +346,6 @@ pub struct Clock {
     pub clock_name: String,
     pub clock_desc: String,
     pub clock_conf: bool,
-    pub clock_char_secret: String
 }
 
 // =========================================

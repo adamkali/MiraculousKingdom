@@ -5,9 +5,16 @@ pub mod queue {
     use mongodb::bson::oid::ObjectId;
     use crate::data_types::{
         common::{
-            MKModel, MkResponse, APIError
+            MKModel, 
+            MkResponse, 
+            APIError
         },
-        characters::{Ability, CharacterResponse, Clock, Character, RollTier},
+        characters::{
+            Ability, 
+            CharacterResponse, 
+            Character, 
+            RollTier
+        },
         engine::{
             SeasonResponse,
             SeasonEnum,
@@ -37,7 +44,6 @@ pub mod queue {
         pub turn_state: SeasonEnum,
         pub season: SeasonResponse,
         pub queue: Vec<QueueItem>,
-        pub clocks: Vec<Clock>,
     }
 
     #[derive(Serialize, Deserialize, Default, ToSchema, Debug, Clone)]
@@ -46,7 +52,6 @@ pub mod queue {
         pub turn_state: SeasonEnum,
         pub season: SeasonResponse,
         pub queue: Vec<QueueItem>,
-        pub clocks: Vec<Clock>,
     }
 
     impl Queue {
@@ -62,7 +67,6 @@ pub mod queue {
                 turn_state: SeasonEnum::None,
                 season: SeasonResponse::default(),
                 queue: Vec::<QueueItem>::new(),
-                clocks: Vec::<Clock>::new()
             }
         }
 
@@ -87,7 +91,6 @@ pub mod queue {
                 turn_state: queue_clone.turn_state,
                 season: queue_clone.season,
                 queue: queue_clone.queue,
-                clocks: queue_clone.clocks
             } 
         }
     }
