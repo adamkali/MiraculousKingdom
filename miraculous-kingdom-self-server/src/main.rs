@@ -55,8 +55,10 @@ async fn main() {
             api::season_api::get_season,
             api::season_api::roll,
             api::queue_api::get_queue,
+            api::queue_api::set_queue,
             api::queue_api::take_turn,
-            api::queue_api::set_season
+            api::queue_api::set_season,
+            api::queue_api::roll,
         ),
         components(
             schemas(
@@ -69,6 +71,9 @@ async fn main() {
                 GameCreation, MightRequirement, Progress, MightEnum,
                 SeasonResponse, RewardTypes, RollTier, ClassEnum, CharacterState,
                 APIError, SeasonEnum, QueueResonse, TurnRequest, QueueItem,
+                Token, PayToken, Experience, DrawCard, RollRequest, RollResponse,
+                RollDetailedResponse, RollResult,
+                
             ),
         ),
         tags(

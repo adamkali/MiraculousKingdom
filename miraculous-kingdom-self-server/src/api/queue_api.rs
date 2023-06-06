@@ -12,7 +12,6 @@ use axum::{
 };
 use mongodb::{bson::doc, Database};
 use std::sync::{Arc, Mutex};
-use std::thread::JoinHandle;
 use crate::data_types::common::Reward;
 
 
@@ -20,6 +19,8 @@ pub mod queue_routes {
     pub use super::get_queue;
     pub use super::take_turn;
     pub use super::set_season;
+    pub use super::set_queue;
+    pub use super::roll;
 }
 
 
@@ -33,7 +34,7 @@ pub mod queue_routes {
     ))
 )]
 pub async fn get_queue(
-    Extension(mongo): Extension<Database>,
+    Extension(_mongo): Extension<Database>,
     State(queue): State<Arc<Mutex<Queue>>>,    
 ) -> Json<QueueDetailedResponse> {
     let queue: DetailedResponse<QueueResonse> 
@@ -61,7 +62,14 @@ pub async fn get_queue(
         status = 500,
         description = " Internal error occured",
         body = QueueDetailedResponse 
-    ))
+    )),
+    params(
+        (
+            "pass" = String, 
+            Path, 
+            description = "Password of the game to be set"
+        )
+    )
 )]
 pub async fn set_queue(
     Extension(mongo): Extension<Database>,
@@ -183,7 +191,7 @@ pub async fn take_turn(
     request_body = SeasonResponse,
 )]
 pub async fn set_season(
-    Extension(mongo): Extension<Database>,
+    Extension(_mongo): Extension<Database>,
     State(mut queue): State<Arc<Mutex<Queue>>>,
     Json(season): Json<SeasonResponse>
 ) -> Json<DetailedResponse<QueueResonse>> {

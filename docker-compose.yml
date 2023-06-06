@@ -1,3 +1,4 @@
+
 version: '3'
 
 services:
@@ -15,7 +16,6 @@ services:
       - MONGO_INITDB_DATABASE=mkdb
 
   api:
-    #image: adamkali/miraculous-kingdom-api:0.2.0
     build: 
       context: ./miraculous-kingdom-self-server
       dockerfile: dockerfile
@@ -27,15 +27,19 @@ services:
     environment:
       - RUST_LOG=debug
   
-        #app:
-        #  build:
-        #    context: ./miraculous-kingdom
-        #    dockerfile: Dockerfile
-        #  container_name: mk_app
-        #  ports:
-        #    - "80:80"
-        #  depends_on:
-        #    - api
+  app:
+    build:
+      context: ./miraculous-kingdom
+      dockerfile: dockerfile
+    container_name: mk_app
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    volumes:
+      - mk_html:/usr/share/nginx/html
 
 volumes:
   mongodb_data:
+  mk_html:
+

@@ -1,11 +1,6 @@
 <script lang="ts">
-    import { onMount } from 'svelte'
     import * as Components from '../../components'
-    import FaCaretLeft from 'svelte-icons/fa/FaCaretLeft.svelte'
-    import FaCaretRight from 'svelte-icons/fa/FaCaretRight.svelte'
-    import GiCardDraw from 'svelte-icons/gi/GiCardDraw.svelte'
     import {
-        MightEnum,
         type CharacterResponse,
         type GameInfo,
         type Ability,
@@ -17,8 +12,6 @@
         type TurnRequest,
     } from '../../models'
     import { currentGame, gameCharacter, queue } from '../../store'
-    import GiCardPlay from 'svelte-icons/gi/GiCardPlay.svelte'
-    import Wrapper from '../../components/Wrapper.svelte'
     import SeasonRoll from './components/SeasonRoll.svelte'
     import AbilityChoice from './components/AbilityChoice.svelte'
 
@@ -27,7 +20,7 @@
     let queueres: QueueResonse = queue.get()
     $: hand = character.char_hand
     $: might = character.char_might
-    $: clocks = queueres.clocks
+    $: clocks = character.char_clocks
     $: season = queueres.season
 
     const asyncDiscard = async (ability: Ability) => {

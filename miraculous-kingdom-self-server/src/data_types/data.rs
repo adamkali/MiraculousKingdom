@@ -205,11 +205,15 @@ pub mod characters {
     pub use super::Class;
     pub use super::ClassEnum;
     pub use super::ClassResponse;
+    pub use super::Clock;
+    pub use super::DrawCard;
+    pub use super::Experience;
     pub use super::MightEnum;
     pub use super::MightRequirement;
     pub use super::NewCharacter;
+    pub use super::PayToken;
     pub use super::RollTier;
-    pub use super::Clock;
+    pub use super::Token;
 }
 // =========================================
 

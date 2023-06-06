@@ -10,7 +10,7 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:8050"
+      "url": "http://mk_api:8050"
     }
   ],
   "paths": {
@@ -557,23 +557,82 @@
         }
       }
     },
-    "/api/queue/season/{pass}": {
+    "/api/queue": {
+      "get": {
+        "tags": [
+          "api::queue_api"
+        ],
+        "operationId": "get_queue",
+        "responses": {
+          "200": {
+            "description": "Found Queue from database",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueDetailedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/queue/roll": {
+      "post": {
+        "tags": [
+          "api::queue_api"
+        ],
+        "operationId": "roll",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RollRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Roll Added the Queue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollDetailedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request: Invalid Roll",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollDetailedResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error occured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollDetailedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/queue/season": {
       "post": {
         "tags": [
           "api::queue_api"
         ],
         "operationId": "set_season",
-        "parameters": [
-          {
-            "name": "pass",
-            "in": "path",
-            "description": "Password for entering the game.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -618,23 +677,12 @@
         }
       }
     },
-    "/api/queue/turn/{pass}": {
+    "/api/queue/turn": {
       "post": {
         "tags": [
           "api::queue_api"
         ],
         "operationId": "take_turn",
-        "parameters": [
-          {
-            "name": "pass",
-            "in": "path",
-            "description": "Password for entering the game.",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -680,16 +728,16 @@
       }
     },
     "/api/queue/{pass}": {
-      "get": {
+      "put": {
         "tags": [
           "api::queue_api"
         ],
-        "operationId": "get_queue",
+        "operationId": "set_queue",
         "parameters": [
           {
             "name": "pass",
             "in": "path",
-            "description": "Password for entering the game.",
+            "description": "Password of the game to be set",
             "required": true,
             "schema": {
               "type": "string"
@@ -876,7 +924,8 @@
         "required": [
           "ability_name",
           "ability_desc",
-          "ability_unlock"
+          "ability_unlock",
+          "ability_rewards"
         ],
         "properties": {
           "ability_clock": {
@@ -892,6 +941,12 @@
           },
           "ability_name": {
             "type": "string"
+          },
+          "ability_rewards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RewardTypes"
+            }
           },
           "ability_unlock": {
             "$ref": "#/components/schemas/MightRequirement"
@@ -1061,13 +1116,9 @@
           "clock_remaining",
           "clock_name",
           "clock_desc",
-          "clock_conf",
-          "clock_char_secret"
+          "clock_conf"
         ],
         "properties": {
-          "clock_char_secret": {
-            "type": "string"
-          },
           "clock_conf": {
             "type": "boolean"
           },
@@ -1086,6 +1137,35 @@
             "type": "integer",
             "format": "int32",
             "minimum": 0
+          }
+        }
+      },
+      "DrawCard": {
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "Experience": {
+        "type": "object",
+        "required": [
+          "exp_type",
+          "exp_amount"
+        ],
+        "properties": {
+          "exp_amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exp_type": {
+            "$ref": "#/components/schemas/MightEnum"
           }
         }
       },
@@ -1252,16 +1332,14 @@
           },
           "stat_exp": {
             "type": "integer",
-            "format": "int32",
-            "minimum": 0
+            "format": "int32"
           },
           "stat_name": {
             "type": "string"
           },
           "stat_token": {
             "type": "integer",
-            "format": "int32",
-            "minimum": 0
+            "format": "int32"
           },
           "stat_value": {
             "type": "integer",
@@ -1313,6 +1391,22 @@
           },
           "success": {
             "$ref": "#/components/schemas/Progress"
+          }
+        }
+      },
+      "PayToken": {
+        "type": "object",
+        "required": [
+          "token_type",
+          "token_amount"
+        ],
+        "properties": {
+          "token_amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "token_type": {
+            "$ref": "#/components/schemas/MightEnum"
           }
         }
       },
@@ -1369,6 +1463,14 @@
           "queue_initiative": {
             "type": "integer",
             "format": "int32"
+          },
+          "queue_roll": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RollRequest"
+              }
+            ],
+            "nullable": true
           }
         }
       },
@@ -1378,16 +1480,9 @@
           "game",
           "turn_state",
           "season",
-          "queue",
-          "clocks"
+          "queue"
         ],
         "properties": {
-          "clocks": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Clock"
-            }
-          },
           "game": {
             "type": "string"
           },
@@ -1431,7 +1526,7 @@
             ],
             "properties": {
               "Experience": {
-                "$ref": "#/components/schemas/MightStat"
+                "$ref": "#/components/schemas/Experience"
               }
             }
           },
@@ -1445,8 +1540,112 @@
                 "$ref": "#/components/schemas/Clock"
               }
             }
+          },
+          {
+            "type": "object",
+            "required": [
+              "Token"
+            ],
+            "properties": {
+              "Token": {
+                "$ref": "#/components/schemas/Token"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "DrawCard"
+            ],
+            "properties": {
+              "DrawCard": {
+                "$ref": "#/components/schemas/DrawCard"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "PayToken"
+            ],
+            "properties": {
+              "PayToken": {
+                "$ref": "#/components/schemas/PayToken"
+              }
+            }
           }
         ]
+      },
+      "RollDetailedResponse": {
+        "type": "object",
+        "required": [
+          "data",
+          "success"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/RollResponse"
+          },
+          "success": {
+            "$ref": "#/components/schemas/Progress"
+          }
+        }
+      },
+      "RollRequest": {
+        "type": "object",
+        "required": [
+          "owner",
+          "rolls"
+        ],
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "rolls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CharacterResponse"
+            }
+          }
+        }
+      },
+      "RollResponse": {
+        "type": "object",
+        "required": [
+          "roll_winner",
+          "rolls"
+        ],
+        "properties": {
+          "roll_winner": {
+            "$ref": "#/components/schemas/CharacterResponse"
+          },
+          "rolls": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RollResult"
+            }
+          }
+        }
+      },
+      "RollResult": {
+        "type": "object",
+        "required": [
+          "roll_character",
+          "roll_value",
+          "roll_success"
+        ],
+        "properties": {
+          "roll_character": {
+            "$ref": "#/components/schemas/CharacterResponse"
+          },
+          "roll_success": {
+            "type": "boolean"
+          },
+          "roll_value": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "RollTier": {
         "type": "string",
@@ -1536,6 +1735,22 @@
           },
           "success": {
             "$ref": "#/components/schemas/Progress"
+          }
+        }
+      },
+      "Token": {
+        "type": "object",
+        "required": [
+          "token_type",
+          "token_amount"
+        ],
+        "properties": {
+          "token_amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "token_type": {
+            "$ref": "#/components/schemas/MightEnum"
           }
         }
       },
