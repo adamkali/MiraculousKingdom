@@ -15,17 +15,27 @@
         CreateCharacter,
         CharacterSheet,
     } from './pages/games'
-    import { Abilities, Characters, Classes, Rules } from './pages/rules'
+    import { Abilities, Characters, Classes, Rules, MightRulePage} from './pages/rules'
     import { Special } from './components'
     import { currentGame, gameCharacter } from './store'
     import { type CharacterResponse, type GameInfo } from './models'
     import Clocks from './pages/rules/Clocks.svelte'
+    import { onMount } from 'svelte'
 
     const backToHome = () => {
-        window.location.href = '/'
+        window.location.href = '/ui'
     }
+    let game = {} as GameInfo
+    let char = {} as CharacterResponse
+    $: gameInfo = game as GameInfo
+    $: character = char as CharacterResponse
 
-    console.log($currentGame, $gameCharacter)
+    onMount(() => {
+        game = currentGame.get()
+        char = gameCharacter.get()
+    })
+
+
 </script>
 
 <main
@@ -45,7 +55,7 @@
                 <div
                     class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
-                    <Link to="/games/start">
+                    <Link to="/ui/games/start">
                         <GiDiceTwentyFacesTwenty />
                         <div>Start</div>
                     </Link>
@@ -53,16 +63,16 @@
                 <div
                     class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
-                    <Link to="/games/join">
+                    <Link to="/ui/games/join">
                         <GiHourglass />
                         <div>Join</div>
                     </Link>
                 </div>
-                {#if !(!$currentGame.game_pass && !$gameCharacter.secret)}
+                {#if (gameInfo.game_pass && character.secret)}
                     <div
                         class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                     >
-                        <Link to="/games/sheet">
+                        <Link to="/ui/games/sheet">
                             <GiCardPlay />
                             <div>Sheet</div>
                         </Link>
@@ -117,6 +127,9 @@
             </Route>
             <Route path="clocks">
                 <Clocks />
+            </Route>
+            <Route path="might">
+                <MightRulePage />
             </Route>
             <Route path="/">
                 <Rules />

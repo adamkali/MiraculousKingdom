@@ -7,6 +7,8 @@ use axum::{
     http::{HeaderMap, HeaderValue, Method, Request, Response},
     routing::*,
     Extension,
+    response::Redirect,
+    
 };
 use axum_server::tls_rustls::RustlsConfig;
 use std::{net::SocketAddr, path::PathBuf, time::Duration};
@@ -107,7 +109,7 @@ async fn main() {
         .merge(SwaggerUi::new("/swagger").url("/api-docs/openapi.json", APIDoc::openapi()))
         .route(
             "/",
-            get(|| async { "And the serve did not go down, quoth the admin \"Nevermore\"" }),
+            get(|| async { Redirect::to("http://mk_app:8025/ui") }),
         )
         .nest("/api", api::routes::construct_api_router())
         .layer(Extension(mongo_client))

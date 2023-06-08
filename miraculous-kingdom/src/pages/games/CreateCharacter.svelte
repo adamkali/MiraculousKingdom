@@ -40,7 +40,7 @@
                 gameCharacter.set(res.data)
             })
             .then(() => {
-                window.location.href = '/games/sheet'
+                window.location.href = '/ui/games/sheet'
             })
             .catch((err) => {
                 console.log({ error: err })

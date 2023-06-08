@@ -41,12 +41,18 @@
     }
 
     const asyncInit = async () => {
-        let q_res = await ApiQueueApiService.getQueue(game.game_pass)
+        await ApiQueueApiService.setQueue(game.game_pass);
+        let q_res = await ApiQueueApiService.getQueue()
         if (q_res.success === 'Succeeding') {
             queue.set(q_res.data)
             queueres = queue.get()
         } else {
-            throw new Error(q_res.success.Failing.message)
+            let setter = await ApiQueueApiService.setQueue(game.game_pass);
+            if (setter.success === 'Succeeding') {
+                queue.set(setter.data)
+                queueres = queue.get()
+            } else {
+            }
         }
         if (!character.char_hand.length) {
             let res = await ApiCharacterApiService.getCharacterForGame(
@@ -96,7 +102,6 @@
         const res = await ApiSeasonApiService.roll()
         if (res.success === 'Succeeding') {
             const res1 = await ApiQueueApiService.setSeason(
-                game.game_pass,
                 res.data,
             )
             if (res1.success === 'Succeeding') {
@@ -114,7 +119,7 @@
         character.char_hand = character.char_hand.filter((e) => {
             return e.ability_name != ability.ability_name
         })
-        const res = await ApiQueueApiService.takeTurn(game.game_pass, {
+        const res = await ApiQueueApiService.takeTurn({
             character: character,
             game: game.game_pass,
             ability: ability,

@@ -22,7 +22,7 @@
 
     const handleJoinNew = (g: GameInfo): void => {
         currentGame.set(g)
-        window.location.href = `/games/create_character/${g.game_pass}`
+        window.location.href = `/ui/games/create_character/${g.game_pass}`
     }
 
     const handleJoinExisting = (secret: string, g: GameInfo): void => {
@@ -37,7 +37,7 @@
                     if (res.data.char_name !== 'No Character') {
                         gameCharacter.set(res.data)
                         currentGame.set(g)
-                        window.location.href = `/games/sheet`
+                        window.location.href = `/ui/games/sheet`
                     }
                 }
             })
