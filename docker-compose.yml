@@ -26,20 +26,39 @@ services:
       - mongodb
     environment:
       - RUST_LOG=debug
-  
+    networks:
+      - mk_network
+
   app:
     build:
       context: ./miraculous-kingdom
       dockerfile: dockerfile
     container_name: mk_app
     ports:
-      - "80:80"
+      - "8025:4173"
     depends_on:
       - api
+    networks:
+      - mk_network
+
+  nginx:
+    image: nginx:1.21-alpine
+    container_name: mk_nginx
+    ports:
+      - "80:80"
     volumes:
-      - mk_html:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - api
+      - app
+    networks:
+      - mk_network
 
 volumes:
   mongodb_data:
-  mk_html:
+
+networks:
+  mk_network:
+    driver: overlay
+    attachable: true
 

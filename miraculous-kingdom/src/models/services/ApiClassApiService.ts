@@ -1,14 +1,15 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ClassDetailedResponse } from '../models/ClassDetailedResponse'
-import type { VecClassDetailedResponse } from '../models/VecClassDetailedResponse'
+import type { ClassDetailedResponse } from '../models/ClassDetailedResponse';
+import type { VecClassDetailedResponse } from '../models/VecClassDetailedResponse';
 
-import type { CancelablePromise } from '../core/CancelablePromise'
-import { OpenAPI } from '../core/OpenAPI'
-import { request as __request } from '../core/request'
+import type { CancelablePromise } from '../core/CancelablePromise';
+import { OpenAPI } from '../core/OpenAPI';
+import { request as __request } from '../core/request';
 
 export class ApiClassApiService {
+
     /**
      * @returns VecClassDetailedResponse Listed classes from database
      * @throws ApiError
@@ -20,7 +21,7 @@ export class ApiClassApiService {
             errors: {
                 500: `Internal error occured`,
             },
-        })
+        });
     }
 
     /**
@@ -29,18 +30,19 @@ export class ApiClassApiService {
      * @throws ApiError
      */
     public static getClass(
-        id: string,
-    ): CancelablePromise<ClassDetailedResponse> {
+id: string,
+): CancelablePromise<ClassDetailedResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/class/{id}',
             path: {
-                id: id,
+                'id': id,
             },
             errors: {
                 400: `Bad Request: id`,
                 500: ` Internal error occured`,
             },
-        })
+        });
     }
+
 }

@@ -3,9 +3,9 @@
 /* eslint-disable */
 
 import type { CharacterResponse } from './CharacterResponse';
-import type { Progress } from './Progress';
 
-export type CharDetialedResponse = {
-    data: CharacterResponse;
-    success: Progress;
+export type RollResult = {
+    roll_character: CharacterResponse;
+    roll_success: boolean;
+    roll_value: number;
 };

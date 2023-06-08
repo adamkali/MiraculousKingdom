@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { ClassResponse } from './ClassResponse';
 import type { Progress } from './Progress';
+import type { RollResponse } from './RollResponse';
 
-export type VecClassDetailedResponse = {
-    data: Array<ClassResponse>;
+export type RollDetailedResponse = {
+    data: RollResponse;
     success: Progress;
 };

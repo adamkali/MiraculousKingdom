@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Progress } from './Progress'
+import type { Progress } from './Progress';
 
 export type PassDetailedResponse = {
-    data: string
-    success: Progress
-}
+    data: string;
+    success: Progress;
+};

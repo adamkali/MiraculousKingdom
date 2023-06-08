@@ -102,10 +102,10 @@
                 </Link>-->
             </div>
         </nav>
-        <Route path="/">
+        <Route path="/ui">
             <Home />
         </Route>
-        <Route path="/rules/*">
+        <Route path="/ui/rules/*">
             <Route path="abilities">
                 <Abilities />
             </Route>
@@ -122,7 +122,7 @@
                 <Rules />
             </Route>
         </Route>
-        <Route path="/games/*">
+        <Route path="/ui/games/*">
             <Route path="sheet">
                 <CharacterSheet />
             </Route>

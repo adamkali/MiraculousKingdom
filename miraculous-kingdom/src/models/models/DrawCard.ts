@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type APIError = {
-    message: string;
-    status_code: number;
+export type DrawCard = {
+    amount: number;
 };
