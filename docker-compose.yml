@@ -14,6 +14,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=mk2023!
       - MONGO_INITDB_DATABASE=mkdb
+    networks:
+      mk_network:
+        ipv4_address: 172.20.0.40
 
   api:
     build: 
@@ -27,7 +30,8 @@ services:
     environment:
       - RUST_LOG=debug
     networks:
-      - mk_network
+      mk_network:
+        ipv4_address: 172.20.0.30
 
   app:
     build:
@@ -35,11 +39,12 @@ services:
       dockerfile: dockerfile
     container_name: mk_app
     ports:
-      - "8025:4173"
+      - "8000:4173"
     depends_on:
       - api
     networks:
-      - mk_network
+      mk_network:
+        ipv4_address: 172.20.0.20
 
   nginx:
     image: nginx:1.21-alpine
@@ -52,13 +57,16 @@ services:
       - api
       - app
     networks:
-      - mk_network
+      mk_network:
+        ipv4_address: 172.20.0.10
 
 volumes:
   mongodb_data:
 
 networks:
   mk_network:
-    driver: overlay
-    attachable: true
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
