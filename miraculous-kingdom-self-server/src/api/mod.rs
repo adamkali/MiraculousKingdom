@@ -61,7 +61,7 @@ pub mod routes {
 
         let queue_route = Router::new()
             .route("/", get(queue_routes::get_queue))
-            .route("/:pass", get(queue_routes::set_queue))
+            .route("/:pass", put(queue_routes::set_queue))
             .route("/turn", post(queue_routes::take_turn))
             .route("/season", post(queue_routes::set_season))
             .route("/roll", get(queue_routes::roll))

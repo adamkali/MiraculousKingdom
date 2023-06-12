@@ -18,6 +18,8 @@
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
     let queueres: QueueResonse = queue.get()
+    let tookturn = false
+    $: abilityChoose = {} as Ability
     $: hand = character.char_hand
     $: might = character.char_might
     $: clocks = character.char_clocks
@@ -134,6 +136,8 @@
                 }
             })
             queueres = queue.get()
+            tookturn = true 
+            abilityChoose = ability
         } else {
             throw new Error(res.success.Failing.message)
         }
@@ -214,7 +218,7 @@
                     {clocks}
                     secret={character.secret}
                 />
-            {:else}
+            {:else if !tookturn }
                 <AbilityChoice
                     {hand}
                     {season}

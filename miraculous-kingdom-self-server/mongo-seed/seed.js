@@ -515,11 +515,8 @@ db.seasons.insertMany([
         "event_length": 2,
         "event_reward": {
             "Experience": {
-                "stat_enum": "Diplomacy",
-                "stat_name": "Diplomacy",
-                "stat_value": 0,
-                "stat_exp": 3,
-                "stat_token": 0,
+                "exp_type": "Diplomacy",
+                "exp_amount": 3,
             }
         },
     },
@@ -545,11 +542,8 @@ db.seasons.insertMany([
         "event_length": 2,
         "event_reward": {
             "Experience": {
-                "stat_enum": "Science",
-                "stat_name": "Science",
-                "stat_value": 0,
-                "stat_exp": 2,
-                "stat_token": 0,
+                "exp_type": "Science",
+                "exp_amount": 2
             }
         }
     },
