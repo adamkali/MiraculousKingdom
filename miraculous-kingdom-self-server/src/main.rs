@@ -1,5 +1,6 @@
 pub mod api;
 pub mod data_types;
+pub mod ws;
 
 use axum::{
     body::HttpBody,
@@ -39,7 +40,7 @@ async fn main() {
     #[derive(OpenApi)]
     #[openapi(
         servers(
-            (url =  "http://mk_api:8050")
+            (url = "http://localhost:8050")
         ),
         paths(
             api::class_api::get_classes,
@@ -50,6 +51,7 @@ async fn main() {
             api::game_api::add_character,
             api::character_api::get_character_for_game,
             api::character_api::get_characters,
+            api::character_api::get_characters_by_game,
             api::character_api::init_hand,
             api::character_api::draw_card,
             api::character_api::discard_card,
@@ -91,6 +93,9 @@ async fn main() {
         )
     }
 
+    // local!
+    //let uri = "mongodb://root:mk2023!@localhost:8100";
+    // docker! 
     let uri = "mongodb://root:mk2023!@mk_mongo:27017";
     let client_opt = mongodb::options::ClientOptions::parse(uri).await.unwrap();
 
@@ -107,10 +112,6 @@ async fn main() {
 
     let app = Router::new()
         .merge(SwaggerUi::new("/swagger").url("/api-docs/openapi.json", APIDoc::openapi()))
-        .route(
-            "/",
-            get(|| async { Redirect::to("http://mk_app:8025/ui") }),
-        )
         .nest("/api", api::routes::construct_api_router())
         .layer(Extension(mongo_client))
         .layer(
@@ -146,7 +147,7 @@ async fn main() {
 
     let addr = SocketAddr::from(([0, 0, 0, 0], ports.https));
 
-    println!("Connection opened on https://{:?}", addr.to_string());
+    println!("Connection opened on {:?}", addr.to_string());
     axum_server::bind(addr)
         .serve(app.into_make_service())
         .await

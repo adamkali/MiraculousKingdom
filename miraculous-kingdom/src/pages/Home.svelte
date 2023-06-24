@@ -1,6 +1,6 @@
 <script lang="ts">
     import Special from '../components/Special.svelte'
-    const src: string = '/src/assets/mk.svg'
+    const src: string = '/mk.svg'
 </script>
 
 <div
@@ -15,25 +15,25 @@
         <p class="text-3xl text-slate-100">
             Have you ever wanted to backstab your friends and still retain your
             friendship? Well then this is the game! Welcome to the Miraculous
-            Kingdom. Miraculous Kingdom is a deck building game about
+            Kingdom. Miraculous Kingdom is a deck blding game about
             backstabbing, skullduggery, and betrayal. Each <Special
-                href="/ui/rules/characters">Character</Special
-            > has its own <Special href="/ui/rules/classes">Class</Special> with its
+                href="/rules/characters">Character</Special
+            > has its own <Special href="/rules/classes">Class</Special> with its
             own cards called
-            <Special href="/ui/rules/abilities">Abilities</Special>. Take turns
+            <Special href="/rules/abilities">Abilities</Special>. Take turns
             leveaging abilities through out the game to get more resources,
             abilities, and strategies to win the round called a <Special
-                href="/ui/rules/seasons">Season</Special
+                href="/rules/seasons">Season</Special
             >. Think of this game as a season or an arc in one of your favorite
             dramas like Game of Thrones, Last of Us, or The Wire.
             <br />
             <br />
-            To begin a game: Go to <Special href="/ui/game/start/">Create</Special
+            To begin a game: Go to <Special href="/game/start/">Create</Special
             > and make a setting for your game. Have the rest of your friends using
             the password you get from the server and have them to go <Special
-                href="/ui/game/join">here</Special
+                href="/game/join">here</Special
             >
-            Roll <Special href="/ui/rules/might">Might</Special> for your character.
+            Roll <Special href="/rules/might">Might</Special> for your character.
             Each one will have an effect on how you play. Choose your class, and
             at the beginning of the game get 10 abilities plus the 8 that you get
             from your class. Then after rolling a season from the server you will
@@ -44,7 +44,7 @@
             met. A game ending ability is denoted on the ability's card face.
             <br />
             <br />
-            Remember if you have any questions check the <Special href="/ui/rules"
+            Remember if you have any questions check the <Special href="/rules"
                 >Rules</Special
             >. If you dont find the answer you are looking for, or if you find a
             bug, then please submit it as a github issue, follow the link at the

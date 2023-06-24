@@ -19,7 +19,7 @@
                     console.log({ err: resp.success.Failing.message })
                 }
                 currentGame.set(resp.data)
-                window.location.href = `/ui/games/create_character/${resp.data.game_pass}`
+                window.location.href = `/games/create_character/${resp.data.game_pass}`
             })
             .catch((err) => console.log(err))
     }

@@ -9,8 +9,8 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "pretty": "prettier --config ./prettier.yaml ./src/**/*.* --write",
-    "gen-doc": "openapi --input ./openapi.json --output ./src/models --client axios",
-    "gen-url": "openapi --input http://mk_api:8050/api-docs/openapi.json --output ./src/models --client axios"
+    "gen": "openapi --input http://mk_api:8050/api-docs/openapi.json --output ./src/models --client axios",
+    "gen-url": "openapi --input http://0.0.0.0:8050/api-docs/openapi.json --output ./src/models --client axios"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.3",

@@ -43,6 +43,10 @@ pub mod routes {
                 get(character_routes::get_character_for_game),
             )
             .route(
+                "/game/:pass",
+                get(character_routes::get_characters_by_game),
+            )
+            .route(
                 "/init_hand/:secret/:pass",
                 put(character_routes::init_hand),
             )

@@ -23,7 +23,7 @@
     import { onMount } from 'svelte'
 
     const backToHome = () => {
-        window.location.href = '/ui'
+        window.location.href = '/'
     }
     let game = {} as GameInfo
     let char = {} as CharacterResponse
@@ -55,7 +55,7 @@
                 <div
                     class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
-                    <Link to="/ui/games/start">
+                    <Link to="//games/start">
                         <GiDiceTwentyFacesTwenty />
                         <div>Start</div>
                     </Link>
@@ -63,7 +63,7 @@
                 <div
                     class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
-                    <Link to="/ui/games/join">
+                    <Link to="//games/join">
                         <GiHourglass />
                         <div>Join</div>
                     </Link>
@@ -72,7 +72,7 @@
                     <div
                         class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                     >
-                        <Link to="/ui/games/sheet">
+                        <Link to="//games/sheet">
                             <GiCardPlay />
                             <div>Sheet</div>
                         </Link>
@@ -112,10 +112,10 @@
                 </Link>-->
             </div>
         </nav>
-        <Route path="/ui">
+        <Route path="/">
             <Home />
         </Route>
-        <Route path="/ui/rules/*">
+        <Route path="/rules/*">
             <Route path="abilities">
                 <Abilities />
             </Route>
@@ -135,7 +135,7 @@
                 <Rules />
             </Route>
         </Route>
-        <Route path="/ui/games/*">
+        <Route path="/games/*">
             <Route path="sheet">
                 <CharacterSheet />
             </Route>

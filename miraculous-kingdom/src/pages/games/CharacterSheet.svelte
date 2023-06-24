@@ -10,20 +10,25 @@
         ApiSeasonApiService,
         ApiQueueApiService,
         type TurnRequest,
+        type RollRequest,
     } from '../../models'
     import { currentGame, gameCharacter, queue } from '../../store'
     import SeasonRoll from './components/SeasonRoll.svelte'
     import AbilityChoice from './components/AbilityChoice.svelte'
+    import ChooseTarget from './components/ChooseTarget.svelte';
 
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
     let queueres: QueueResonse = queue.get()
     let tookturn = false
-    $: abilityChoose = {} as Ability
     $: hand = character.char_hand
     $: might = character.char_might
     $: clocks = character.char_clocks
     $: season = queueres.season
+    $: characterTarget = {} as CharacterResponse
+    $: abilityChoose = {} as Ability
+    $: target = false
+    $: waiting = false
 
     const asyncDiscard = async (ability: Ability) => {
         const res = await ApiCharacterApiService.discardCard(
@@ -136,7 +141,7 @@
                 }
             })
             queueres = queue.get()
-            tookturn = true 
+            target = true 
             abilityChoose = ability
         } else {
             throw new Error(res.success.Failing.message)
@@ -209,7 +214,18 @@
                     </Components.Button>
                 </div>
             </div>
-            {#if season.event_name === ''}
+            {#if waiting}
+                <div class="flex flex-col items-center justify-center h-full">
+                    <div class="text-2xl font-bold">Waiting for other players...</div>
+                    <div class="text-2xl font-bold">Players: {game.game_chars.length}</div>
+                    <Components.Button
+                        onClick={() => {
+                        }}
+                    >
+                        <span>Start</span>
+                    </Components.Button>
+                </div>
+            {:else if season.event_name === ''}
                 <SeasonRoll
                     {hand}
                     {might}
@@ -218,7 +234,7 @@
                     {clocks}
                     secret={character.secret}
                 />
-            {:else if !tookturn }
+            {:else if !target }
                 <AbilityChoice
                     {hand}
                     {season}
@@ -228,6 +244,13 @@
                     {asyncDiscard}
                     asyncPlay={take_turn}
                     {asyncDraw}
+                />
+            {:else }
+                <ChooseTarget 
+                    {season}
+                    ability={abilityChoose}
+                    {might}
+                    pass={game.game_pass}
                 />
             {/if}
         </div>
