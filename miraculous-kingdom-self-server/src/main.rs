@@ -18,9 +18,6 @@ use tower_http::{
     trace::TraceLayer,
 };
 use tracing::{info_span, Span, Value};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-//use std::sync::Arc;
-//use data_types::engine::Game;
 use data_types::characters::*;
 use data_types::common::*;
 use data_types::engine::*;
@@ -28,6 +25,12 @@ use data_types::might::*;
 use data_types::queue::*;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
+use ws::structs::{
+    Episode,
+    WSAbilityRequest,
+    WSRollRequest,
+    WSTargetRequest
+};
 
 #[derive(Clone, Copy)]
 struct Ports {
@@ -58,11 +61,8 @@ async fn main() {
             api::season_api::get_seasons,
             api::season_api::get_season,
             api::season_api::roll,
-            api::queue_api::get_queue,
             api::queue_api::set_queue,
-            api::queue_api::take_turn,
-            api::queue_api::set_season,
-            api::queue_api::roll,
+            api::queue_api::ws_entyrpoint
         ),
         components(
             schemas(
@@ -76,7 +76,8 @@ async fn main() {
                 SeasonResponse, RewardTypes, RollTier, ClassEnum, CharacterState,
                 APIError, SeasonEnum, QueueResonse, TurnRequest, QueueItem,
                 Token, PayToken, Experience, DrawCard, RollRequest, RollResponse,
-                RollDetailedResponse, RollResult,
+                RollDetailedResponse, RollResult, WSTargetRequest, WSRollRequest,
+                WSAbilityRequest, Episode
                 
             ),
         ),

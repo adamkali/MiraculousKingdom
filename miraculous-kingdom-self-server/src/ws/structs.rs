@@ -2,27 +2,32 @@ use crate::data_types::characters::{
     Character,
     Ability
 };
-use crate::data_types::common::{
-    TurnRequest,
-    MKModel,
-    MkResponse,
-    APIError,
-};
-use crate::data_types::engine::{SeasonResponse, Season };
+use crate::data_types::common::APIError;
+use crate::data_types::engine::SeasonResponse;
 use tokio::sync::broadcast;
 use serde::{Deserialize, Serialize};
 
 use utoipa::ToSchema;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::collections::HashMap;
-use futures::{sink::SinkExt, stream::StreamExt};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub enum Episode {
     NONE,
     ABILITYCHOOSE,
     TARGETCHOICE,
     ROLLRESULT,
+}
+
+impl ToString for Episode {
+    fn to_string(&self) -> String {
+        match *self {
+            Self::NONE => "NONE".to_string(),
+            Self::ABILITYCHOOSE => "ABILITYCHOOSE".to_string(),
+            Self::TARGETCHOICE => "TARGETCHOICE".to_string(),
+            Self::ROLLRESULT => "ROLLRESULT".to_string(),
+        } 
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
@@ -37,34 +42,35 @@ pub struct Turn {
     pub turn_ready: bool
 }
 
+#[derive(Debug, Clone)]
 pub struct WSQueue {
     pub queue: Arc<[Character]>,
     pub queue_state: Episode,
-    pub queue_season: SeasonResponse,
-    pub queue_turn: Arc<Mutex<HashMap<String, Turn>>>,
+    pub queue_season: Option<SeasonResponse>,
+    pub queue_turn: HashMap<String, Turn>,
     pub global_broabcast: broadcast::Sender<String>,
 }
 
 impl WSQueue {
-    pub fn new(queue: Arc<[Character]>) -> Self {
+    pub fn new() -> Self {
         Self {
-            queue,
+            queue: Arc::new([]),
             queue_state: Episode::NONE,
-            queue_season: Season::default().as_response(),
-            queue_turn: Arc::new(Mutex::new(HashMap::new())),
+            queue_season: None,
+            queue_turn: HashMap::new(),
             global_broabcast: broadcast::channel(10).0,
         }
     }
 
     pub fn is_characers_ready(&self) -> bool {
         let queue_char_length = (*self).queue.len();
-        let queue_turn_subscribed_length = (*self).queue_turn.lock().unwrap().len();
+        let queue_turn_subscribed_length = (*self).queue_turn.len();
         if queue_char_length != queue_turn_subscribed_length { return false; }
-        self.queue_turn.lock().unwrap().iter().all(|a| a.1.turn_ready )
+        self.queue_turn.iter().all(|a| a.1.turn_ready )
     }
 
-    pub async fn recieve_request(&mut self, request: &impl WSRequestTrait) -> Result<(), APIError> {
-        match self.queue_turn.lock().unwrap().get(
+    pub async fn receive_request(&mut self, request: &impl WSRequestTrait) -> Result<(), APIError> {
+        match self.queue_turn.get(
             &request.get_owner()
         ) {
             Some(turn) => { Ok(()) },
@@ -86,8 +92,8 @@ pub trait WSRequestTrait {
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub enum WSRequest {
     ABILITYREQUEST(WSAbilityRequest),
-    CHARACTERREQUEST,
-    ROLLREQUEST
+    CHARACTERREQUEST(WSTargetRequest),
+    ROLLREQUEST(WSRollRequest),
 }
 
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
@@ -99,7 +105,7 @@ pub struct WSAbilityRequest {
 }
 
 impl WSRequestTrait for WSAbilityRequest {
-    fn consume_request(&self, turn: &mut Turn) { turn.turn_ability = self.ability; }
+    fn consume_request(&self, turn: &mut Turn) { turn.turn_ability = self.ability.clone(); }
     fn get_owner(&self) -> String { (*self.owner).to_string() }
 }
 
@@ -114,7 +120,7 @@ pub struct WSTargetRequest {
 impl WSRequestTrait for WSTargetRequest {
     fn consume_request(&self, turn: &mut Turn) { 
         self.targets.iter().for_each(|target| {
-            turn.turn_characters.insert(*target, 0);
+            turn.turn_characters.insert(target.clone(), 0);
         });
     }
     fn get_owner(&self) -> String { (*self.owner).to_string() }
@@ -153,3 +159,7 @@ impl WSRequestTrait for WSRollRequest {
     }
     fn get_owner(&self) -> String { (*self.owner).to_string() }
 }
+
+
+
+

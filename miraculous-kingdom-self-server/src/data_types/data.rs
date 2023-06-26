@@ -785,6 +785,18 @@ pub struct Season {
     pub event_reward: RewardTypes,
 }
 
+impl Season {
+    pub fn new() -> Season {
+        Season {
+            event_id: ObjectId::new(),
+            event_length: 0,
+            event_name: "".to_string(),
+            event_desc: "".to_string(),
+            event_reward: RewardTypes::None,
+        }
+    }
+}
+
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct SeasonResponse {
     pub event_length: u16,
