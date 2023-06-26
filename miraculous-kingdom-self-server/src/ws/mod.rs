@@ -68,6 +68,12 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
                         cloned_queue.queue_state = Episode::ROLLRESULT;
                     }
                     Episode::ROLLRESULT => {
+                        // before we do anything, bradcast the result of the rolls 
+                        // to the global broadcast
+                        // and then change the state to resolution
+
+                    }
+                    Episode::RESOLUTION => {
                         match cloned_queue.queue_season.as_mut() {
                             Some(season) => {
                                 season.event_length = season.event_length - 1;
@@ -91,10 +97,6 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
                 }
                 *queue_mut = cloned_queue; // Replace the original queue with the cloned data
             } else {
-                // send back that we are waitig aon everyone
-                // TODO: send back that we are waiting on everyoneA
-                //
-                //
                 let _ = global_sender.send("NOT READY".to_string());
             }
         }
@@ -111,7 +113,27 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
                 WSRequest::CHARACTERREQUEST(target) => {
                     queue_mut.receive_request(&target);
                 }
-                WSRequest::ROLLREQUEST(result) => {
+                WSRequest::ROLLREQUEST(mut result) => {
+                    // need to pass the result to have the abibility as well
+                    // as the character  
+                    result.ability = Some(
+                        queue_mut
+                            .queue_turn
+                            .iter()
+                            .find(|x| x.0 == &result.clone().get_owner())
+                            .unwrap()
+                            .1
+                            .turn_ability
+                            .clone()
+                    );
+                    result.character = Some(
+                        queue_mut
+                            .queue
+                            .iter()
+                            .find(|x| &x.secret == &result.clone().secret)
+                            .unwrap()
+                            .clone()
+                    );
                     queue_mut.receive_request(&result);
                 }
             }
