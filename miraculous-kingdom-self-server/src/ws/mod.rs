@@ -22,9 +22,12 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
         // set the character secret
         character_secret_local = character_secret.clone();
 
+        // print the message 
+        println!("Secret: {}", character_secret_local);
+
         // get queue
         let mut queue_turn = queue.lock().await.queue_turn.clone();
-        queue_turn.insert(
+        let test = queue_turn.insert(
             character_secret.clone(),
             Turn {
                 turn_ability: crate::data_types::characters::AbilityModel::new().as_response(),
@@ -32,6 +35,13 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
                 turn_ready: false,
             },
         );
+        
+        if let Some(_e) = test {
+            break;
+        }
+        
+        // print out the queue turn now 
+        println!("Queue Turn: {}", serde_json::to_string(&queue_turn).unwrap());
     }
 
     let queue_clone = Arc::clone(&queue);
@@ -42,6 +52,7 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
     let mut send_task = tokio::spawn(async move {
         while let Ok(_) = global_receiver.recv().await {
             let mut queue_mut = queue_clone.lock().await;
+            queue_mut.generate_is_ready().await.unwrap();
             if queue_mut.is_characers_ready() {
                 let mut cloned_queue = queue_mut.clone();
                 match cloned_queue.queue_state {
@@ -59,7 +70,6 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
                                 .as_response()
                             );
                         cloned_queue.queue_state = Episode::ABILITYCHOOSE;
-                        // send that to the global broadcast
                     }
                     Episode::ABILITYCHOOSE => {
                         cloned_queue.queue_state = Episode::TARGETCHOICE;
@@ -68,10 +78,8 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
                         cloned_queue.queue_state = Episode::ROLLRESULT;
                     }
                     Episode::ROLLRESULT => {
-                        // before we do anything, bradcast the result of the rolls 
-                        // to the global broadcast
-                        // and then change the state to resolution
-
+                        cloned_queue.generate_results();
+                        cloned_queue.queue_state = Episode::RESOLUTION;
                     }
                     Episode::RESOLUTION => {
                         match cloned_queue.queue_season.as_mut() {
@@ -88,16 +96,14 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
                         }
                     }
                     // send that to the global broadcast
+
                 }
                 let _ = global_sender.send(serde_json::to_string(&cloned_queue.queue_state).unwrap());
                 let state = serde_json::to_string(&cloned_queue.queue_state).unwrap();
                 if global_sender.send(state).is_err() {
-                    // let everyone know that something went wrong
-                    todo!()
+                    let _ = global_sender.send("NOT READY".to_string());
                 }
                 *queue_mut = cloned_queue; // Replace the original queue with the cloned data
-            } else {
-                let _ = global_sender.send("NOT READY".to_string());
             }
         }
     });
@@ -109,9 +115,19 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
             match message {
                 WSRequest::ABILITYREQUEST(a) => {
                     queue_mut.receive_request(&a);
+                    queue_mut.queue_turn.iter_mut().for_each(|x| {
+                        if *x.0 == character_secret_local {
+                            x.1.turn_ready = true;
+                        }
+                    });
                 }
                 WSRequest::CHARACTERREQUEST(target) => {
                     queue_mut.receive_request(&target);
+                    queue_mut.queue_turn.iter_mut().for_each(|x| {
+                        if *x.0 == character_secret_local {
+                            x.1.turn_ready = true;
+                        }
+                    });
                 }
                 WSRequest::ROLLREQUEST(mut result) => {
                     // need to pass the result to have the abibility as well
@@ -135,14 +151,14 @@ pub async fn queue_socket(stream: WebSocket, Extension(mongo): Extension<Databas
                             .clone()
                     );
                     queue_mut.receive_request(&result);
+                    queue_mut.queue_turn.iter_mut().for_each(|x| {
+                        if *x.0 == character_secret_local {
+                            x.1.turn_ready = true;
+                        }
+                    });
                 }
             }
             // set the person character turn to be true
-            queue_mut.queue_turn.iter_mut().for_each(|x| {
-                if *x.0 == character_secret_local {
-                    x.1.turn_ready = true;
-                }
-            });
         }
     });
 

@@ -29,7 +29,11 @@ use ws::structs::{
     Episode,
     WSAbilityRequest,
     WSRollRequest,
-    WSTargetRequest
+    WSTargetRequest,
+    EpisodeResultItem,
+    EpisodeResult,
+    IsReady,
+    IsReadyItem,
 };
 
 #[derive(Clone, Copy)]
@@ -77,7 +81,8 @@ async fn main() {
                 APIError, SeasonEnum, QueueResonse, TurnRequest, QueueItem,
                 Token, PayToken, Experience, DrawCard, RollRequest, RollResponse,
                 RollDetailedResponse, RollResult, WSTargetRequest, WSRollRequest,
-                WSAbilityRequest, Episode
+                WSAbilityRequest, Episode, EpisodeResult, EpisodeResultItem,
+                IsReady, IsReadyItem
                 
             ),
         ),
@@ -95,17 +100,15 @@ async fn main() {
     }
 
     // local!
-    //let uri = "mongodb://root:mk2023!@localhost:8100";
+    let uri = "mongodb://root:mk2023!@localhost:8100";
     // docker! 
-    let uri = "mongodb://root:mk2023!@mk_mongo:27017";
+    //let uri = "mongodb://root:mk2023!@mk_mongo:27017";
     let client_opt = mongodb::options::ClientOptions::parse(uri).await.unwrap();
 
     let mongo_client = mongodb::Client::with_options(client_opt)
         .unwrap()
         .database("mkdb");
 
-    // construct tcp and https://
-    // using use axum_server::tls_rustls::RustlsConfig
     let ports = Ports {
         http: 8500,
         https: 8050,
@@ -137,9 +140,6 @@ async fn main() {
                     )
                 })
                 .on_request(|_request: &Request<_>, _span: &Span| {
-                    // You can use `_span.record("some_other_field", value)` in one of these
-                    // closures to attach a value to the initially empty field in the info_span
-                    // created above.
                     _span
                         .record("uri:", _request.uri().path().to_string())
                         .record("method: ", _request.method().to_string());

@@ -65,7 +65,7 @@ pub mod routes {
 
         let queue_route = Router::new()
             .route("/", get(queue_routes::ws_entyrpoint))
-            .route("/:pass", get(queue_routes::set_queue))
+            .route("/:pass", put(queue_routes::set_queue))
             .with_state(Arc::new(Mutex::new(ws::structs::WSQueue::new())));
 
         Router::new()

@@ -21,6 +21,7 @@
     import { type CharacterResponse, type GameInfo } from './models'
     import Clocks from './pages/rules/Clocks.svelte'
     import { onMount } from 'svelte'
+    import WaitingRoom from './pages/room/WaitingRoom.svelte';
 
     const backToHome = () => {
         window.location.href = '/'
@@ -63,7 +64,7 @@
                 <div
                     class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
-                    <Link to="//games/join">
+                    <Link to="/games/join">
                         <GiHourglass />
                         <div>Join</div>
                     </Link>
@@ -72,7 +73,7 @@
                     <div
                         class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                     >
-                        <Link to="//games/sheet">
+                        <Link to="/games/sheet">
                             <GiCardPlay />
                             <div>Sheet</div>
                         </Link>
@@ -147,6 +148,11 @@
             </Route>
             <Route path="join">
                 <JoinGame />
+            </Route>
+        </Route>
+        <Route path="/room/*">
+            <Route path="/">
+                <WaitingRoom />
             </Route>
         </Route>
     </Router>

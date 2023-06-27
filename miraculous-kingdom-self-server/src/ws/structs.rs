@@ -45,6 +45,37 @@ pub struct Turn {
     pub turn_ready: bool
 }
 
+impl Turn {
+    pub fn generate_result(&mut self) -> EpisodeResultItem {
+        // loop over the hashmap and get the mapping with the highest i16 value 
+        // and return bothe the key and the value 
+        let mut highest = 0_i16;
+        let mut highest_key = "".to_string();
+
+        for (key, value) in self.turn_characters.iter() {
+            if *value > highest {
+                highest = *value;
+                highest_key = key.to_string();
+            }
+        }
+        
+        EpisodeResultItem {
+            winner_name: highest_key,
+            winner_roll: highest,
+            reward: self.turn_ability.ability_rewards.clone(),
+            ability_name: self.turn_ability.ability_name.clone(),
+
+        }
+    }
+
+    pub fn generate_is_ready(&self, owner: &str) -> IsReadyItem {
+        IsReadyItem {
+            is_ready: self.turn_ready,
+            name: owner.to_string() 
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 /// The message given at the end of the round of play
 /// it contains the winner of the round and the rewardt
@@ -54,7 +85,7 @@ pub struct EpisodeResultItem {
     /// the roll of the winner that got them there
     pub winner_roll: i16,
     /// the reward of the winner
-    pub reward: RewardTypes,
+    pub reward: Vec<RewardTypes>,
     /// the name of the ability used
     pub ability_name: String
 }
@@ -62,6 +93,17 @@ pub struct EpisodeResultItem {
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct EpisodeResult {
     pub result: Vec<EpisodeResultItem>
+}
+
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct IsReadyItem {
+    pub name: String,
+    pub is_ready: bool
+}
+
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct IsReady {
+    pub items: Vec<IsReadyItem>
 }
 
 #[derive(Debug, Clone)]
@@ -96,7 +138,7 @@ impl WSQueue {
             &request.get_owner()
         ) {
             Some(turn) => {
-                request.consume_request(turn);
+                request.consume_request(&mut (turn.clone()));
                 Ok(())
             },
             None => {
@@ -109,11 +151,24 @@ impl WSQueue {
     }
 
     pub async fn generate_results(&self) -> Result<(), APIError> {
-        let mut results = Vec::new();
-        for turn in self.queue_turn.values() {
-            let result = turn.generate_result();
-            results.push(result);
-        }
+        let mut results = EpisodeResult {
+            result: vec![],
+        };
+        self.queue_turn.iter().for_each(|a| {
+            results.result.push(a.1.clone().generate_result());
+        });
+        let results = serde_json::to_string(&results).unwrap();
+        self.global_broabcast.send(results).unwrap();
+        Ok(())
+    }
+
+    pub async fn generate_is_ready(&self) -> Result<(), APIError> {
+        let mut results = IsReady {
+            items: Vec::new()
+        };
+        self.queue_turn.iter().for_each(|a| {
+            results.items.push(a.1.clone().generate_is_ready(a.0));
+        });
         let results = serde_json::to_string(&results).unwrap();
         self.global_broabcast.send(results).unwrap();
         Ok(())
@@ -121,7 +176,7 @@ impl WSQueue {
 }
 
 pub trait WSRequestTrait {
-    fn consume_request(&self, turn: &Turn);
+    fn consume_request(&self, turn: &mut Turn);
     fn get_owner(&self) -> String;
 }
 
@@ -141,7 +196,7 @@ pub struct WSAbilityRequest {
 }
 
 impl WSRequestTrait for WSAbilityRequest {
-    fn consume_request(&self, turn: &Turn) { turn.turn_ability = self.ability.clone(); }
+    fn consume_request(&self, turn: &mut Turn) { turn.turn_ability = self.ability.clone(); }
     fn get_owner(&self) -> String { (*self.owner).to_string() }
 }
 
@@ -154,7 +209,7 @@ pub struct WSTargetRequest {
 }
 
 impl WSRequestTrait for WSTargetRequest {
-    fn consume_request(&self, turn: &Turn) { 
+    fn consume_request(&self, turn: &mut Turn) { 
         self.targets.iter().for_each(|target| {
             turn.turn_characters.insert(target.clone(), 0);
         });
@@ -177,7 +232,7 @@ pub struct WSRollRequest {
 }
 
 impl WSRequestTrait for WSRollRequest {
-    fn consume_request(&self, turn: &Turn) { 
+    fn consume_request(&self, turn: &mut Turn) { 
         if self.ability.is_some() && self.character.is_some() {
             let ability = self.ability.clone().unwrap();
             let character = self.character.clone().unwrap();
@@ -193,6 +248,9 @@ impl WSRequestTrait for WSRollRequest {
     }
     fn get_owner(&self) -> String { (*self.owner).to_string() }
 }
+
+
+
 
 
 

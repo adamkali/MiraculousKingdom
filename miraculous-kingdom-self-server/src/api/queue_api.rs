@@ -59,17 +59,14 @@ pub async fn set_queue(
 
     let game_response = 
         DetailedResponse::new(Game::new())
-        .run(|a| {
-        game_repo.get_by_document(
-            a,
-            doc! { "pass": pass }
-        )
-    }).await;
+            .run(|a| game_repo.get_by_document(
+                 a, doc! { "generated_pass": pass }
+            )).await;
 
     let queue = queue.lock().await;
     
     game_response.data.game_chars.into_iter().for_each(|a| {
-        queue.queue.to_vec().push(a);
+        queue.queue.to_vec().push(a.as_response());
     });
     
     let mut detailed_response = 
