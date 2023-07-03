@@ -134,20 +134,15 @@ impl WSQueue {
     }
 
     pub async fn receive_request(&mut self, request: &impl WSRequestTrait) -> Result<(), APIError> {
-        match self.queue_turn.get(
-            &request.get_owner()
-        ) {
-            Some(turn) => {
-                request.consume_request(&mut (turn.clone()));
-                Ok(())
-            },
-            None => {
-                Err(APIError {
-                    message: "Could not find the owner of the request in the Server Queue. Please try again.".to_string(),
-                    status_code: 404
-                })
-            }
-        }
+        // iterate to find the request owner and then consume_request 
+        self.queue_turn
+            .iter_mut()
+            .find(|a| a.0 == &request.get_owner())
+            .map(|a| request.consume_request(a.1))
+            .ok_or(APIError {
+                status_code: 404,
+                message: "Owner not found".to_string(),
+            })
     }
 
     pub async fn generate_results(&self) -> Result<(), APIError> {
@@ -182,6 +177,7 @@ pub trait WSRequestTrait {
 
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub enum WSRequest {
+    READYTOSTART(WSReadyToStart),
     ABILITYREQUEST(WSAbilityRequest),
     CHARACTERREQUEST(WSTargetRequest),
     ROLLREQUEST(WSRollRequest),
@@ -249,9 +245,19 @@ impl WSRequestTrait for WSRollRequest {
     fn get_owner(&self) -> String { (*self.owner).to_string() }
 }
 
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct WSReadyToStart {
+    // the the owner of the request
+    // filled by the client
+    pub owner: String,
+}
 
-
-
+impl WSRequestTrait for WSReadyToStart {
+    fn consume_request(&self, turn: &mut Turn) { 
+        turn.turn_ready = true;
+    }
+    fn get_owner(&self) -> String { (*self.owner).to_string() }
+}
 
 
 

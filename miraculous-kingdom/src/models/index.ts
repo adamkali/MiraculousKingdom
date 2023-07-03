@@ -53,6 +53,8 @@ export type { TurnRequest } from './models/TurnRequest';
 export type { VecCharDetailedResponse } from './models/VecCharDetailedResponse';
 export type { VecClassDetailedResponse } from './models/VecClassDetailedResponse';
 export type { WSAbilityRequest } from './models/WSAbilityRequest';
+export type { WSReadyToStart } from './models/WSReadyToStart';
+export type { WSRequest } from './models/WSRequest';
 export type { WSRollRequest } from './models/WSRollRequest';
 export type { WSTargetRequest } from './models/WSTargetRequest';
 

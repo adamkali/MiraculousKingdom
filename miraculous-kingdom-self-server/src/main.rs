@@ -30,6 +30,8 @@ use ws::structs::{
     WSAbilityRequest,
     WSRollRequest,
     WSTargetRequest,
+    WSReadyToStart,
+    WSRequest,
     EpisodeResultItem,
     EpisodeResult,
     IsReady,
@@ -82,8 +84,7 @@ async fn main() {
                 Token, PayToken, Experience, DrawCard, RollRequest, RollResponse,
                 RollDetailedResponse, RollResult, WSTargetRequest, WSRollRequest,
                 WSAbilityRequest, Episode, EpisodeResult, EpisodeResultItem,
-                IsReady, IsReadyItem
-                
+                IsReady, IsReadyItem, WSRequest, WSReadyToStart
             ),
         ),
         tags(
