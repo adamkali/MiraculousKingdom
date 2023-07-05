@@ -48,18 +48,11 @@
     }
 
     const asyncInit = async () => {
-        await ApiQueueApiService.setQueue(game.game_pass);
-        let q_res = await ApiQueueApiService.getQueue()
+        const q_res = await ApiQueueApiService.setQueue(game.game_pass);
         if (q_res.success === 'Succeeding') {
             queue.set(q_res.data)
             queueres = queue.get()
         } else {
-            let setter = await ApiQueueApiService.setQueue(game.game_pass);
-            if (setter.success === 'Succeeding') {
-                queue.set(setter.data)
-                queueres = queue.get()
-            } else {
-            }
         }
         if (!character.char_hand.length) {
             let res = await ApiCharacterApiService.getCharacterForGame(
