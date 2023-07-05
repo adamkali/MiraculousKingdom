@@ -7,6 +7,10 @@
         type IsReadyItem,
         type WSRequest,
         type WSReadyToStart,
+        type WSAbilityRequest,
+        type Ability,
+        type MightRequirement, RollTier,
+        MightEnum,
         ApiQueueApiService
     } from "../../models";
     import { onMount } from "svelte";
@@ -52,8 +56,29 @@
         };
         socketGlobal.send(JSON.stringify(readyObject));
     }
+
+    const ability = async () => {
+        const abilityObject: WSRequest = {
+            ABILITYREQUEST: {
+                owner: character.secret,
+                ability: {
+                    ability_name: "Fireball",
+                    ability_desc: "A ball of fire",
+                    ability_unlock: {
+                        roll_tier: RollTier.FANTASTIC,
+                        might: MightEnum.SCIENCE,
+                        unlock: 1 
+                    } as MightRequirement,
+                    ability_rewards: [],
+                } as Ability
+            }
+        };
+        socketGlobal.send(JSON.stringify(abilityObject));
+    }
 </script>
 
 <div>
     <button on:click={async () => await ready()}>Ready</button>
+    <button on:click={async () => await ability()}>Ability</button>
+
 </div>

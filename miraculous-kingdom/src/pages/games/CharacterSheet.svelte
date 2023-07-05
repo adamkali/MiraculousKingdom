@@ -6,29 +6,27 @@
         type Ability,
         ApiCharacterApiService,
         ClassEnum,
-        type QueueResonse,
-        ApiSeasonApiService,
+        type SeasonResponse,
         ApiQueueApiService,
-        type TurnRequest,
-        type RollRequest,
     } from '../../models'
     import { currentGame, gameCharacter, queue } from '../../store'
     import SeasonRoll from './components/SeasonRoll.svelte'
     import AbilityChoice from './components/AbilityChoice.svelte'
     import ChooseTarget from './components/ChooseTarget.svelte';
+    import { OpenAPI } from '../../models'
 
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
-    let queueres: QueueResonse = queue.get()
     let tookturn = false
+    $: season = {} as SeasonResponse
     $: hand = character.char_hand
     $: might = character.char_might
     $: clocks = character.char_clocks
-    $: season = queueres.season
     $: characterTarget = {} as CharacterResponse
     $: abilityChoose = {} as Ability
     $: target = false
     $: waiting = false
+    $: ws = {} as WebSocket
 
     const asyncDiscard = async (ability: Ability) => {
         const res = await ApiCharacterApiService.discardCard(
@@ -37,8 +35,7 @@
             ability,
         )
         // TODO: Eventually make this into trashing the card
-        //      completely. and make it into a turn by using a constant
-        //      for the ability
+        //       a websocket request
         if (res.success === 'Succeeding') {
             gameCharacter.set(res.data)
             character = gameCharacter.get()
@@ -48,18 +45,16 @@
     }
 
     const asyncInit = async () => {
-        await ApiQueueApiService.setQueue(game.game_pass);
-        let q_res = await ApiQueueApiService.getQueue()
-        if (q_res.success === 'Succeeding') {
-            queue.set(q_res.data)
-            queueres = queue.get()
+        let setter = await ApiQueueApiService.setQueue(game.game_pass);
+        if (setter.success === 'Succeeding') {
+            // connect to the websocket
+            const base = OpenAPI.BASE;
+            // remove the http:// or https://
+            base.replace(/(^\w+:|^)\/\//, '');
+            ws = new WebSocket(
+                `ws://${base}/queue/${game.game_pass}`,
+            )
         } else {
-            let setter = await ApiQueueApiService.setQueue(game.game_pass);
-            if (setter.success === 'Succeeding') {
-                queue.set(setter.data)
-                queueres = queue.get()
-            } else {
-            }
         }
         if (!character.char_hand.length) {
             let res = await ApiCharacterApiService.getCharacterForGame(
@@ -105,47 +100,7 @@
         }
     }
 
-    const asyncRollSeason = async () => {
-        const res = await ApiSeasonApiService.roll()
-        if (res.success === 'Succeeding') {
-            const res1 = await ApiQueueApiService.setSeason(
-                res.data,
-            )
-            if (res1.success === 'Succeeding') {
-                queue.set(res1.data)
-                queueres = queue.get()
-            } else {
-                throw new Error(res1.success.Failing.message)
-            }
-        } else {
-            throw new Error(res.success.Failing.message)
-        }
-    }
-
     const take_turn = async (ability: Ability) => {
-        character.char_hand = character.char_hand.filter((e) => {
-            return e.ability_name != ability.ability_name
-        })
-        const res = await ApiQueueApiService.takeTurn({
-            character: character,
-            game: game.game_pass,
-            ability: ability,
-            initiatve: 0,
-        } as TurnRequest)
-        if (res.success === 'Succeeding') {
-            queue.set(res.data)
-            // find the character in the queue with the same secret as the character
-            queue.get().queue.forEach((a) => {
-                if (a.queue_char.secret === character.secret) {
-                    gameCharacter.set(a.queue_char)
-                }
-            })
-            queueres = queue.get()
-            target = true 
-            abilityChoose = ability
-        } else {
-            throw new Error(res.success.Failing.message)
-        }
     }
 </script>
 
@@ -225,15 +180,6 @@
                         <span>Start</span>
                     </Components.Button>
                 </div>
-            {:else if season.event_name === ''}
-                <SeasonRoll
-                    {hand}
-                    {might}
-                    asyncDiscard={async () => {}}
-                    {asyncRollSeason}
-                    {clocks}
-                    secret={character.secret}
-                />
             {:else if !target }
                 <AbilityChoice
                     {hand}

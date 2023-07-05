@@ -63,11 +63,15 @@ pub async fn set_queue(
                  a, doc! { "generated_pass": pass }
             )).await;
 
-    let queue = queue.lock().await;
-    
-    game_response.data.game_chars.into_iter().for_each(|a| {
-        queue.queue.to_vec().push(a.as_response());
-    });
+    let reference = game_response
+        .data
+        .game_chars
+        .iter()
+        .map(|a| a.clone().as_response())
+        .collect::<Vec<CharacterResponse>>();
+
+    queue.lock().await.queue = reference;
+
     
     let mut detailed_response = 
         DetailedResponse::new(false);
