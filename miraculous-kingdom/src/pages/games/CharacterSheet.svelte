@@ -6,52 +6,80 @@
         type Ability,
         ApiCharacterApiService,
         ClassEnum,
-        type QueueResonse,
-        ApiSeasonApiService,
+        type SeasonResponse,
         ApiQueueApiService,
-        type TurnRequest,
-        type RollRequest,
+        type SeasonDetailedResponse,
+        type WSRequest,
+        Episode,
+        type IsReady,
+        type WSAbilityRequest,
+        type WSRollRequest
     } from '../../models'
+
     import { currentGame, gameCharacter, queue } from '../../store'
     import SeasonRoll from './components/SeasonRoll.svelte'
     import AbilityChoice from './components/AbilityChoice.svelte'
     import ChooseTarget from './components/ChooseTarget.svelte';
+    import { OpenAPI } from '../../models'
 
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
-    let queueres: QueueResonse = queue.get()
     let tookturn = false
+
+    $: season = {} as SeasonResponse
     $: hand = character.char_hand
     $: might = character.char_might
     $: clocks = character.char_clocks
-    $: season = queueres.season
     $: characterTarget = {} as CharacterResponse
     $: abilityChoose = {} as Ability
-    $: target = false
+    $: currentState = {} as Episode
     $: waiting = false
+    $: ws = {} as WebSocket
+    $: isReady = {} as IsReady
 
-    const asyncDiscard = async (ability: Ability) => {
-        const res = await ApiCharacterApiService.discardCard(
-            character.secret,
-            game.game_pass,
-            ability,
-        )
-        // TODO: Eventually make this into trashing the card
-        //      completely. and make it into a turn by using a constant
-        //      for the ability
-        if (res.success === 'Succeeding') {
-            gameCharacter.set(res.data)
-            character = gameCharacter.get()
-        } else {
-            throw new Error(res.success.Failing.message)
+    $: () => {
+        // when the ws gets a message from the server
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data)
+            if (typeof data == typeof ({} as Episode) ) {
+                waiting = false
+                currentState = data as Episode 
+            } else if (typeof data == typeof ({} as SeasonDetailedResponse)) {
+                const seasonResponse = data as SeasonDetailedResponse 
+                if (seasonResponse.success === 'Succeeding') {
+                    season = seasonResponse.data
+                } else {
+                    console.log(seasonResponse.success.Failing.message);
+                }
+            } else if (typeof data == typeof ({} as IsReady)) {
+                isReady = data as IsReady
+            } else if (data == "WAITING") {
+                waiting = true
+            }
+            console.log(data)
         }
     }
 
     const asyncInit = async () => {
-        const q_res = await ApiQueueApiService.setQueue(game.game_pass);
-        if (q_res.success === 'Succeeding') {
-            queue.set(q_res.data)
-            queueres = queue.get()
+        let setter = await ApiQueueApiService.setQueue(game.game_pass)
+        if (setter.success === 'Succeeding') {
+            // connect to the websocket
+            const base = OpenAPI.BASE;
+            // remove the http:// or https://
+            ws = new WebSocket(
+                `ws://localhost:8050/api/queue`
+                //`ws://mk_api:8050/api/queue`
+            )
+            ws.onopen = () => {
+                ws.send(character.secret)
+               
+                ws.onmessage = (event) => {
+                    console.log(event.data)
+                }
+                ws.onerror = (event) => {
+                    console.log(event)
+                }
+            }
         } else {
         }
         if (!character.char_hand.length) {
@@ -83,63 +111,60 @@
         hand = gameCharacter.get().char_hand
     }
 
+    const asyncDiscard = async (ability: Ability) => {
+        console.log(ability)
+    }
+
     const asyncDraw = async () => {
-        const drawAmount = character.char_class === ClassEnum.SCIENTIST ? 2 : 1
-        const res = await ApiCharacterApiService.drawCard(
-            drawAmount,
-            character.secret,
-            game.game_pass,
+        console.log('draw')
+        // to do
+    }
+
+    const asyncReady = async () => {
+        ws.send(
+            JSON.stringify({
+                READYREQUEST: {
+                    owner: character.secret,
+                },
+            }),
         )
-        if (res.success === 'Succeeding') {
-            gameCharacter.set(res.data)
-            character = gameCharacter.get()
-        } else {
-            throw new Error(res.success.Failing.message)
-        }
     }
 
-    const asyncRollSeason = async () => {
-        const res = await ApiSeasonApiService.roll()
-        if (res.success === 'Succeeding') {
-            const res1 = await ApiQueueApiService.setSeason(
-                res.data,
-            )
-            if (res1.success === 'Succeeding') {
-                queue.set(res1.data)
-                queueres = queue.get()
-            } else {
-                throw new Error(res1.success.Failing.message)
-            }
-        } else {
-            throw new Error(res.success.Failing.message)
-        }
+    const asyncPlay = async (ability: Ability) => {
+        ws.send(
+            JSON.stringify({
+                ABILITYREQUEST: {
+                    ability,
+                    owner: character.secret,
+                } as WSAbilityRequest,
+            } as WSRequest),
+        )
     }
 
-    const take_turn = async (ability: Ability) => {
-        character.char_hand = character.char_hand.filter((e) => {
-            return e.ability_name != ability.ability_name
-        })
-        const res = await ApiQueueApiService.takeTurn({
-            character: character,
-            game: game.game_pass,
-            ability: ability,
-            initiatve: 0,
-        } as TurnRequest)
-        if (res.success === 'Succeeding') {
-            queue.set(res.data)
-            // find the character in the queue with the same secret as the character
-            queue.get().queue.forEach((a) => {
-                if (a.queue_char.secret === character.secret) {
-                    gameCharacter.set(a.queue_char)
-                }
-            })
-            queueres = queue.get()
-            target = true 
-            abilityChoose = ability
-        } else {
-            throw new Error(res.success.Failing.message)
-        }
+    const asyncTargetChoose = async (character: CharacterResponse) => {
+        ws.send(
+            JSON.stringify({
+                TARGETREQUEST: {
+                    owner: character.secret,
+                    character: character
+                },
+            }),
+        )
     }
+
+    const asyncRollConfirm = async (ability: Ability) => { 
+        ws.send(
+            JSON.stringify({
+                ROLLREQUEST: {
+                    owner: character.secret,
+                    ability: null,
+                    character: null,
+                    secret: "",
+                } as WSRollRequest,
+            }),
+        )
+    }
+
 </script>
 
 <div
@@ -150,7 +175,7 @@
     >
         Miraculous Kingdom
     </div>
-    {#await asyncInit()}
+    {#await asyncInit() }
         <div>...waiting</div>
     {:then}
         <div class="flex w-full flex-col">
@@ -207,27 +232,28 @@
                     </Components.Button>
                 </div>
             </div>
-            {#if waiting}
+            {#if waiting }
+                <div>
+                    <div class="text-2xl font-bold">Waiting for other players...</div>
+                    {#each isReady.items as item }
+                        <div class="flex flex-row">
+                            <div class="text-xl ">✔️  </div>
+                            <div class="text-xl text-blue-600">{item.name}</div>
+                            <div class="text-xl">{item.is_ready ? "🤯 " : "🫥 " }</div>
+                        </div>
+                    {/each}
+                </div>        
+            {:else if currentState === Episode.NONE }
                 <div class="flex flex-col items-center justify-center h-full">
                     <div class="text-2xl font-bold">Waiting for other players...</div>
                     <div class="text-2xl font-bold">Players: {game.game_chars.length}</div>
                     <Components.Button
-                        onClick={() => {
-                        }}
+                        onClick={async () => await asyncReady() }
                     >
                         <span>Start</span>
                     </Components.Button>
                 </div>
-            {:else if season.event_name === ''}
-                <SeasonRoll
-                    {hand}
-                    {might}
-                    asyncDiscard={async () => {}}
-                    {asyncRollSeason}
-                    {clocks}
-                    secret={character.secret}
-                />
-            {:else if !target }
+            {:else if currentState === Episode.ABILITYCHOOSE }
                 <AbilityChoice
                     {hand}
                     {season}
@@ -235,16 +261,22 @@
                     {clocks}
                     secret={character.secret}
                     {asyncDiscard}
-                    asyncPlay={take_turn}
+                    {asyncPlay} 
                     {asyncDraw}
                 />
-            {:else }
+            {:else if currentState === Episode.TARGETCHOICE }
                 <ChooseTarget 
                     {season}
                     ability={abilityChoose}
                     {might}
                     pass={game.game_pass}
                 />
+            {:else if currentState === Episode.ROLLRESULT }
+                <div></div>        
+            {:else if currentState === Episode.RESOLUTION }
+                <div></div> 
+            {:else}
+                <div></div>       
             {/if}
         </div>
     {:catch err}

@@ -1,16 +1,28 @@
 use crate::data_types::characters::{
     CharacterResponse,
-    Ability
+    Ability,
+    AbilityModel
 };
 use crate::data_types::common::APIError;
-use crate::data_types::engine::SeasonResponse;
-use crate::data_types::engine::RewardTypes;
 use tokio::sync::broadcast;
 use serde::{Deserialize, Serialize};
+use crate::data_types::{
+    engine::{
+        Season,
+        SeasonEnum,
+        SeasonResponse,
+        RewardTypes
+    },
+    common::{
+        Repository,
+        DetailedResponse,
+        MKModel
+    }
+};
 
 use utoipa::ToSchema;
-use std::sync::Arc;
 use std::collections::HashMap;
+use rand::seq::SliceRandom;
 
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub enum Episode {
@@ -46,6 +58,15 @@ pub struct Turn {
 }
 
 impl Turn {
+    pub fn new() -> Self {
+        Self {
+            turn_ability: AbilityModel::new().as_response(),
+            turn_characters: HashMap::new(),
+            turn_ready: false
+        }
+    }
+
+
     pub fn generate_result(&mut self) -> EpisodeResultItem {
         // loop over the hashmap and get the mapping with the highest i16 value 
         // and return bothe the key and the value 
@@ -108,7 +129,7 @@ pub struct IsReady {
 
 #[derive(Debug, Clone)]
 pub struct WSQueue {
-    pub queue: Arc<[CharacterResponse]>,
+    pub queue: Vec<CharacterResponse>,
     pub queue_state: Episode,
     pub queue_season: Option<SeasonResponse>,
     pub queue_turn: HashMap<String, Turn>,
@@ -118,19 +139,19 @@ pub struct WSQueue {
 impl WSQueue {
     pub fn new() -> Self {
         Self {
-            queue: Arc::new([]),
+            queue: Vec::new(),
             queue_state: Episode::NONE,
             queue_season: None,
             queue_turn: HashMap::new(),
-            global_broabcast: broadcast::channel(10).0,
+            global_broabcast: broadcast::channel(100).0,
         }
     }
 
     pub fn is_characers_ready(&self) -> bool {
-        let queue_char_length = (*self).queue.len();
-        let queue_turn_subscribed_length = (*self).queue_turn.len();
-        if queue_char_length != queue_turn_subscribed_length { return false; }
-        self.queue_turn.iter().all(|a| a.1.turn_ready )
+        let queue_char_length = self.queue.len();
+        let queue_turn_subscribed_length = self.queue_turn.len();
+        queue_char_length == queue_turn_subscribed_length 
+            && self.queue_turn.iter().all(|(_, turn)| turn.turn_ready) 
     }
 
     pub async fn receive_request(&mut self, request: &impl WSRequestTrait) -> Result<(), APIError> {
@@ -157,16 +178,75 @@ impl WSQueue {
         Ok(())
     }
 
-    pub async fn generate_is_ready(&self) -> Result<(), APIError> {
+    pub async fn generate_is_ready(&self) -> Result<String, APIError> {
         let mut results = IsReady {
             items: Vec::new()
         };
         self.queue_turn.iter().for_each(|a| {
             results.items.push(a.1.clone().generate_is_ready(a.0));
         });
-        let results = serde_json::to_string(&results).unwrap();
-        self.global_broabcast.send(results).unwrap();
-        Ok(())
+        match serde_json::to_string(&results) {
+            Ok(a) => Ok(a),
+            Err(e) => Err(APIError {
+                status_code: 500,
+                message: e.to_string(),
+            }),
+        }
+    }
+
+    pub async fn advance_episode_state(&mut self, db: mongodb::Database) -> bool {
+        if self.is_characers_ready() {
+            match self.queue_state {
+                Episode::NONE => {
+                    self.queue_state = Episode::ABILITYCHOOSE;
+                },
+                Episode::ABILITYCHOOSE => {
+                    self.queue_state = Episode::TARGETCHOICE;
+                },
+                Episode::TARGETCHOICE => {
+                    self.queue_state = Episode::ROLLRESULT;
+                },
+                Episode::ROLLRESULT => {
+                    self.queue_state = Episode::RESOLUTION;
+                },
+                Episode::RESOLUTION => {
+                    if let Some(mut a) = self.queue_season.clone() {
+                        a.event_length -= 1;
+                        if a.event_length == 0 {
+                            self.queue_season = None;
+                            self.queue_state = Episode::NONE;
+                            
+                            let mut seasons_response = DetailedResponse::new( Vec::<Season>::new());
+                            let mut response: DetailedResponse<SeasonResponse> = DetailedResponse::new(Season::new().as_response());
+
+                            let mut repository = Repository::<Season>::new(&db.clone(), "seasons");
+
+                            seasons_response
+                                .run(|a| repository.get_all(a))
+                                .await;
+
+                            println!("{}", serde_json::to_string_pretty(&seasons_response).unwrap());
+
+                            seasons_response.data.choose(&mut rand::thread_rng()).unwrap();
+
+                            response.success = seasons_response.success;
+
+                            self.global_broabcast.send(serde_json::to_string(&response).unwrap()).unwrap();
+                        } else {
+                            self.queue_season = Some(a);
+                            self.queue_state = Episode::ABILITYCHOOSE;
+                        }
+                        self.queue_turn.iter_mut().for_each(|x| {
+                            *x.1 = Turn::new();
+                        });
+                    }
+                    self.queue_state = Episode::NONE;
+                },
+            }
+            true
+        } else {
+            false
+        }
     }
 }
 
@@ -181,6 +261,13 @@ pub enum WSRequest {
     ABILITYREQUEST(WSAbilityRequest),
     CHARACTERREQUEST(WSTargetRequest),
     ROLLREQUEST(WSRollRequest),
+}
+
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub enum AbilityUse{
+    USE(Ability),
+    DISCARD(Ability),
+    DRAW
 }
 
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
