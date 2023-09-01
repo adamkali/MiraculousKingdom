@@ -19,7 +19,6 @@
     export let asyncDiscard: (ability: Ability) => Promise<void>
     export let asyncDraw: () => Promise<void> = async () => {}
     export let asyncPlay: (ability: Ability) => Promise<void> = async () => {}
-
 </script>
 
 <div class="grid-row-4 grid gap-8 p-4">

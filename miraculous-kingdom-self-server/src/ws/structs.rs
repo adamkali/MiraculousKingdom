@@ -11,7 +11,8 @@ use crate::data_types::{
         Season,
         SeasonEnum,
         SeasonResponse,
-        RewardTypes
+        RewardTypes,
+        Game
     },
     common::{
         Repository,
@@ -23,6 +24,9 @@ use crate::data_types::{
 use utoipa::ToSchema;
 use std::collections::HashMap;
 use rand::seq::SliceRandom;
+use futures::{sink::SinkExt, stream::StreamExt};
+use mongodb::bson::doc;
+
 
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub enum Episode {
@@ -147,6 +151,12 @@ impl WSQueue {
         }
     }
 
+    pub async fn remove_player(&mut self, name: &str) {
+        // remove the character from the queue and store it in a variable
+        self.queue.retain(|x| x.secret != name);
+        self.queue_turn.remove(name);
+    }
+
     pub fn is_characers_ready(&self) -> bool {
         let queue_char_length = self.queue.len();
         let queue_turn_subscribed_length = self.queue_turn.len();
@@ -196,6 +206,8 @@ impl WSQueue {
 
     pub async fn advance_episode_state(&mut self, db: mongodb::Database) -> bool {
         if self.is_characers_ready() {
+            tracing::debug!("Characters are ready, advancing to next state");
+            tracing::debug!("Current state: {:?}", self.queue_state);
             match self.queue_state {
                 Episode::NONE => {
                     self.queue_state = Episode::ABILITYCHOOSE;
@@ -211,8 +223,9 @@ impl WSQueue {
                 },
                 Episode::RESOLUTION => {
                     if let Some(mut a) = self.queue_season.clone() {
-                        a.event_length -= 1;
+                        if a.event_length != 0  {a.event_length -= 1};
                         if a.event_length == 0 {
+                            tracing::debug!("Event length is 0, removing season");
                             self.queue_season = None;
                             self.queue_state = Episode::NONE;
                             
@@ -233,7 +246,7 @@ impl WSQueue {
 
                             self.global_broabcast.send(serde_json::to_string(&response).unwrap()).unwrap();
                         } else {
-                            self.queue_season = Some(a);
+                            self.queue_season = Some(a.clone());
                             self.queue_state = Episode::ABILITYCHOOSE;
                         }
                         self.queue_turn.iter_mut().for_each(|x| {
@@ -243,6 +256,9 @@ impl WSQueue {
                     self.queue_state = Episode::NONE;
                 },
             }
+            self.queue_turn.iter_mut().for_each(|a| {
+                a.1.turn_ready = false;
+            });
             true
         } else {
             false
@@ -346,5 +362,10 @@ impl WSRequestTrait for WSReadyToStart {
     fn get_owner(&self) -> String { (*self.owner).to_string() }
 }
 
-
-
+#[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub enum WSResponse {
+    SEASONRESPONSE(SeasonResponse),
+    EPISODERESPONSE(Episode),
+    ISREADY(IsReady),
+    WAITING,
+}

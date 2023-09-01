@@ -3,5 +3,5 @@
 /* eslint-disable */
 
 export type DrawCard = {
-    amount: number;
-};
+    amount: number
+}

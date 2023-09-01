@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { 
+    import {
         type SeasonResponse as Season,
         type Ability,
         type Experience,
         type Token,
         type Clock,
-    } from '../models';
+    } from '../models'
 
     function isAbility(ability: any): ability is Ability {
         return ability.type === 'Ability'
@@ -23,7 +23,7 @@
         return token.type === 'Token'
     }
 
-    export let ability: Ability;
+    export let ability: Ability
 </script>
 
 <div class="flex w-full flex-row">
@@ -43,7 +43,7 @@
                 </p>
             </div>
             <div class="flex w-1/2 flex-col">
-                {#each ability.ability_rewards as ab }
+                {#each ability.ability_rewards as ab}
                     {#if ab !== 'None' && isAbility(ab)}
                         <div class="text-2xl font-bold text-blue-400">
                             Reward: Ability

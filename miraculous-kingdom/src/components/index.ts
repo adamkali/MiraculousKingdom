@@ -21,5 +21,5 @@ export {
     Hand,
     Clock,
     Season,
-    AbilityWide
+    AbilityWide,
 }

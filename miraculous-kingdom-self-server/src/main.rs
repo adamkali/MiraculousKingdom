@@ -17,6 +17,9 @@ use tower_http::{
     cors::{AllowHeaders, AllowMethods, Any, CorsLayer},
     trace::TraceLayer,
 };
+use tower::{BoxError, ServiceBuilder};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
 use tracing::{info_span, Span, Value};
 use data_types::characters::*;
 use data_types::common::*;
@@ -36,6 +39,7 @@ use ws::structs::{
     EpisodeResult,
     IsReady,
     IsReadyItem,
+    WSResponse
 };
 
 #[derive(Clone, Copy)]
@@ -84,7 +88,7 @@ async fn main() {
                 Token, PayToken, Experience, DrawCard, RollRequest, RollResponse,
                 RollDetailedResponse, RollResult, WSTargetRequest, WSRollRequest,
                 WSAbilityRequest, Episode, EpisodeResult, EpisodeResultItem,
-                IsReady, IsReadyItem, WSRequest, WSReadyToStart
+                IsReady, IsReadyItem, WSRequest, WSReadyToStart, WSResponse,
             ),
         ),
         tags(
@@ -93,12 +97,10 @@ async fn main() {
     )]
     struct APIDoc;
 
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var(
-            "RUST_LOG",
-            "miraculous-kingdom-self-server=trace,tower_http=trace",
-        )
-    }
+
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
 
     // local!
     let uri = "mongodb://root:mk2023!@localhost:8100";
@@ -126,25 +128,9 @@ async fn main() {
                 .allow_headers(AllowHeaders::any()),
         )
         .layer(
-            TraceLayer::new_for_http()
-                .make_span_with(|request: &Request<_>| {
-                    let matched_path = request
-                        .extensions()
-                        .get::<MatchedPath>()
-                        .map(MatchedPath::as_str);
-
-                    info_span!(
-                        "http_request",
-                        method = ?request.method(),
-                        matched_path,
-                        some_other_field = tracing::field::Empty,
-                    )
-                })
-                .on_request(|_request: &Request<_>, _span: &Span| {
-                    _span
-                        .record("uri:", _request.uri().path().to_string())
-                        .record("method: ", _request.method().to_string());
-                }),
+            ServiceBuilder::new()
+                .layer(TraceLayer::new_for_http())
+                .into_inner(),
         );
 
     let addr = SocketAddr::from(([0, 0, 0, 0], ports.https));

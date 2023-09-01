@@ -527,12 +527,13 @@ db.seasons.insertMany([
         "event_reward": {
             "Ability": {
                 "ability_name": "Resolve",
-                "ability_desc": "During a Season where Siege is in the name, Play this ability during after the Season is revealed. You gain any tokensduring the siege as well as contributing to the kingdom's need.",
+                "ability_desc": "During a Season where Siege is in the name, Play this ability during after the Season is revealed. You gain any tokens during the siege as well as contributing to the kingdom's need.",
                 "ability_unlock": {
                     "might" : "Military",
                     "roll_tier": "None", 
                     "unlock": 0
-                }
+                },
+                "ability_rewards": []
             }
         },
     },
@@ -566,7 +567,8 @@ db.seasons.insertMany([
                     "might" : "Diplomacy",
                     "roll_tier": "None", 
                     "unlock": 0
-                }
+                },
+                "ability_rewards": []
             }
         }
     },

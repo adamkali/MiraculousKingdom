@@ -3,5 +3,5 @@
 /* eslint-disable */
 
 export type WSReadyToStart = {
-    owner: string;
-};
+    owner: string
+}

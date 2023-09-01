@@ -3,6 +3,6 @@
 /* eslint-disable */
 
 export type IsReadyItem = {
-    is_ready: boolean;
-    name: string;
-};
+    is_ready: boolean
+    name: string
+}

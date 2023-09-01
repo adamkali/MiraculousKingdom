@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Progress } from './Progress';
-import type { RollResponse } from './RollResponse';
+import type { Progress } from './Progress'
+import type { RollResponse } from './RollResponse'
 
 export type RollDetailedResponse = {
-    data: RollResponse;
-    success: Progress;
-};
+    data: RollResponse
+    success: Progress
+}

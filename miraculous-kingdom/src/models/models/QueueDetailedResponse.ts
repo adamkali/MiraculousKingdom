@@ -2,10 +2,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Progress } from './Progress';
-import type { QueueResonse } from './QueueResonse';
+import type { Progress } from './Progress'
+import type { QueueResonse } from './QueueResonse'
 
 export type QueueDetailedResponse = {
-    data: QueueResonse;
-    success: Progress;
-};
+    data: QueueResonse
+    success: Progress
+}

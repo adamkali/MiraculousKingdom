@@ -1,18 +1,22 @@
 <script lang="ts">
-    import { type Experience, MightEnum, type SeasonResponse } from "../../models";
+    import {
+        type Experience,
+        MightEnum,
+        type SeasonResponse,
+    } from '../../models'
 
-
-   let season = {
-        event_name: "Season of the Witch",
-        event_desc: "The Season of the Witch is a time of magic and mystery. During this season, players can use their magic to cast spells and enchantments. The Season of the Witch lasts for 3 turns.",
+    let season = {
+        event_name: 'Season of the Witch',
+        event_desc:
+            'The Season of the Witch is a time of magic and mystery. During this season, players can use their magic to cast spells and enchantments. The Season of the Witch lasts for 3 turns.',
         event_length: 3,
         event_reward: {
             Experience: {
                 exp_amount: 2,
-                exp_type: MightEnum.MILITARY
-            } as Experience
-        }
-    } as SeasonResponse;
+                exp_type: MightEnum.MILITARY,
+            } as Experience,
+        },
+    } as SeasonResponse
 </script>
 
 <div
@@ -24,7 +28,9 @@
         <h1 class="text-center">Seasons</h1>
     </div>
     <div class="rounded-xl bg-black p-16">
-        During a game of Miraculous Kingdom, the players will experience many Seasons. Each Season has there own special mecanics to them. Here is at example of one:
+        During a game of Miraculous Kingdom, the players will experience many
+        Seasons. Each Season has there own special mecanics to them. Here is at
+        example of one:
     </div>
 
     <div
@@ -37,9 +43,7 @@
             <p class="text-xl font-bold text-slate-400">
                 {season.event_desc}
             </p>
-            <div
-                class="place-item-left text-xl font-bold text-slate-400"
-            >
+            <div class="place-item-left text-xl font-bold text-slate-400">
                 {season.event_length}
             </div>
         </div>

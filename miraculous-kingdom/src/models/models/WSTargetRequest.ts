@@ -3,6 +3,6 @@
 /* eslint-disable */
 
 export type WSTargetRequest = {
-    owner: string;
-    targets: Array<string>;
-};
+    owner: string
+    targets: Array<string>
+}

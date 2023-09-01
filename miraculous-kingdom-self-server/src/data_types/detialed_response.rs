@@ -2,7 +2,6 @@ use axum::{
     body::{Bytes, HttpBody},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
-    async_trait,
 };
 use futures::Future;
 use serde::Serialize;
@@ -55,7 +54,7 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
 
     pub fn set_code(&mut self, error: Option<APIError>) -> &mut Self {
         if let Some(err) = error {
-            self.success = Progress::Failing(err.clone());
+            self.success = Progress::Failing(err);
         } else {
             self.success = Progress::Succeeding;
         }
@@ -67,7 +66,7 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
             data: None,
             success: Progress::Failing(APIError::new(
                 StatusCode::INTERNAL_SERVER_ERROR,
-                message.clone(),
+                message,
             )),
         };
         serde_json::to_string(&nil).unwrap_or_else(|_| "well... $hit".to_string())
@@ -91,10 +90,41 @@ impl<T: Serialize + Send + Clone> DetailedResponse<T> {
 
     pub fn absorb<S>(&mut self, to: &mut DetailedResponse<S>) -> Self
     where
-        S: Serialize + Send + Clone,
+        S: Serialize + Send + Clone ,
     {
         self.success = to.success.clone();
         self.clone()
+    }
+}
+
+impl<T> DetailedResponse<T>
+where
+    T: Serialize + Send + Clone + MKModel
+{
+    pub fn as_response(&self) -> DetailedResponse<T::Response> 
+    where 
+        T::Response: MkResponse + Sized + Clone + Send + Serialize
+    {
+        DetailedResponse {
+            data: self.data.clone().as_response(),
+            success: self.success.clone(),
+        }
+
+    }
+}
+
+impl<T> DetailedResponse<Vec<T>>
+where
+    T: Serialize + Send + Clone + MKModel,
+{
+    pub fn as_response(&self) -> DetailedResponse<Vec<T::Response>>
+    where 
+        T::Response: MkResponse + Sized + Clone + Send + Serialize
+    {
+        DetailedResponse {
+            data: self.data.clone().iter().map(|x| x.as_response()).collect(),
+            success: self.success.clone(),
+        }
     }
 }
 
@@ -126,7 +156,18 @@ impl<T: Serialize + Send + Clone> HttpBody for DetailedResponse<T> {
 
 impl<T: Serialize + Send + Clone + 'static> IntoResponse for DetailedResponse<T> {
     fn into_response(self) -> axum::response::Response {
-        axum::response::Response::new(axum::body::boxed(self))
+        let self_clone = self.clone();
+        match self.success {
+            Progress::Succeeding => {
+                let response = axum::response::Json(self);
+                (StatusCode::OK, response).into_response()
+            },
+            Progress::Failing(err) => {
+                let status = StatusCode::from_u16(err.status_code).unwrap();
+                let response = axum::response::Json(self_clone);
+                (status, response).into_response()
+            },
+        }
     }
 }
 

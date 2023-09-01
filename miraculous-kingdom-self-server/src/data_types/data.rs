@@ -12,8 +12,6 @@ use rand::{thread_rng, Rng, seq::SliceRandom};
 
 // Character ================================
 
-#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
-pub enum CharacterState {
     #[default]
     Waiting,
     RollingSeason,

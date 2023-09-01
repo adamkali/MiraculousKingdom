@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Ability } from './Ability';
+import type { Ability } from './Ability'
 
 export type WSAbilityRequest = {
-    ability: Ability;
-    owner: string;
-};
+    ability: Ability
+    owner: string
+}

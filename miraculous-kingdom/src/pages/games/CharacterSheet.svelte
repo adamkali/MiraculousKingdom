@@ -5,26 +5,28 @@
         type GameInfo,
         type Ability,
         ApiCharacterApiService,
-        ClassEnum,
         type SeasonResponse,
         ApiQueueApiService,
-        type SeasonDetailedResponse,
         type WSRequest,
         Episode,
         type IsReady,
         type WSAbilityRequest,
-        type WSRollRequest
+        type WSRollRequest,
+        type WSReadyToStart,
+        type WSResponse,
     } from '../../models'
+    import * as utils from '../../utils'
 
-    import { currentGame, gameCharacter, queue } from '../../store'
-    import SeasonRoll from './components/SeasonRoll.svelte'
+    import { currentGame, gameCharacter } from '../../store'
+    //import SeasonRoll from './components/SeasonRoll.svelte'
     import AbilityChoice from './components/AbilityChoice.svelte'
-    import ChooseTarget from './components/ChooseTarget.svelte';
+    import ChooseTarget from './components/ChooseTarget.svelte'
     import { OpenAPI } from '../../models'
 
     let game: GameInfo = currentGame.get()
     let character: CharacterResponse = gameCharacter.get()
-    let tookturn = false
+    let ws = {} as WebSocket
+    //let tookturn = false
 
     $: season = {} as SeasonResponse
     $: hand = character.char_hand
@@ -32,55 +34,46 @@
     $: clocks = character.char_clocks
     $: characterTarget = {} as CharacterResponse
     $: abilityChoose = {} as Ability
-    $: currentState = {} as Episode
+    $: currentState = Episode.NONE
     $: waiting = false
-    $: ws = {} as WebSocket
     $: isReady = {} as IsReady
-
-    $: () => {
-        // when the ws gets a message from the server
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data)
-            if (typeof data == typeof ({} as Episode) ) {
-                waiting = false
-                currentState = data as Episode 
-            } else if (typeof data == typeof ({} as SeasonDetailedResponse)) {
-                const seasonResponse = data as SeasonDetailedResponse 
-                if (seasonResponse.success === 'Succeeding') {
-                    season = seasonResponse.data
-                } else {
-                    console.log(seasonResponse.success.Failing.message);
-                }
-            } else if (typeof data == typeof ({} as IsReady)) {
-                isReady = data as IsReady
-            } else if (data == "WAITING") {
-                waiting = true
-            }
-            console.log(data)
-        }
-    }
 
     const asyncInit = async () => {
         let setter = await ApiQueueApiService.setQueue(game.game_pass)
         if (setter.success === 'Succeeding') {
             // connect to the websocket
-            const base = OpenAPI.BASE;
-            // remove the http:// or https://
+            let base = OpenAPI.BASE
+            base = utils.convertToWS(base)
             ws = new WebSocket(
-                `ws://localhost:8050/api/queue`
+                `${base}/api/queue`,
                 //`ws://mk_api:8050/api/queue`
             )
             ws.onopen = () => {
                 ws.send(character.secret)
-               
+                console.log('Entered Event')
                 ws.onmessage = (event) => {
-                    console.log(event.data)
-                }
-                ws.onerror = (event) => {
-                    console.log(event)
+                    console.log('data', event.data)
+                    let data: WSResponse = JSON.parse(event.data) as WSResponse
+                    if (utils.isSeasonResponse(data)) {
+                        console.log('season', data)
+                        season = data
+                    } else if (utils.isEpisodeResponse(data)) {
+                        console.log('episode', data)
+                        currentState = data['EPISODERESPONSE']  
+                        console.log('currentState', currentState)
+                    } else if (utils.isIsReady(data)) {
+                        console.log('isReady', data)
+                        const dataAsIsReady: IsReady = data['ISREADY']
+                        isReady = dataAsIsReady
+                    } else if (utils.isWaiting(data)) {
+                        console.log('waiting', data)
+                        waiting = true
+                    } else {
+                        console.log('Received unknown data:', data)
+                    }
+                    console.log('closing event');
                 }
             }
-        } else {
         }
         if (!character.char_hand.length) {
             let res = await ApiCharacterApiService.getCharacterForGame(
@@ -123,10 +116,10 @@
     const asyncReady = async () => {
         ws.send(
             JSON.stringify({
-                READYREQUEST: {
+                READYTOSTART: {
                     owner: character.secret,
-                },
-            }),
+                } as WSReadyToStart,
+            } as WSRequest),
         )
     }
 
@@ -146,25 +139,24 @@
             JSON.stringify({
                 TARGETREQUEST: {
                     owner: character.secret,
-                    character: character
+                    character: character,
                 },
             }),
         )
     }
 
-    const asyncRollConfirm = async (ability: Ability) => { 
+    const asyncRollConfirm = async (ability: Ability) => {
         ws.send(
             JSON.stringify({
                 ROLLREQUEST: {
                     owner: character.secret,
                     ability: null,
                     character: null,
-                    secret: "",
+                    secret: '',
                 } as WSRollRequest,
             }),
         )
     }
-
 </script>
 
 <div
@@ -175,7 +167,7 @@
     >
         Miraculous Kingdom
     </div>
-    {#await asyncInit() }
+    {#await asyncInit()}
         <div>...waiting</div>
     {:then}
         <div class="flex w-full flex-col">
@@ -232,28 +224,34 @@
                     </Components.Button>
                 </div>
             </div>
-            {#if waiting }
+            {#if waiting}
                 <div>
-                    <div class="text-2xl font-bold">Waiting for other players...</div>
-                    {#each isReady.items as item }
+                    <div class="text-2xl font-bold">
+                        Waiting for other players...
+                    </div>
+                    {#each isReady.items as item}
                         <div class="flex flex-row">
-                            <div class="text-xl ">✔️  </div>
+                            <div class="text-xl">✔️</div>
                             <div class="text-xl text-blue-600">{item.name}</div>
-                            <div class="text-xl">{item.is_ready ? "🤯 " : "🫥 " }</div>
+                            <div class="text-xl">
+                                {item.is_ready ? '🤯 ' : '🫥 '}
+                            </div>
                         </div>
                     {/each}
-                </div>        
-            {:else if currentState === Episode.NONE }
-                <div class="flex flex-col items-center justify-center h-full">
-                    <div class="text-2xl font-bold">Waiting for other players...</div>
-                    <div class="text-2xl font-bold">Players: {game.game_chars.length}</div>
-                    <Components.Button
-                        onClick={async () => await asyncReady() }
-                    >
+                </div>
+            {:else if currentState === Episode.NONE}
+                <div class="flex h-full flex-col items-center justify-center">
+                    <div class="text-2xl font-bold">
+                        Waiting for other players...
+                    </div>
+                    <div class="text-2xl font-bold">
+                        Players: {game.game_chars.length}
+                    </div>
+                    <Components.Button onClick={async () => await asyncReady()}>
                         <span>Start</span>
                     </Components.Button>
                 </div>
-            {:else if currentState === Episode.ABILITYCHOOSE }
+            {:else if currentState === Episode.ABILITYCHOOSE}
                 <AbilityChoice
                     {hand}
                     {season}
@@ -261,22 +259,22 @@
                     {clocks}
                     secret={character.secret}
                     {asyncDiscard}
-                    {asyncPlay} 
+                    {asyncPlay}
                     {asyncDraw}
                 />
-            {:else if currentState === Episode.TARGETCHOICE }
-                <ChooseTarget 
+            {:else if currentState === Episode.TARGETCHOICE}
+                <ChooseTarget
                     {season}
                     ability={abilityChoose}
                     {might}
                     pass={game.game_pass}
                 />
-            {:else if currentState === Episode.ROLLRESULT }
-                <div></div>        
-            {:else if currentState === Episode.RESOLUTION }
-                <div></div> 
+            {:else if currentState === Episode.ROLLRESULT}
+                <div>Roll</div>
+            {:else if currentState === Episode.RESOLUTION}
+                <div>RESOLUTION</div>
             {:else}
-                <div></div>       
+                <div>This should not be happening</div>
             {/if}
         </div>
     {:catch err}

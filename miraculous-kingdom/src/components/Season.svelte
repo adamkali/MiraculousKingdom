@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { 
+    import {
         type SeasonResponse as Season,
         type Ability,
         type Experience,
         type Token,
         type Clock,
-    } from '../models';
+    } from '../models'
 
     function isAbility(ability: any): ability is Ability {
         return ability.type === 'Ability'
@@ -23,7 +23,9 @@
         return token.type === 'Token'
     }
 
-    export let season: Season;
+    export let season: Season
+
+    $: { console.log(season.event_reward); }
 </script>
 
 <div class="flex w-full flex-row">
@@ -41,9 +43,7 @@
                 <p class="text-xl font-bold text-slate-400">
                     {season.event_desc}
                 </p>
-                <div
-                    class="place-item-left text-xl font-bold text-slate-400"
-                >
+                <div class="place-item-left text-xl font-bold text-slate-400">
                     {season.event_length}
                 </div>
             </div>
@@ -65,8 +65,6 @@
                         Reward: Experience
                     </div>
                     <p class="text-xl font-bold text-slate-400">
-                        {season.event_reward.exp_type} + {season
-                            .event_reward.exp_amount}
                     </p>
                 </div>
             {:else if season.event_reward !== 'None' && isClock(season.event_reward)}

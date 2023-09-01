@@ -79,8 +79,8 @@ pub async fn get_characters(
     Path(secret): Path<String>,
 ) -> Json<DetailedResponse<Vec<CharacterResponse>>> {
     let mut response = DetailedResponse::new(Vec::<Character>::new());
+    let mut game_repo = Repository::<Game>::new(&mongo, "games");
 
-    let mut repository = Repository::<Character>::new(&mongo, "characters");
     response
         .run(|a| {
             repository.get_all_with_filter(
@@ -443,13 +443,13 @@ pub async fn draw_card(
     Extension(mongo): Extension<Database>,
     Path((number, secret, pass)): Path<(u8, String, String)>,
 ) -> Json<DetailedResponse<CharacterResponse>> {
-    let mut game_response = DetailedResponse::new(Game::new());
-    let mut chatacterresp = DetailedResponse::new(Character::new());
-    let mut char_response = DetailedResponse::new(
-        chatacterresp.clone().data.as_response()
-    );
+    //let mut game_response = DetailedResponse::new(Game::new());
+    //let mut chatacterresp = DetailedResponse::new(Character::new());
+    //let mut char_response = DetailedResponse::new(
+    //    chatacterresp.clone().data.as_response()
+    //);
 
-    let mut game_repo = Repository::<Game>::new(&mongo, "games");
+    //let mut game_repo = Repository::<Game>::new(&mongo, "games");
 
     game_response
         .run(|a| {
@@ -540,10 +540,11 @@ pub async fn draw_card(
         ),
     )
 )]
+//pub async fn discard_card(
 pub async fn discard_card(
     Extension(mongo): Extension<Database>,
     Path((secret, pass)): Path<(String, String)>,
-    Json(ability): Json<Ability>,
+    Json(ability): Json<Ability>
 ) -> Json<DetailedResponse<CharacterResponse>> {
     let mut game_response = DetailedResponse::new(Game::new());
     let mut chatacterresp = DetailedResponse::new(Character::new());
@@ -563,7 +564,6 @@ pub async fn discard_card(
     chatacterresp = find_char_in_game(chatacterresp, &mut game_response, secret).await;
 
     chatacterresp.success = game_response.clone().success;
-    chatacterresp = 
     chatacterresp
         .run(|a| {
             move_ability_from_hand_to_discard(a, ability)

@@ -2,9 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { CharacterResponse } from './CharacterResponse';
+import type { CharacterResponse } from './CharacterResponse'
 
 export type RollRequest = {
-    owner: string;
-    rolls: Array<CharacterResponse>;
-};
+    owner: string
+    rolls: Array<CharacterResponse>
+}

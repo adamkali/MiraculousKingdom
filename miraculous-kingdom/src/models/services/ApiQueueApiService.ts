@@ -1,14 +1,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { QueueDetailedResponse } from '../models/QueueDetailedResponse';
+import type { QueueDetailedResponse } from '../models/QueueDetailedResponse'
 
-import type { CancelablePromise } from '../core/CancelablePromise';
-import { OpenAPI } from '../core/OpenAPI';
-import { request as __request } from '../core/request';
+import type { CancelablePromise } from '../core/CancelablePromise'
+import { OpenAPI } from '../core/OpenAPI'
+import { request as __request } from '../core/request'
 
 export class ApiQueueApiService {
-
     /**
      * @returns any Found Queue from database
      * @throws ApiError
@@ -21,7 +20,7 @@ export class ApiQueueApiService {
                 404: `Could not find queue from database`,
                 500: ` Internal error occured`,
             },
-        });
+        })
     }
 
     /**
@@ -30,19 +29,18 @@ export class ApiQueueApiService {
      * @throws ApiError
      */
     public static setQueue(
-pass: string,
-): CancelablePromise<QueueDetailedResponse> {
+        pass: string,
+    ): CancelablePromise<QueueDetailedResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/api/queue/{pass}',
             path: {
-                'pass': pass,
+                pass: pass,
             },
             errors: {
                 404: `Could not find queue from database`,
                 500: ` Internal error occured`,
             },
-        });
+        })
     }
-
 }

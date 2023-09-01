@@ -28,8 +28,8 @@
             dramas like Game of Thrones, Last of Us, or The Wire.
             <br />
             <br />
-            To begin a game: Go to <Special href="/game/start/">Create</Special
-            > and make a setting for your game. Have the rest of your friends using
+            To begin a game: Go to <Special href="/game/start/">Create</Special>
+            and make a setting for your game. Have the rest of your friends using
             the password you get from the server and have them to go <Special
                 href="/game/join">here</Special
             >
