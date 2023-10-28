@@ -1,0 +1,45 @@
+{{ define "game/index.html" }}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Miraculous Kingdom - Games</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/static/output.css">
+    <spcript src="/static/htmx.min.js"></script>
+</head>
+<body class="bg-yellow-300 w-full h-screen p-16">
+    <div class="w-full h-full flex flex-col rounded border-yellow-900 border-2
+        bg-yellow-700 text-yellow-300 justify-start">
+        <div class="w-full h-24 text-2xl">
+            <span>Miraculous Kingdom - Games</span>
+        </div>
+        <div class="w-full h-full flex flex-row justify-evenly">
+            <div class="flex flex-col">
+                <a
+                    href="/"
+                    class="rounded-lg bg-orange-600 text-orange-300 w-24 h-12
+                    border-2 border-yellow-900 hover:bg-orange-500 hover:text-orange-200"
+                >
+                    Go back
+                </a>
+                <div
+                    class="flex flex-col justify-start"
+                    id="game-list"
+                >
+                </div>
+            </div>
+            <div class="flex flex-col justify-center align-middle">
+                <form
+                    class="flex flex-col justify-center align-middle"
+                    hx-post="/game"
+                    hx-target="#game-list" 
+                >
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{{ end }}

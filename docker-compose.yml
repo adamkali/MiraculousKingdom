@@ -9,12 +9,12 @@ services:
       - /surreal 
       - start 
       - --user
-      - $DB_USER
+      - $DB_USERNAME
       - --pass
-      - $DB_PASS
+      - $DB_PASSWORD
     image: surrealdb/surrealdb:latest
     ports:
-      - 3100:8000
+      - 8080:8000
     volumes:
       - ./mk_surrealdb/migrations.surql:/migrations.surql
 
