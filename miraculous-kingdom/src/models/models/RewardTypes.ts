@@ -4,7 +4,10 @@
 
 import type { Ability } from './Ability'
 import type { Clock } from './Clock'
-import type { MightStat } from './MightStat'
+import type { DrawCard } from './DrawCard'
+import type { Experience } from './Experience'
+import type { PayToken } from './PayToken'
+import type { Token } from './Token'
 
 export type RewardTypes =
     | 'None'
@@ -12,8 +15,17 @@ export type RewardTypes =
           Ability: Ability
       }
     | {
-          Experience: MightStat
+          Experience: Experience
       }
     | {
           Clock: Clock
+      }
+    | {
+          Token: Token
+      }
+    | {
+          DrawCard: DrawCard
+      }
+    | {
+          PayToken: PayToken
       }

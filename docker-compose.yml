@@ -1,3 +1,4 @@
+
 version: '3'
 
 services:
@@ -13,29 +14,59 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=mk2023!
       - MONGO_INITDB_DATABASE=mkdb
+    networks:
+      mk_network:
+        ipv4_address: 172.20.0.40
 
   api:
-    #image: adamkali/miraculous-kingdom-api:0.2.0
-    build: ./miraculous-kingdom-self-server
-    container_name: mk-api
+    build: 
+      context: ./miraculous-kingdom-self-server
+      dockerfile: dockerfile
+    container_name: mk_api
     ports:
       - "8050:8050"
     depends_on:
       - mongodb
     environment:
-      - RUST_LOG=info
-    volumes:
-      - ./miraculous-kingdom-self-server/certs:/working
-  
+      - RUST_LOG=debug
+    networks:
+      mk_network:
+        ipv4_address: 172.20.0.30
+
   app:
     build:
       context: ./miraculous-kingdom
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     container_name: mk_app
     ports:
-      - "80:80"
+      - "8000:4173"
     depends_on:
       - api
+    networks:
+      mk_network:
+        ipv4_address: 172.20.0.20
+
+  nginx:
+    image: nginx:1.21-alpine
+    container_name: mk_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - api
+      - app
+    networks:
+      mk_network:
+        ipv4_address: 172.20.0.10
 
 volumes:
   mongodb_data:
+
+networks:
+  mk_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+

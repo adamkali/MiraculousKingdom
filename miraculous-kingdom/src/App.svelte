@@ -15,21 +15,36 @@
         CreateCharacter,
         CharacterSheet,
     } from './pages/games'
-    import { Abilities, Characters, Classes, Rules } from './pages/rules'
+    import {
+        Abilities,
+        Characters,
+        Classes,
+        Rules,
+        MightRulePage,
+    } from './pages/rules'
     import { Special } from './components'
     import { currentGame, gameCharacter } from './store'
     import { type CharacterResponse, type GameInfo } from './models'
     import Clocks from './pages/rules/Clocks.svelte'
+    import { onMount } from 'svelte'
+    import WaitingRoom from './pages/room/WaitingRoom.svelte'
 
     const backToHome = () => {
         window.location.href = '/'
     }
+    let game = {} as GameInfo
+    let char = {} as CharacterResponse
+    $: gameInfo = game as GameInfo
+    $: character = char as CharacterResponse
 
-    console.log($currentGame, $gameCharacter)
+    onMount(() => {
+        game = currentGame.get()
+        char = gameCharacter.get()
+    })
 </script>
 
 <main
-    class="flex flex-col min-h-screen items-center justify-center bg-purple-400 p-4 font-victo-mono dark:bg-purple-700"
+    class="flex min-h-screen flex-col items-center justify-center bg-purple-400 p-4 font-victo-mono dark:bg-purple-700"
 >
     <Router>
         <nav
@@ -45,7 +60,7 @@
                 <div
                     class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                 >
-                    <Link to="/games/start">
+                    <Link to="//games/start">
                         <GiDiceTwentyFacesTwenty />
                         <div>Start</div>
                     </Link>
@@ -58,7 +73,7 @@
                         <div>Join</div>
                     </Link>
                 </div>
-                {#if !(!$currentGame.game_pass && !$gameCharacter.secret)}
+                {#if gameInfo.game_pass && character.secret}
                     <div
                         class="mr-16 h-8 flex-row items-center text-fuchsia-600 transition duration-150 hover:text-fuchsia-400 dark:text-fuchsia-300"
                     >
@@ -118,6 +133,9 @@
             <Route path="clocks">
                 <Clocks />
             </Route>
+            <Route path="might">
+                <MightRulePage />
+            </Route>
             <Route path="/">
                 <Rules />
             </Route>
@@ -134,6 +152,11 @@
             </Route>
             <Route path="join">
                 <JoinGame />
+            </Route>
+        </Route>
+        <Route path="/room/*">
+            <Route path="/">
+                <WaitingRoom />
             </Route>
         </Route>
     </Router>
