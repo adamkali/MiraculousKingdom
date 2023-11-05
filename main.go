@@ -14,10 +14,10 @@ import (
 
 // surrealdb ========
 type RootDBUser struct {
-    Username  string "json:username"
-    Password  string "json:password"
-    NameSpace string "json:namespace"
-    Database  string "json:database"
+    Username  string `json:"username"`
+    Password  string `json:"password"`
+    NameSpace string `json:"namespace"`
+    Database  string `json:"database"`
 }
 
 func InitDB() (*surrealdb.DB, error) {
