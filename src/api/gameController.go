@@ -19,6 +19,7 @@ func (gc *GamesController) GetGames(ctx *gin.Context) {
             http.StatusInternalServerError,
             "error.html",
             gin.H{
+                "ErrorCode": http.StatusInternalServerError,
                 "ErrorMessage": err.Error(),
             },
         )
@@ -38,6 +39,7 @@ func (gc *GamesController) GetGame(ctx *gin.Context) {
             http.StatusBadRequest,
             "error.html",
             gin.H{
+                "ErrorCode": http.StatusBadRequest,
                 "ErrorMessage": "Id was not passed to the server.",
             },
         )
@@ -49,6 +51,7 @@ func (gc *GamesController) GetGame(ctx *gin.Context) {
             http.StatusBadRequest,
             "error.html",
             gin.H{
+                "ErrorCode": http.StatusBadRequest,
                 "ErrorMessage": err.Error(),
             },
         )
@@ -60,4 +63,20 @@ func (gc *GamesController) GetGame(ctx *gin.Context) {
         "games/game.html",
         game,
     )
+}
+
+func (gc *GamesController) CreateGame(ctx *gin.Context) {
+    var game structs.GameRequest
+    err := ctx.BindJSON(&game)
+    if err != nil {
+        ctx.JSON(
+            http.StatusBadRequest,
+            gin.H{
+                "ErrorMessage": err.Error(),
+            },
+        )
+        return
+    } 
+
+    err = structs.CreateGame(gc.DB, game)
 }

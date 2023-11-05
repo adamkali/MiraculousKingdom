@@ -1,0 +1,32 @@
+{{ define "game/created-response.html" }}
+<!DOCTYPE html>
+<!--
+type Game struct { 
+    ID string `json:"id"`
+    Name string `json:"name"`
+    Description string `json:"description"`
+    Characters []Character `json:"characters"`
+    Nation string `json:"nation"`
+    Passkey string `json:"passkey"`
+}
+-->
+<div
+    class="flex flex-col justify-center align-middle
+         bg-orange-600 text-orange-300 w-24 h-12 shadow-lg rounded-lg
+        shadow-zinc-700 my-4"
+>
+    <div class="flex flex-row justify-center align-middle" >
+        <span class="text-2xl">{{ .Name }} Created</span>
+    </div>
+    <div class="flex flex-row justify-evenly align-middle" >
+        <div>
+            <span>Game Passkey: {{ .Passkey }}</span>
+        </div>
+        <div>
+            <span>Game Nation: {{ .Nation }}</span>
+        </div>
+    </div>
+
+</div>
+
+{{end}}

@@ -29,14 +29,6 @@ func InsertGame(db *surrealdb.DB, game GameRequest) (Game, error) {
     g.Name = game.Name
     g.Description = game.Description 
     g.Nation = game.Nation 
-    g.Passkey = func() string { 
-        ret := ""
-        // make a randem 6 char passkey 
-        for i := 0; i < 6; i++ {
-            ret += string(rune(97 + rand.Intn(26)))
-        }
-        return ret
-    }()
     g.ID = "game:" + uuid.New().String()
 
     if _, err := db.Create(g.ID, map[string]interface{}{
@@ -82,5 +74,5 @@ func GetGame(db *surrealdb.DB, id string) (Game, error) {
         return game, err
     }
 
-    return games, nil
+    return game, nil
 }
