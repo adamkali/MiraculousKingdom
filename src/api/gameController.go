@@ -78,5 +78,5 @@ func (gc *GamesController) CreateGame(ctx *gin.Context) {
         return
     } 
 
-    err = structs.CreateGame(gc.DB, game)
+    err = structs.InsertGame(gc.DB, game)
 }
