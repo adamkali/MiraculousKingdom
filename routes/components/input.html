@@ -1,0 +1,44 @@
+{{ define "components/input.html" }}
+<!-- 
+type InputData struct {
+    Label string
+    Disabled bool
+    Value string
+    Name string
+}
+ -->
+<div
+    class="relative w-1/6 h-20 group">
+    <div
+        class="absolute w-full h-full bg-gradient-to-tr from-cyan-100
+        to-blue-400 rounded-lg blur opacity-75
+        group-hover:scale-110 group-hover:duration-200
+        group-hover:from-blue-400 group-hover:to-cyan-100
+        ease-in-out transition-all"
+    ></div>
+    <div
+        class="relative px-8 py-4 bg-slate-600 rounded-lg
+        leading-none flex flex-col items-center justify-evenly
+        group-hover:text-sky-100 group-hover-scale-105
+        group-hover:duration-200"
+    >
+        <label
+            for="{{ .Name }}-input"
+            class="text-cyan-300 mb-1"
+        >
+            {{ .Label }}
+        </label>
+        <input
+            type="text"
+            name="{{ .Name }}"
+            id="{{ .Name }}-input"
+            {{ if .Disabled }}
+                disabled
+                value="{{ .Value }}"
+            {{ end }}
+            class="rounded-lg bg-slate-600 text-cyan-100 w-64 h-12
+            focus:outline-none focus:scale-105 transition-all duration-200 ease-in-out"
+        >
+        </input>
+    </div>
+</div>
