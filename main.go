@@ -65,14 +65,12 @@ func main() {
 	api.CreateGameController(r, db)
 
 	r.GET("/", api.Index)
+    r.GET("/game", api.Game)
 
 	r.GET("/rules", func(c *gin.Context) {
 		c.HTML(200, "rules/index.html", gin.H{})
 	})
 
-	r.GET("/game", func(c *gin.Context) {
-		c.HTML(200, "game/index.html", gin.H{})
-	})
 
 	r.Run(":8000")
 }

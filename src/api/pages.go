@@ -23,12 +23,12 @@ func Index(c *gin.Context) {
         GameLinkData: structs.LinkData{
             Href: "/game",
             Text: "Play Game",
-            SvgName: "dice-20",
+            SvgName: "/static/images/dice-20.svg",
         },
         RulesLinkData: structs.LinkData{
             Href: "/rules",
             Text: "Read the Rules",
-            SvgName: "secret-book",
+            SvgName: "/static/images/secret-book.svg",
         },
     }
     c.HTML(200, "root/index.html", index)
@@ -50,12 +50,19 @@ type gameData struct {
 func Game(c *gin.Context) {
     index := gameData {
         CreateGameButtonData: structs.ButtonData{
-            Endpoint: "/game/",
+            Endpoint: "/games",
             Method: "post", // this will make the hx-{{.Method}} turn into hx-post so it is not Capitalized
-            Target: "game-wrapper",
-            Action: "cli", 
-
-
-
-
-
+            Target: "#game-wrapper",
+            Action: "click", 
+            Text: "Create Game",
+            SvgName: "/static/images/dice-20.svg",
+        },
+        GoBackRootLinkData: structs.LinkData{
+            Href: "/",
+            Text: "Go Back",
+            SvgName: "/static/images/arrow-left.svg",
+        },
+    }
+    
+    c.HTML(200, "game/index.html", index)
+}

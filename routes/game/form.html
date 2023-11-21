@@ -14,66 +14,17 @@
         hx-put="/games"
         hx-target="#game-wrapper"
     >
-        <input hidden name=id value="{{ .ID }}"></input>
+        <input hidden name="id" value="{{ .Game.ID }}"></input>
         <div class="flex flex-row justify-center align-middle" >
             <span class="text-2xl">Create Game</span>
         </div>
-        <div class="h-full flex flex-row justify-evenly align-middle " >
-            <div class="flex flex-col w-1/2">
-                <div class="flex flex-col justify-center align-middle m-2
-                    text-sm">
-                    <label
-                        for="name"
-                        class="text-cyan-300 mb-1"
-                    >
-                        Name of The Ruler
-                    </label>
-                    <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        class="rounded-lg bg-slate-600 text-cyan-100 w-64 h-12
-                        focus:outline-none focus:scale-105 focus:shadow-sky-300
-                        transition-all duration-200 ease-in-out"
-                    ></input>
-                </div>
-                <div class="flex flex-row justify-center align-middle m-2">
-                    <label
-                        for="nation"
-                        class="text-cyan-300 mb-1"
-                    >
-                        Name of The Nation
-                    </label>
-                    <input
-                        type="text"
-                        name="nation"
-                        id="nation"
-                        class="rounded-lg bg-slate-600 text-cyan-100 w-64 h-12
-                        focus:outline-none focus:scale-105 focus:shadow-sky-300
-                        transition-all duration-200 ease-in-out"
-                     ></input>
-                </div>
-                <div class="flex flex-row justify-center align-middle m-2">
-                    <label
-                        for="passkey"
-                        class="text-cyan-300 mb-1"
-                    >
-                        Passkey to Share the Game
-                    </label>
-                    <input
-                        type="text"
-                        name="passkey"
-                        id="passkey"
-                        disabled
-                        value="{{ .Passkey }}"
-                        class="rounded-lg bg-slate-600 text-cyan-100 w-64 h-12
-                        focus:outline-none focus:scale-105 focus:shadow-sky-300
-                        transition-all duration-200 ease-in-out"
-                    >
-                    </input>
-                </div>
+        <div class="h-full flex flex-row align-middle" >
+            <div class="flex flex-col w-1/2 h-full mr-6">
+                {{ template "components/input.html" .NameInputData }}
+                {{ template "components/input.html" .NationInputData }}
+                {{ template "components/input.html" .PasskeyInputData }}
             </div>
-            <div class="flex flex-col justify-start align-middle w-1/2">
+            <div class="flex flex-col justify-center align-middle w-1/2 p-4 m-4">
                 <label
                     for="description"
                     class="text-cyan-300 mb-1"
@@ -91,31 +42,7 @@
                 </textarea>
             </div>
         </div>
-        <button
-            class="relative w-1/2 h-20 group"
-            type="submit"
-        >
-            <div
-                class="absolute w-full h-full bg-gradient-to-tr from-cyan-100
-                to-blue-400 rounded-lg blur opacity-75
-                group-hover:scale-110 group-hover:duration-200
-                group-hover:from-blue-400 group-hover:to-cyan-100
-                ease-in-out transition-all"
-            ></div>
-            <div
-                class="relative px-8 py-4 bg-slate-600 rounded-lg
-                leading-none flex items-center justify-evenly
-                group-hover:text-sky-100 group-hover-scale-105
-                group-hover:duration-200"
-            >
-                <img
-                    src="/static/images/new.svg"
-                    class="w-10 h-10 text-teal-400 ml-2"
-                >
-                <span class="mx-3">&nbsp;</span>
-                <span class="text-xl font-bold">Create a Game</span>
-            </div>
-        </button>
+        {{ template "components/submit-button.html" .CreateGameButtonData }}
     </form>
 </div>
 {{ end }}
