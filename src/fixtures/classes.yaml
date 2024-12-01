@@ -1,0 +1,25 @@
+---
+- id: 11111111
+  created_at: "2023-11-12T12:34:56.789Z"
+  updated_at: "2023-11-12T12:34:56.789Z"
+  name: "Aficianado"
+  description: "A collector of artifacts, art, and pleasures from all over the kingdom. They have a keen mind and with deep planning and knowledge of the kingdom is adept at sabotage."
+  display_name: "Cultural Aficionado"
+- id: 22222222
+  created_at: "2023-11-12T12:34:56.789Z"
+  updated_at: "2023-11-12T12:34:56.789Z"
+  name: "WarGeneral"
+  description: "The grizzled war general has been through so many wars that the srategems and movements of ware are written on the back of his eyelids."
+  display_name: "War General"
+- id: 33333333
+  created_at: "2023-11-12T12:34:56.789Z"
+  updated_at: "2023-11-12T12:34:56.789Z"
+  name: "Scientist"
+  description: "A Scientist tasked with aiding and enriching the kingdom with new great technologie. The Royal Scientist thrives off drawing cards."
+  display_name: "Royal Scientist"
+- id: 44444444
+  created_at: "2023-11-12T12:34:56.789Z"
+  updated_at: "2023-11-12T12:34:56.789Z"
+  name: "SpyMaster"
+  description: "The Royal Spy Master is a cunning adversary, but then again those who are on her side can find that their plans always seem to come through at the end of the day. But whose side is she on anyway?"
+  display_name: "Spy Master"

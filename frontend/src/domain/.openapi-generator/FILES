@@ -1,0 +1,8 @@
+.openapi-generator-ignore
+apis/ClassesApi.ts
+apis/index.ts
+index.ts
+models/ClassListDetailedResponse.ts
+models/ClassResponse.ts
+models/index.ts
+runtime.ts
