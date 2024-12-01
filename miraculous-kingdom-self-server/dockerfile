@@ -1,0 +1,21 @@
+
+# build stage ====================================
+FROM rust:1.68.0 AS build
+WORKDIR /usr/src/app
+COPY . .
+RUN cargo install  --path . 
+# =================================================
+
+
+# final stage =====================================
+FROM debian:latest
+
+#COPY over files
+COPY --from=build /usr/local/cargo/bin/miraculous-kingdom-self-server /usr/local/bin/miraculous-kingdom-self-server
+RUN chmod +x /usr/local/bin/miraculous-kingdom-self-server
+EXPOSE 8050
+# run 
+CMD ["miraculous-kingdom-self-server"]
+# =================================================
+
+
