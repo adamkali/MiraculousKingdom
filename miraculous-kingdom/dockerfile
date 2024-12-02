@@ -1,29 +1,26 @@
-FROM node:18-alpine as build
+FROM node:19-alpine as build
 
 # Set the working directory inside the container
 WORKDIR /app
 
 # Copy the package.json and yarn.lock files to the working directory
-COPY package.json yarn.lock ./
+COPY . . 
 
 # Install the dependencies
 RUN yarn install --frozen-lockfile
 
 # Copy the rest of the app's source code to the working directory
-COPY . .
-
-# Build the Svelte app
+RUN yarn upgrade
 RUN yarn build
 
-# Use Nginx as the base image
-FROM nginx:latest
+FROM node:19-alpine3.16
 
-# Copy the built app from the previous stage to the Nginx default HTML directory
-COPY --from=build /app/dist /usr/share/nginx/html
+WORKDIR /app
+COPY --from=build /app .
 
-# Expose port 80
-EXPOSE 80
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+ENV HOST=0.0.0.0
+EXPOSE 4173
+CMD ["yarn","run", "preview","--", "--host", "0.0.0.0"]
+
 

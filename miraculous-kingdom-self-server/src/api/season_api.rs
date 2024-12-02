@@ -69,7 +69,7 @@ pub async fn get_seasons(
 pub async fn get_season(
     Extension(mongo): Extension<Database>,
     Path(id): Path<String>,
-) -> Json<DetailedResponse<SeasonResponse>> {
+) -> impl axum::response::IntoResponse {
     let mut response: DetailedResponse<Season> = DetailedResponse::new(Season {
         event_id: ObjectId::new(),
         event_name: String::new(),
@@ -90,8 +90,9 @@ pub async fn get_season(
 
     let mut res: DetailedResponse<SeasonResponse> =
         DetailedResponse::new(response.data.as_response());
-    res.absorb(&mut response);
-    Json(res)
+    res.success = response.success;
+    
+    
 }
 
 #[utoipa::path(

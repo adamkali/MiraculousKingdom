@@ -8,11 +8,10 @@ use std::{
     sync::{Arc, Mutex},
 };
 use utoipa::ToSchema;
+use rand::{thread_rng, Rng, seq::SliceRandom};
 
 // Character ================================
 
-#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
-pub enum CharacterState {
     #[default]
     Waiting,
     RollingSeason,
@@ -204,11 +203,15 @@ pub mod characters {
     pub use super::Class;
     pub use super::ClassEnum;
     pub use super::ClassResponse;
+    pub use super::Clock;
+    pub use super::DrawCard;
+    pub use super::Experience;
     pub use super::MightEnum;
     pub use super::MightRequirement;
     pub use super::NewCharacter;
+    pub use super::PayToken;
     pub use super::RollTier;
-    pub use super::Clock;
+    pub use super::Token;
 }
 // =========================================
 
@@ -255,7 +258,6 @@ pub struct Game {
     pub generated_pass: String,
     pub game_season: SeasonEnum
 }
-
 
 #[derive(Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct GameResponse {
@@ -346,7 +348,6 @@ pub struct Clock {
     pub clock_name: String,
     pub clock_desc: String,
     pub clock_conf: bool,
-    pub clock_char_secret: String
 }
 
 // =========================================
@@ -363,6 +364,19 @@ pub struct Might {
 }
 
 impl Might {
+    pub fn get_might(&self, might_enum: MightEnum) -> u8 {
+        match might_enum {
+            MightEnum::Military => self.might_military.stat_value as u8,
+            MightEnum::Culture => self.might_culture.stat_value as u8,
+            MightEnum::Religion => self.might_religion.stat_value as u8,
+            MightEnum::Science => self.might_science.stat_value as u8,
+            MightEnum::Diplomacy => self.might_diplomacy.stat_value as u8,
+            MightEnum::Espionage => self.might_espionage.stat_value as u8,
+            MightEnum::None => 0,
+        }
+    }
+
+
     pub async fn new(stats: HashMap<MightEnum, u8>) -> Result<Might, APIError> {
         let mut might: Might = Might::new_dumb();
         let option_error: Arc<Mutex<Option<APIError>>> = Arc::new(Mutex::new(None));
@@ -473,8 +487,8 @@ pub struct MightStat {
     pub stat_enum: MightEnum,
     pub stat_name: String,
     pub stat_value: i16,
-    pub stat_exp: u8,
-    pub stat_token: u8,
+    pub stat_exp: i8,
+    pub stat_token: i8,
 }
 
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug, Eq, PartialEq, Hash)]
@@ -549,6 +563,7 @@ pub struct Ability {
     pub ability_desc: String,
     pub ability_clock: Option<Clock>,
     pub ability_unlock: MightRequirement,
+    pub ability_rewards: Vec<RewardTypes>,
 }
 
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
@@ -562,6 +577,7 @@ pub struct AbilityModel {
         skip_deserializing
     )]
     pub id: ObjectId,
+    pub ability_reward: Vec<RewardTypes>,
 }
 
 impl AbilityModel {
@@ -572,6 +588,7 @@ impl AbilityModel {
             ability_clock: None,
             ability_unlock: MightRequirement::default(),
             id: ObjectId::new(),
+            ability_reward: Vec::new(),
         }
     }
 }
@@ -586,6 +603,7 @@ impl MKModel for AbilityModel {
             ability_desc: self.ability_desc.clone(),
             ability_clock: self.ability_clock.clone(),
             ability_unlock: self.ability_unlock.clone(),
+            ability_rewards: self.ability_reward.clone(),
         }
     }
 }
@@ -602,11 +620,61 @@ pub enum RollTier {
     Fantastic, // Roll 20 on the dice
 }
 
+impl RollTier {
+    pub fn from_roll(self, roll: i8) -> bool {
+        match self {
+            RollTier::None => true,
+            RollTier::Fail => {
+                if roll <= 1 {
+                    true
+                } else {
+                    false
+                }
+            },
+            RollTier::Bad => {
+                if roll > 2 {
+                    true  
+                } else {
+                    false
+                }
+            },
+            RollTier::Neutral => {
+                if roll > 6 {
+                    true
+                } else {
+                    false
+                }
+            }, 
+            RollTier::Good => {
+                if roll > 11 {
+                    true
+                } else {
+                    false
+                }
+            },
+            RollTier::Great => {
+                if roll > 16 {
+                    true
+                } else {
+                    false
+                }
+            },
+            RollTier::Fantastic => {
+                if roll >= 20 {
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+    }
+}
+
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct MightRequirement {
-    might: MightEnum,
-    roll_tier: RollTier,
-    unlock: u8,
+    pub might: MightEnum,
+    pub roll_tier: RollTier,
+    pub unlock: u8,
 }
 
 // =========================================
@@ -715,6 +783,18 @@ pub struct Season {
     pub event_reward: RewardTypes,
 }
 
+impl Season {
+    pub fn new() -> Season {
+        Season {
+            event_id: ObjectId::new(),
+            event_length: 0,
+            event_name: "".to_string(),
+            event_desc: "".to_string(),
+            event_reward: RewardTypes::None,
+        }
+    }
+}
+
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
 pub struct SeasonResponse {
     pub event_length: u16,
@@ -745,7 +825,7 @@ impl MKModel for Season {
 }
 
 pub trait Reward {
-    fn grant_reward(&self, character: &mut Character) -> Result<(), APIError>;
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError>;
 }
 
 #[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
@@ -753,6 +833,135 @@ pub enum RewardTypes {
     #[default]
     None,
     Ability(Ability),
-    Experience(MightStat),
+    Experience(Experience),
     Clock(Clock),
+    Token(Token),
+    DrawCard(DrawCard),
+    PayToken(PayToken),
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct Token {
+    pub token_type: MightEnum,
+    pub token_amount: i8,
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct PayToken {
+    pub token_type: MightEnum,
+    pub token_amount: i8,
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct Experience {
+    pub exp_type: MightEnum,
+    pub exp_amount: i8,
+}
+
+#[derive(Default, Serialize, Deserialize, Clone, ToSchema, Debug)]
+pub struct DrawCard {
+    pub amount: u8,
+}
+
+
+impl Reward for Token {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
+        match self.token_type {
+            MightEnum::Military => character.char_might.might_military.stat_token += self.token_amount,
+            MightEnum::Culture => character.char_might.might_culture.stat_token += self.token_amount,
+            MightEnum::Science => character.char_might.might_science.stat_token += self.token_amount,
+            MightEnum::Religion => character.char_might.might_religion.stat_token += self.token_amount,
+            MightEnum::Diplomacy => character.char_might.might_diplomacy.stat_token += self.token_amount,
+            MightEnum::Espionage => character.char_might.might_espionage.stat_token += self.token_amount,
+            MightEnum::None => {}
+        }
+        Ok(())
+    }
+}
+
+impl Reward for Clock {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
+        character.char_clocks.push(self.clone());
+        Ok(())
+    }
+}
+
+impl Reward for Experience {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
+        match self.exp_type {
+            MightEnum::Military =>   character.char_might.might_military.stat_exp += self.exp_amount,
+            MightEnum::Culture =>     character.char_might.might_culture.stat_exp += self.exp_amount,
+            MightEnum::Science =>     character.char_might.might_science.stat_exp += self.exp_amount,
+            MightEnum::Religion =>   character.char_might.might_religion.stat_exp += self.exp_amount,
+            MightEnum::Diplomacy => character.char_might.might_diplomacy.stat_exp += self.exp_amount,
+            MightEnum::Espionage => character.char_might.might_espionage.stat_exp += self.exp_amount,
+            MightEnum::None => {}
+        }
+        Ok(())
+    }
+}
+
+impl Reward for Ability {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
+        character.char_discard.push(self.clone());
+        Ok(())
+    }
+}
+
+impl Reward for DrawCard {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
+        if character.char_deck.is_empty() {
+            // Take the discard pile and shuffle it into the char_deck
+            character.char_deck = character.char_discard.clone();
+            character.char_discard.clear();
+            
+            // Shuffle the deck using the thread_rng and SliceRandom trait
+            let mut rng = thread_rng();
+            character.char_deck.shuffle(&mut rng);
+        }
+        for _ in 0..self.amount {
+            let card = character.char_deck.pop().unwrap();
+            character.char_hand.push(card);
+        }
+
+        Ok(())
+    }
+}
+
+impl Reward for PayToken {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
+        match self.token_type {
+            MightEnum::Military => 
+                character.char_might.might_military.stat_token -= self.token_amount,
+            MightEnum::Culture => 
+                character.char_might.might_culture.stat_token -= self.token_amount,
+            MightEnum::Science => 
+                character.char_might.might_science.stat_token -= self.token_amount,
+            MightEnum::Religion => 
+                character.char_might.might_religion.stat_token -= self.token_amount,
+            MightEnum::Diplomacy => 
+                character.char_might.might_diplomacy.stat_token -= self.token_amount,
+            MightEnum::Espionage => 
+                character.char_might.might_espionage.stat_token -= self.token_amount,
+            MightEnum::None => return Err(APIError::new(
+                    axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                    "Invalid MightEnum".to_string(),
+                    )),
+        }
+        Ok(())
+    }
+}
+
+impl Reward for RewardTypes {
+    fn grant_reward(&self, character: &mut CharacterResponse) -> Result<(), APIError> {
+        match self {
+            RewardTypes::Ability(ability) => ability.grant_reward(character),
+            RewardTypes::DrawCard(draw_card) => draw_card.grant_reward(character),
+            RewardTypes::Clock(clock) => clock.grant_reward(character),
+            RewardTypes::Token(team) => team.grant_reward(character),
+            RewardTypes::PayToken(token) => token.grant_reward(character),
+            RewardTypes::Experience(exp) => exp.grant_reward(character),
+            RewardTypes::None => Ok(()),
+        }
+    }
 }

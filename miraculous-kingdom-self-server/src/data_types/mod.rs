@@ -20,7 +20,7 @@ pub use data::characters;
 pub use data::engine;
 pub use data::might;
 pub use polling::queue;
-
+use rand::{thread_rng, Rng};
 
 pub async fn game_to_info(
     game: engine::Game,
@@ -49,4 +49,9 @@ pub async fn games_to_info(
         infos.push(info);
     }
     Ok(())
+}
+
+pub fn roll_20_sided_dice() -> u8 {
+    let mut rng = thread_rng();
+    rng.clone().gen_range(1..=20)
 }

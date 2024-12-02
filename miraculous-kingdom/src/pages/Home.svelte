@@ -1,6 +1,6 @@
 <script lang="ts">
     import Special from '../components/Special.svelte'
-    const src: string = '/src/assets/mk.svg'
+    const src: string = '/mk.svg'
 </script>
 
 <div
@@ -15,7 +15,7 @@
         <p class="text-3xl text-slate-100">
             Have you ever wanted to backstab your friends and still retain your
             friendship? Well then this is the game! Welcome to the Miraculous
-            Kingdom. Miraculous Kingdom is a deck building game about
+            Kingdom. Miraculous Kingdom is a deck blding game about
             backstabbing, skullduggery, and betrayal. Each <Special
                 href="/rules/characters">Character</Special
             > has its own <Special href="/rules/classes">Class</Special> with its
@@ -28,10 +28,10 @@
             dramas like Game of Thrones, Last of Us, or The Wire.
             <br />
             <br />
-            To begin a game: Go to <Special href="/start/create">Create</Special
-            > and make a setting for your game. Have the rest of your friends using
+            To begin a game: Go to <Special href="/game/start/">Create</Special>
+            and make a setting for your game. Have the rest of your friends using
             the password you get from the server and have them to go <Special
-                href="/start/join">here</Special
+                href="/game/join">here</Special
             >
             Roll <Special href="/rules/might">Might</Special> for your character.
             Each one will have an effect on how you play. Choose your class, and
